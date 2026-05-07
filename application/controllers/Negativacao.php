@@ -1,0 +1,197 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed');
+
+class Negativacao extends ControllerAuth{
+    public function __construct(){
+        parent::__construct();
+        $this->load->model('negativacao_model', 'negativacao');
+    }
+
+    public function index(){
+        $negativacoes = $this->negativacao->retornar_pefin_ativo()->result();
+
+        $this->parameters['content'] = $this->load->view('screens/negativacao', array('content' => 'index', 'negativacoes' => $negativacoes), true);
+        $this->load->view('templates/main_sem_janela', $this->parameters);
+    }
+
+    public function conversao(){
+        $this->load->model('cliente_model','cliente');
+
+        $id_negativacao = $this->uri->segment(3);
+        $negativacao = $this->negativacao->retornar($id_negativacao)->row();
+        $dados = json_decode($negativacao->parametros);
+        $cliente = $this->cliente->retornar($negativacao->id_cliente_fk)->row();
+
+        $this->form_validation->set_rules('cpf', 'CPF', 'required|only_numbers');
+        $this->form_validation->set_rules('nome', 'Nome', 'required');
+        $this->form_validation->set_rules('natureza', 'Natureza', 'required');
+        $this->form_validation->set_rules('vencimento_inicio', 'Vencimento Inicio', 'required');
+        $this->form_validation->set_rules('vencimento_fim', 'Vencimento Fim', 'required');
+        $this->form_validation->set_rules('parcelas', 'Parelas', 'required');
+        $this->form_validation->set_rules('valor', 'Valor', 'required');
+        $this->form_validation->set_rules('contrato', 'Contrato', 'required');
+        $this->form_validation->set_rules('data_nascimento', 'Data Nascimento', 'required');
+        $this->form_validation->set_rules('logradouro', 'Logradouro', 'required');
+        $this->form_validation->set_rules('bairro', 'Bairro', 'required');
+        $this->form_validation->set_rules('cep', 'CEP', 'required');
+        $this->form_validation->set_rules('cidade', 'Cidade', 'required');
+        $this->form_validation->set_rules('uf', 'UF', 'required');
+        if($this->form_validation->run()==TRUE) {
+            $parametros = array();
+            $parametros['DEVEDOR_CPF'] = $this->complete($this->input->post('cpf'),11,'left','0');
+            $parametros['DEVEDOR_NOME'] = $this->complete($this->replaceSpecialCarac($this->input->post('nome')),60);
+            $parametros['DEVEDOR_ENDERECO'] = $this->complete($this->replaceSpecialCarac($this->input->post('logradouro').' '.$this->input->post('numero').' '.$this->input->post('complemento')),40);
+            $parametros['DEVEDOR_BAIRRO'] = $this->complete($this->replaceSpecialCarac($this->input->post('bairro')),30);
+            $parametros['DEVEDOR_CIDADE'] = $this->complete($this->replaceSpecialCarac($this->input->post('cidade')),30);
+            $parametros['DEVEDOR_UF'] = $this->input->post('uf');
+            $parametros['DEVEDOR_NASCIMENTO'] = str_replace('/','',$this->input->post('data_nascimento'));
+            $parametros['DEVEDOR_CEP'] = $this->input->post('cep');
+            $parametros['VALOR'] = str_replace('.','',$this->input->post('valor'));
+            $parametros['VALOR'] = $this->complete(str_replace(',','',$parametros['VALOR']),'11','left','0');
+            $parametros['CONTRATO'] = $this->complete($this->input->post('contrato'),20);
+            $parametros['PARCELAS'] = $this->complete($this->input->post('parcelas'),2,'left','0');
+            $parametros['NATUREZA_OPERACAO'] = $this->input->post('natureza');
+            $parametros['DATA_ATRASO'] = str_replace('/','',$this->input->post('vencimento_inicio'));
+            $parametros['DATA_TERMINO'] = str_replace('/','',$this->input->post('vencimento_fim'));
+
+            $id_consulta = $this->requisicao_negativacao($parametros, 'negativacaoscpcpf' ,$negativacao,$cliente);
+            set_msg('Sua Negativação foi efetuada com sucesso!','successo');
+            redirect('negativacao');
+        }
+
+        $this->parameters['content'] = $this->load->view('screens/negativacao', array('content' => 'conversao', 'negativacao' => $negativacao,'cliente'=>$cliente,'devedor'=>$dados), true);
+        $this->load->view('templates/main_sem_janela', $this->parameters);
+    }
+
+    private function requisicao_negativacao($parametros,$slug='negativacaopefinpf',$negativacao,$cliente){
+        $consulta = $this->cliente->retornar_consulta_mais_barata($slug,$cliente->id_cliente)->row();
+
+        $parametros['CHAVE'] = $consulta->chave;
+        $parametros['USUARIO'] = $consulta->usuario;
+        $parametros['SENHA'] = $consulta->senha;
+
+        $parametros['CNPJ_CREDOR'] = $cliente->cpf_cnpj;
+        $parametros['RAZAO_CREDOR'] = $this->replaceSpecialCarac($cliente->razao_social);
+        $parametros['FANTASIA_CREDOR'] = $cliente->nome_ou_fantasia;
+        $parametros['TELEFONE_CREDOR'] = $cliente->telefone;
+        $parametros['EMAIL_CREDOR'] = $cliente->email;
+        $parametros['CEP_CREDOR'] = $cliente->cep;
+        $parametros['ENDERECO_CREDOR'] = $this->replaceSpecialCarac($cliente->logradouro);
+        $parametros['NUMERO_ENDERECO_CREDOR'] = $cliente->numero;
+        $parametros['COMPLEMENTO_ENDERECO_CREDOR'] = $cliente->complemento;
+        $parametros['BAIRRO_CREDOR'] = $this->replaceSpecialCarac($cliente->bairro);
+        $parametros['CIDADE_CREDOR'] = $this->replaceSpecialCarac($cliente->cidade);
+        $parametros['UF_CREDOR'] = $cliente->uf;
+        $parametros['DDD_CREDOR'] = $this->complete(substr($cliente->telefone,0,2),4,'left','0');
+        $parametros['TELEFONE_CREDOR'] = $this->complete(substr($cliente->telefone,2),9,'left','0');
+
+        if($slug=="negativacaoscpcpf"||$slug=="negativacaoscpcpj"){
+            if($slug=="negativacaoscpcpf"){
+                $parametros['CNPJ_CREDOR'] = $this->complete($parametros['CNPJ_CREDOR'],15,'left','0');
+            }else{
+                $parametros['CNPJ_CREDOR'] = $this->complete($parametros['CNPJ_CREDOR'],14,'left','0');
+            }
+
+            $parametros['RAZAO_CREDOR'] = $this->complete($parametros['RAZAO_CREDOR'],60);
+            $parametros['ENDERECO_CREDOR'] = $this->complete($this->replaceSpecialCarac($cliente->logradouro),40);
+            $parametros['BAIRRO_CREDOR'] = $this->complete($this->replaceSpecialCarac($cliente->bairro),30);
+            $parametros['CIDADE_CREDOR'] = $this->complete($this->replaceSpecialCarac($cliente->cidade),30);
+        }
+
+        $url_preparada = $this->prepara_url($consulta->requisicao,$parametros);
+
+        if(!isset($parametros['NOME_PAI'])) $url_preparada = str_replace('&nome_pai={{NOME_PAI}}','',$url_preparada);
+        if(!isset($parametros['NOME_MAE'])) $url_preparada = str_replace('&nome_mae={{NOME_MAE}}','',$url_preparada);
+        if(!isset($parametros['DEVEDOR_MAE'])) $url_preparada = str_replace('&nome_mae={{DEVEDOR_MAE}}','&nome_mae=++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++',$url_preparada);
+
+        if($slug=="negativacaoscpcpf"||$slug=="negativacaoscpcpj"){
+            if($slug=="negativacaoscpcpf"){
+                if(!isset($parametros['DEVEDOR_DDD'])) $url_preparada = str_replace('&ddd={{DEVEDOR_DDD}}','&ddd=0000',$url_preparada);
+                if(!isset($parametros['DEVEDOR_TELEFONE'])) $url_preparada = str_replace('&telefone={{DEVEDOR_TELEFONE}}','&telefone=000000000',$url_preparada);
+            }else{
+                if(!isset($parametros['DEVEDOR_DDD'])) $url_preparada = str_replace('&ddd={{DEVEDOR_DDD}}','&ddd=000',$url_preparada);
+                if(!isset($parametros['DEVEDOR_TELEFONE'])) $url_preparada = str_replace('&telefone={{DEVEDOR_TELEFONE}}','&telefone=00000000',$url_preparada);
+            }
+        }
+
+        $milis_atual = strtotime(date('Y-m-d H:i:s'));
+        $dados_consulta_efetuada = array();
+        $dados_consulta_efetuada['id_usuario_fk'] = $negativacao->id_usuario_fk;
+        $dados_consulta_efetuada['id_cliente_fk'] = $negativacao->id_cliente_fk;
+        $dados_consulta_efetuada['requisicao'] = $url_preparada;
+        if(isset($parametros['CPF_DEVEDOR'])) $dados_consulta_efetuada['cpf_cnpj'] = $parametros['CPF_DEVEDOR'];
+        if(isset($parametros['DEVEDOR_CPF'])) $dados_consulta_efetuada['cpf_cnpj'] = $parametros['DEVEDOR_CPF'];
+        if(isset($parametros['CNPJ_DEVEDOR'])) $dados_consulta_efetuada['cpf_cnpj'] = $parametros['CNPJ_DEVEDOR'];
+        if(isset($parametros['DEVEDOR_CNPJ'])) $dados_consulta_efetuada['cpf_cnpj'] = $parametros['DEVEDOR_CNPJ'];
+        $dados_consulta_efetuada['parametros'] = json_encode($parametros);
+        $dados_consulta_efetuada['custo'] = $consulta->custo;
+        $dados_consulta_efetuada['valor'] = $consulta->venda;
+        $dados_consulta_efetuada['slug'] = $consulta->consulta_slug;
+        $dados_consulta_efetuada['fornecedor'] = $consulta->fornecedor;
+        $dados_consulta_efetuada['criado_em'] = $negativacao->criado_em;
+        $dados_consulta_efetuada['recriacao'] = date('Y-m-d H:i:s');
+
+        $retorno_principal = file_get_contents($url_preparada);
+        if($slug!="negativacaoscpcpf"&&$slug!="negativacaoscpcpj"){
+            $retorno_array = simplexml_load_string($retorno_principal);
+            $retorno_json = json_encode($retorno_array);
+        }else{
+            $retorno_json = '{}';
+            if (strpos($retorno_principal, 'ERRO') !== false){
+                set_msg('Ocorreu um erro na negativação: '.$retorno_principal);
+                redirect(current_url());
+            }else{
+                $this->cliente->atualizar_negativacao($negativacao->id_negativacao,array('id_cliente_fk'=>2,'id_usuario_fk'=>1));
+            }
+        }
+        $dados_consulta_efetuada['retorno'] = $retorno_principal;
+        $dados_consulta_efetuada['retorno_json'] = $retorno_json;
+        $dados_consulta_efetuada['tempo_retorno'] = strtotime(date('Y-m-d H:i:s')) - $milis_atual;
+        if(isset($retorno_array->id_consulta)) $dados_consulta_efetuada['id_consulta'] = $retorno_array->id_consulta;
+        // Inserção no banco de dados
+        $this->cliente->inserir_negativacao($dados_consulta_efetuada);
+        $id_consulta = $this->cliente->retornar_id_ultima_negativacao($negativacao->id_cliente_fk,$negativacao->id_usuario_fk);
+        return $id_consulta;
+    }
+
+    private function replaceSpecialCarac($str) {
+        $str = preg_replace('/[áàãâä]/ui', 'a', $str);
+        $str = preg_replace('/[éèêë]/ui', 'e', $str);
+        $str = preg_replace('/[íìîï]/ui', 'i', $str);
+        $str = preg_replace('/[óòõôö]/ui', 'o', $str);
+        $str = preg_replace('/[úùûü]/ui', 'u', $str);
+        $str = preg_replace('/[ç]/ui', 'c', $str);
+        // $str = preg_replace('/[,(),;:|!"#$%&/=?~^><ªº-]/', '_', $str);
+        //$str = preg_replace('/[^a-z0-9]/i', '_', $str);
+        //$str = preg_replace('/_+/', '_', $str); // ideia do Bacco :)
+        return $str;
+    }
+    private function complete($string,$tamanho,$side='right',$val=' '){
+        $retorno = $string;
+        $tamanho_string = strlen($retorno);
+        if($tamanho_string<$tamanho){
+            while($tamanho_string<$tamanho){
+                if($side=='right') $retorno =  $retorno.$val;
+                else $retorno = $val.$retorno;
+                $tamanho_string = strlen($retorno);
+            }
+        }else{
+            if($tamanho_string>$tamanho){
+                $retorno = substr($string,0,$tamanho-1);
+            }
+        }
+        return $retorno;
+    }
+    private function prepara_url($url,$parametros){
+        $retorno = $url;
+        foreach($parametros as $index => $parametro):
+            $retorno = str_replace('{{'.$index.'}}',urlencode($parametro),$retorno);
+        endforeach;
+        return $retorno;
+    }
+    public function negativacoes_pdf(){
+        $this->load->model('negativacao_model','negativacao');
+        $negativacoes = $this->negativacao->retornar_negativacoes()->result();
+
+        $this->load->view('components/relatorio_negativacao',array('negativacoes'=>$negativacoes));
+    }
+}

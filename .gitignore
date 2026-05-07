@@ -1,0 +1,45 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+
+application/cache/*
+!application/cache/index.html
+
+application/logs/*
+!application/logs/index.html
+
+!application/*/.htaccess
+
+user_guide_src/build/*
+user_guide_src/cilexer/build/*
+user_guide_src/cilexer/dist/*
+user_guide_src/cilexer/pycilexer.egg-info/*
+/vendor/
+
+# IDE Files
+#-------------------------
+/nbproject/
+.idea/*
+.vscode/*
+
+# Secrets / local runtime files
+/cert/*
+!/cert/.gitkeep
+
+# Generated banking/output files
+/remessas/*
+!/remessas/.gitkeep
+/retornos/*
+!/retornos/.gitkeep
+/tmp/*
+!/tmp/.gitkeep
+
+## Sublime Text cache files
+*.tmlanguage.cache
+*.tmPreferences.cache
+*.stTheme.cache
+*.sublime-workspace
+*.sublime-project
+/tests/tests/
+/tests/results/

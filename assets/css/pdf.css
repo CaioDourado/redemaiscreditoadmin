@@ -1,0 +1,152 @@
+.carta{
+    width: 500px;
+    margin: 0 auto;
+    height: 800px;
+    font-family: Verdana;
+}
+
+.carta .header{
+    background: #e8e8e8;
+    text-align: center;
+    padding: 10px 0;
+    height: 100px;
+}
+
+.carta .header h4{
+    margin: 0 0 5px 0;
+}
+
+.carta .header table{
+    width: 85%;
+    margin: 0 auto;
+    font-size: 12px;
+    color: #383838;
+}
+
+.carta .header table tbody tr td{
+    vertical-align: top;
+}
+
+.carta .corpo{
+    height: 700px;
+    background: url("http://localhost/consulta/assets/imgs/logo_redemaiscredito_marcadagua.png");
+    background-size: 300px;
+    text-align: center;
+}
+
+.carta .corpo img.logo{
+    margin-top: 200px;
+    width: 200px;
+}
+
+.carta .campo_dados{
+    width: 380px;
+    padding: 10px;
+    margin: 40px auto 0 auto;
+    font-size: 12px;
+    color: #000;
+    text-transform: uppercase;
+    text-align: left;
+}
+
+.carta .campo_dados p{
+    margin: 0 0 3px 0;
+    padding: 0;
+}
+
+.carta .dados_finais{
+    width: 100%;
+    text-align: center;
+    color: #383838;
+    background: #e8e8e8;
+    margin-top: 100px;
+    padding: 10px 0;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.carta .dados_finais p{
+    margin: 0 0 3px 0;
+    padding: 0;
+}
+
+.fundo_back{
+    background: url("http://localhost/consulta/assets/imgs/back.png");
+}
+
+.carta .sobreposicao{
+    margin: 0 auto;
+    background: #FFF;
+    width: 400px;
+    height: 800px;
+}
+
+.carta .sobreposicao p{
+    margin: 0 0 2px 10px;
+    padding: 0;
+    font-size: 10px;
+}
+
+.carta .sobreposicao .parte_final{
+    margin-top: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background: #EFEFEF;
+}
+
+.carta .sobreposicao .parte_final .respeitosamente{
+    margin: 0 auto;
+    width: 380px;
+    background: #FFF;
+    font-size: 11px;
+    text-align: center;
+    padding: 5px 0;
+}
+
+.minilogo{
+    margin-top: 30px;
+    margin-left: 30px;
+    width: 120px;
+}
+
+.table-fatura-header{
+    margin-top: 20px;
+    width: 100%;
+    font-size: 14px;
+    font-family: Verdana,sans-serif;
+    border-spacing: 0;
+}
+
+.table-fatura-header thead tr th{
+    padding: 0;
+    border-bottom: 1px solid #000;
+}
+
+.table-fatura-header tbody tr td{
+    padding: 5px 0 0 0;
+}
+
+.table-fatura{
+    margin-top: 20px;
+    font-size: 10px;
+    width: 100%;
+    font-family: Verdana,sans-serif;
+}
+
+.table-fatura thead tr th{
+    text-align: left;
+    padding: 0 0 10px 10px;
+}
+
+.table-fatura tbody tr td{
+    padding-left: 10px;
+    border-bottom: 1px dashed #000;
+}
+
+.table-fatura tbody tr td:first-child{
+    padding-left: 0;
+}
+
+.text-right{
+    text-align: right;
+}
