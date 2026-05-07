@@ -458,7 +458,7 @@ class Faturamento_cli extends CI_Controller{
 
     private function gerar_boletos_franquias($competencia, $dia_vcto, $modo){
         $resumo = $this->novo_resumo_boletos();
-        $franquias = $this->retornar_franquias_faturamento();
+        $franquias = $this->retornar_franquias_adm_faturamento();
 
         foreach($franquias as $franquia){
             $tipo = in_array($franquia->tipo_faturamento, array('05a05','06a05')) ? $franquia->tipo_faturamento : '05a05';
