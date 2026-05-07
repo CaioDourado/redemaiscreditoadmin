@@ -84,8 +84,8 @@ class Faturamento_cli extends CI_Controller{
     }
 
     private function gerar_faturas_matriz($dia_vcto, $competencia, $modo, $periodo, $config_faturamento){
-        $clientes = $this->faturamento->retornar_clientes_faturamento($dia_vcto)->result();
-        $faturamento = $this->faturamento->retornar_gerar_faturamento($periodo['inicio'].' 00:00:00', $periodo['fim'].' 23:59:59', $dia_vcto)->result();
+        $clientes = $this->faturamento->retornar_clientes_faturamento($dia_vcto, $competencia)->result();
+        $faturamento = $this->faturamento->retornar_gerar_faturamento($periodo['inicio'].' 00:00:00', $periodo['fim'].' 23:59:59', $dia_vcto, $competencia)->result();
         $faturas = $this->montar_faturas($clientes, $faturamento, $periodo, $dia_vcto);
 
         $resultado = $this->novo_resumo_faturas($modo, $periodo, $config_faturamento->tipo_faturamento);
@@ -118,7 +118,7 @@ class Faturamento_cli extends CI_Controller{
     }
 
     private function gerar_faturas_franquias($dia_vcto, $competencia, $modo){
-        $resultado = array('total'=>0, 'geradas'=>0, 'duplicadas'=>0, 'erros'=>0, 'valor_total'=>0, 'itens_total'=>0, 'ids'=>array(), 'detalhes'=>array());
+        $resultado = array('total'=>0, 'geradas'=>0, 'duplicadas'=>0, 'erros'=>0, 'valor_total'=>0, 'clientes_total'=>0, 'clientes_valor'=>0, 'itens_total'=>0, 'ids'=>array(), 'detalhes'=>array());
         $franquias = $this->retornar_franquias_faturamento();
 
         foreach($franquias as $franquia){
@@ -127,6 +127,8 @@ class Faturamento_cli extends CI_Controller{
             $fatura = $this->montar_fatura_franquia($franquia, $periodo, $dia_vcto);
             $resultado['total']++;
             $resultado['valor_total'] += (float)$fatura->valor;
+            $resultado['clientes_total'] += (int)$fatura->clientes_qtd;
+            $resultado['clientes_valor'] += (float)$fatura->clientes_valor;
             $resultado['itens_total'] += count($fatura->itens);
 
             if($this->fatura_franquia_existe($fatura)){
@@ -137,7 +139,7 @@ class Faturamento_cli extends CI_Controller{
 
             if($modo==='dry-run'){
                 $this->log('DRY-RUN franquia='.$fatura->id_franquia.' valor='.$fatura->valor.' itens='.count($fatura->itens));
-                $resultado['detalhes'][] = array('id_franquia'=>$fatura->id_franquia, 'valor'=>round($fatura->valor,2), 'itens'=>count($fatura->itens));
+                $resultado['detalhes'][] = array('id_franquia'=>$fatura->id_franquia, 'valor'=>round($fatura->valor,2), 'clientes_qtd'=>(int)$fatura->clientes_qtd, 'clientes_valor'=>round($fatura->clientes_valor,2), 'itens'=>count($fatura->itens));
                 continue;
             }
 
@@ -151,6 +153,7 @@ class Faturamento_cli extends CI_Controller{
         }
 
         $resultado['valor_total'] = round($resultado['valor_total'], 2);
+        $resultado['clientes_valor'] = round($resultado['clientes_valor'], 2);
         return $resultado;
     }
 
@@ -244,12 +247,12 @@ class Faturamento_cli extends CI_Controller{
         $total = 0;
 
         $grupos = array(
-            array('grupo'=>'consultas', 'rows'=>$this->faturamento->retornar_faturamento_franquia_consultas_resumido($id_franquia, $periodo['inicio'], $periodo['fim'])->result()),
-            array('grupo'=>'consultas', 'rows'=>$this->faturamento->retornar_faturamento_franquia_consultas_novas_resumido($id_franquia, $periodo['inicio'], $periodo['fim'])->result()),
-            array('grupo'=>'veicular', 'rows'=>$this->faturamento->retornar_faturamento_franquia_consultas_veicular_resumido($id_franquia, $periodo['inicio'], $periodo['fim'])->result()),
-            array('grupo'=>'cartas', 'rows'=>$this->faturamento->retornar_faturamento_franquia_cartas_resumido($id_franquia, $periodo['inicio'], $periodo['fim'])->result()),
-            array('grupo'=>'negativacoes', 'rows'=>$this->faturamento->retornar_faturamento_franquia_negativacoes_resumido($id_franquia, $periodo['inicio'], $periodo['fim'])->result()),
-            array('grupo'=>'baixas', 'rows'=>$this->faturamento->retornar_faturamento_franquia_baixas_resumido($id_franquia, $periodo['inicio'], $periodo['fim'])->result())
+            array('grupo'=>'consultas', 'rows'=>$this->faturamento->retornar_faturamento_franquia_consultas_resumido($id_franquia, $periodo['inicio'], $periodo['fim'], $dia_vcto, $periodo['competencia'])->result()),
+            array('grupo'=>'consultas', 'rows'=>$this->faturamento->retornar_faturamento_franquia_consultas_novas_resumido($id_franquia, $periodo['inicio'], $periodo['fim'], $dia_vcto, $periodo['competencia'])->result()),
+            array('grupo'=>'veicular', 'rows'=>$this->faturamento->retornar_faturamento_franquia_consultas_veicular_resumido($id_franquia, $periodo['inicio'], $periodo['fim'], $dia_vcto, $periodo['competencia'])->result()),
+            array('grupo'=>'cartas', 'rows'=>$this->faturamento->retornar_faturamento_franquia_cartas_resumido($id_franquia, $periodo['inicio'], $periodo['fim'], $dia_vcto, $periodo['competencia'])->result()),
+            array('grupo'=>'negativacoes', 'rows'=>$this->faturamento->retornar_faturamento_franquia_negativacoes_resumido($id_franquia, $periodo['inicio'], $periodo['fim'], $dia_vcto, $periodo['competencia'])->result()),
+            array('grupo'=>'baixas', 'rows'=>$this->faturamento->retornar_faturamento_franquia_baixas_resumido($id_franquia, $periodo['inicio'], $periodo['fim'], $dia_vcto, $periodo['competencia'])->result())
         );
 
         foreach($grupos as $grupo){
@@ -268,7 +271,7 @@ class Faturamento_cli extends CI_Controller{
             }
         }
 
-        $qtd_clientes = (int)$this->franquia->franquia_qtd_clientes($id_franquia, $periodo['fim']);
+        $qtd_clientes = (int)$this->franquia->franquia_qtd_clientes($id_franquia, $periodo['fim'], $dia_vcto, $periodo['competencia']);
         $valor_cliente = (float)$franquia->mensalidade;
 
         $fatura = new stdClass();

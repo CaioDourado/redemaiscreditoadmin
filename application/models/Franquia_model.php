@@ -95,9 +95,21 @@ class Franquia_model extends ModelAuth {
         return $this->db->query($sql)->row()->id_adm_franquia_fatura;
     }
 
-    public function franquia_qtd_clientes($id_franquia,$max_date){
-        $sql  = 'SELECT COUNT(*)AS qtd FROM cliente WHERE id_franquia_fk = '.$id_franquia.' AND consultor = 0 AND (criado_em < "'.$max_date.'" AND status > 0)';
+    public function franquia_qtd_clientes($id_franquia,$max_date,$dia_vencimento=null,$competencia=null){
+        $sql  = 'SELECT COUNT(*)AS qtd FROM cliente WHERE id_franquia_fk = '.$id_franquia.' AND consultor = 0 AND (criado_em < "'.$max_date.'" AND status = 1)';
+        if($dia_vencimento!==null){
+            $sql .= ' AND '.$this->sql_dia_vencimento_cliente($dia_vencimento, $competencia);
+        }
         return $this->db->query($sql)->row()->qtd;
+    }
+
+    private function sql_dia_vencimento_cliente($dia_vencimento, $competencia=null){
+        $dia_vencimento = (int)$dia_vencimento;
+        if($dia_vencimento===30){
+            $ultimo_dia = (int)date('t', strtotime(($competencia ? $competencia : date('Y-m')).'-01'));
+            return '(dia_vencimento = 30 OR dia_vencimento = '.$ultimo_dia.')';
+        }
+        return 'dia_vencimento = '.$dia_vencimento;
     }
 
     public function inserir_fatura_item($dados){
