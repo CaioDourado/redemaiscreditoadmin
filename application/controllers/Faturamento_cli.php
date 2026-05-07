@@ -16,6 +16,7 @@ class Faturamento_cli extends CI_Controller{
         $this->load->model('cliente_model', 'cliente');
         $this->load->model('franquia_model', 'franquia');
         $this->load->model('boletoV3_model', 'boletov3');
+        $this->load->model('adminauditoria_model', 'adminauditoria');
 
         $this->log_file = APPPATH.'logs/faturamento_cli_'.date('Ymd').'.log';
         $this->lock_file = APPPATH.'logs/faturamento_cli.lock';
@@ -53,6 +54,12 @@ class Faturamento_cli extends CI_Controller{
             $this->out($this->json($resultado));
         }catch(Exception $e){
             $this->log('ERRO GERAL: '.$e->getMessage());
+            $this->auditar('faturamento', 'gerar_faturamento_cli', 'erro', 'EXCEPTION', $e->getMessage(), null, null, array(
+                'dia_vencimento' => $dia_vcto,
+                'competencia' => $competencia,
+                'modo' => $modo,
+                'boletos' => $gerar_boletos ? 1 : 0
+            ));
             $this->out('ERRO GERAL: '.$e->getMessage());
         }
 
@@ -82,6 +89,7 @@ class Faturamento_cli extends CI_Controller{
             if($fatura===null){
                 $resumo['erros']++;
                 $this->log('ERRO boleto teste franquia: fatura nao encontrada. fatura='.$id_fatura);
+                $this->auditar('boleto', 'boleto_cli_teste_franquia', 'erro', 'FATURA_NAO_ENCONTRADA', 'Fatura de franquia nao encontrada.', 'adm_franquia_fatura', $id_fatura);
                 $this->out($this->json($resumo));
                 return;
             }
@@ -90,6 +98,7 @@ class Faturamento_cli extends CI_Controller{
             if($franquia===null){
                 $resumo['erros']++;
                 $this->log('ERRO boleto teste franquia: franquia nao encontrada. fatura='.$id_fatura.' franquia='.$fatura->id_franquia_fk);
+                $this->auditar('boleto', 'boleto_cli_teste_franquia', 'erro', 'FRANQUIA_NAO_ENCONTRADA', 'Franquia nao encontrada para gerar boleto.', 'adm_franquia_fatura', $id_fatura, array('id_franquia'=>$fatura->id_franquia_fk));
                 $this->out($this->json($resumo));
                 return;
             }
@@ -104,6 +113,7 @@ class Faturamento_cli extends CI_Controller{
         if($fatura===null){
             $resumo['erros']++;
             $this->log('ERRO boleto teste matriz: fatura nao encontrada. fatura='.$id_fatura);
+            $this->auditar('boleto', 'boleto_cli_teste_matriz', 'erro', 'FATURA_NAO_ENCONTRADA', 'Fatura nao encontrada.', 'fatura', $id_fatura);
             $this->out($this->json($resumo));
             return;
         }
@@ -400,6 +410,7 @@ class Faturamento_cli extends CI_Controller{
             $resultado = $this->boletov3->newBoletoResult($fatura->id_cliente_fk, $fatura->valor, $fatura->vencimento, $outros, 0);
         }catch(Exception $e){
             $resultado = array('success'=>false, 'erro'=>'EXCEPTION', 'mensagem'=>$e->getMessage());
+            $this->auditar('boleto', 'boleto_matriz', 'erro', 'EXCEPTION', $e->getMessage(), 'fatura', $fatura->id_fatura);
         }
 
         if($resultado['success']){
@@ -439,6 +450,7 @@ class Faturamento_cli extends CI_Controller{
             $resultado = $this->boletov3->newBoletoPessoaResult($pagador, $fatura->valor, $fatura->vencimento, $outros, 0);
         }catch(Exception $e){
             $resultado = array('success'=>false, 'erro'=>'EXCEPTION', 'mensagem'=>$e->getMessage());
+            $this->auditar('boleto', 'boleto_franquia', 'erro', 'EXCEPTION', $e->getMessage(), 'adm_franquia_fatura', $fatura->id_adm_franquia_fatura);
         }
 
         if($resultado['success']){
@@ -830,5 +842,23 @@ class Faturamento_cli extends CI_Controller{
 
     private function json($dados){
         return json_encode($dados, JSON_UNESCAPED_UNICODE);
+    }
+
+    private function auditar($area, $acao, $status, $erro=null, $mensagem=null, $referencia_tipo=null, $referencia_id=null, $contexto=null, $retorno=null){
+        if(!isset($this->adminauditoria)){
+            return;
+        }
+
+        $this->adminauditoria->registrar(array(
+            'area' => $area,
+            'acao' => $acao,
+            'status' => $status,
+            'referencia_tipo' => $referencia_tipo,
+            'referencia_id' => $referencia_id,
+            'erro' => $erro,
+            'mensagem' => $mensagem,
+            'contexto' => $contexto,
+            'retorno' => $retorno
+        ));
     }
 }

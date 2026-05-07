@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS `adm_auditoria` (
+  `id_adm_auditoria` INT(11) NOT NULL AUTO_INCREMENT,
+  `area` VARCHAR(80) NOT NULL,
+  `acao` VARCHAR(120) NOT NULL,
+  `status` VARCHAR(30) NOT NULL,
+  `referencia_tipo` VARCHAR(50) NULL,
+  `referencia_id` INT(11) NULL,
+  `id_usuario_fk` INT(11) NULL,
+  `http_status` INT(11) NULL,
+  `erro` VARCHAR(120) NULL,
+  `mensagem` TEXT NULL,
+  `contexto` MEDIUMTEXT NULL,
+  `retorno` MEDIUMTEXT NULL,
+  `criado_em` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_adm_auditoria`),
+  KEY `idx_area_acao` (`area`, `acao`),
+  KEY `idx_status` (`status`),
+  KEY `idx_referencia` (`referencia_tipo`, `referencia_id`),
+  KEY `idx_criado_em` (`criado_em`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

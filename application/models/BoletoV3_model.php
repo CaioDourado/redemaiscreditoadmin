@@ -65,16 +65,23 @@ class BoletoV3_model extends CI_Model{
 
     public function newBoletoPessoaResult($pagador=NULL,$valor=NULL,$data_vencimento=NULL,$outros=NULL,$usuario_id=NULL){
         if($pagador===null || $valor===null || $data_vencimento===null){
-            return $this->result(false, 'PARAMETROS_INVALIDOS', 'Pagador, valor e vencimento sao obrigatorios.');
+            return $this->fail('PARAMETROS_INVALIDOS', 'Pagador, valor e vencimento sao obrigatorios.', null, null, $pagador, $valor, $data_vencimento, $outros);
         }
 
         $conta = $this->retornar_conta(1)->row();
         if($conta===null){
-            return $this->result(false, 'CONTA_NAO_ENCONTRADA', 'Conta bancaria de emissao nao encontrada.');
+            return $this->fail('CONTA_NAO_ENCONTRADA', 'Conta bancaria de emissao nao encontrada.', null, null, $pagador, $valor, $data_vencimento, $outros);
+        }
+
+        $config_result = $this->validar_configuracao_sicoob();
+        if(!$config_result['success']){
+            $this->auditar_erro_boleto($config_result, $pagador, $valor, $data_vencimento, $outros);
+            return $config_result;
         }
 
         $token_result = $this->getSicoobTokenResult();
         if(!$token_result['success']){
+            $this->auditar_erro_boleto($token_result, $pagador, $valor, $data_vencimento, $outros);
             return $token_result;
         }
 
@@ -84,19 +91,20 @@ class BoletoV3_model extends CI_Model{
         $decoded = json_decode($response, false);
 
         if($this->last_curl_error){
-            return $this->result(false, 'CURL_ERROR', $this->last_curl_error, $this->last_http_status, $response);
+            return $this->fail('CURL_ERROR', $this->last_curl_error, $this->last_http_status, $response, $pagador, $valor, $data_vencimento, $outros);
         }
 
         if((int)$this->last_http_status < 200 || (int)$this->last_http_status >= 300){
-            return $this->result(false, 'HTTP_'.$this->last_http_status, 'Sicoob retornou HTTP '.$this->last_http_status.'.', $this->last_http_status, $response);
+            return $this->fail('HTTP_'.$this->last_http_status, 'Sicoob retornou HTTP '.$this->last_http_status.'.', $this->last_http_status, $response, $pagador, $valor, $data_vencimento, $outros);
         }
 
         if(!isset($decoded->resultado->codigoBarras)){
-            return $this->result(false, 'RETORNO_INVALIDO', 'Sicoob nao retornou codigo de barras.', $this->last_http_status, $response);
+            return $this->fail('RETORNO_INVALIDO', 'Sicoob nao retornou codigo de barras.', $this->last_http_status, $response, $pagador, $valor, $data_vencimento, $outros);
         }
 
         $registro = $this->registrarBoletoBD($pagador, $valor, $data_vencimento, $decoded, $conta, $id_boleto_atual, $usuario_id);
         if(!$registro['success']){
+            $this->auditar_erro_boleto($registro, $pagador, $valor, $data_vencimento, $outros);
             return $registro;
         }
 
@@ -340,6 +348,33 @@ class BoletoV3_model extends CI_Model{
         return rtrim(getcwd(), '/\\').DIRECTORY_SEPARATOR.str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $path);
     }
 
+    private function validar_configuracao_sicoob(){
+        $faltando = array();
+        foreach(array(
+            'SICOOB_CERT_PATH',
+            'SICOOB_CERT_PASSWORD',
+            'SICOOB_CLIENT_ID',
+            'SICOOB_NUMERO_CLIENTE',
+            'SICOOB_CONTA_CORRENTE',
+            'SICOOB_BENEFICIARIO_CPF_CNPJ'
+        ) as $campo){
+            if(adm_env($campo, '')===''){
+                $faltando[] = $campo;
+            }
+        }
+
+        $cert_path = $this->sicoob_cert_path();
+        if($cert_path==='' || !is_file($cert_path) || !is_readable($cert_path)){
+            $faltando[] = 'SICOOB_CERT_FILE';
+        }
+
+        if(count($faltando)>0){
+            return $this->result(false, 'CONFIGURACAO_SICOOB_INCOMPLETA', 'Configuracao do Sicoob incompleta: '.implode(', ', $faltando).'.', null, array('faltando'=>$faltando));
+        }
+
+        return array('success'=>true);
+    }
+
     private function result($success, $erro, $mensagem, $http_status=null, $response=null){
         return array(
             'success' => $success,
@@ -350,5 +385,41 @@ class BoletoV3_model extends CI_Model{
             'http_status' => $http_status,
             'response' => $response
         );
+    }
+
+    private function fail($erro, $mensagem, $http_status=null, $response=null, $pagador=null, $valor=null, $data_vencimento=null, $outros=null){
+        $resultado = $this->result(false, $erro, $mensagem, $http_status, $response);
+        $this->auditar_erro_boleto($resultado, $pagador, $valor, $data_vencimento, $outros);
+        return $resultado;
+    }
+
+    private function auditar_erro_boleto($resultado, $pagador=null, $valor=null, $data_vencimento=null, $outros=null){
+        if(!$this->db->table_exists('adm_auditoria')){
+            return;
+        }
+
+        $this->load->model('adminauditoria_model', 'adminauditoria');
+        $this->adminauditoria->registrar(array(
+            'area' => 'boleto',
+            'acao' => 'sicoob_gerar_boleto',
+            'status' => 'erro',
+            'referencia_tipo' => $this->safe($pagador, 'id_cliente') !== '' ? 'cliente' : null,
+            'referencia_id' => $this->safe($pagador, 'id_cliente') !== '' ? $this->safe($pagador, 'id_cliente') : null,
+            'http_status' => isset($resultado['http_status']) ? $resultado['http_status'] : null,
+            'erro' => isset($resultado['erro']) ? $resultado['erro'] : null,
+            'mensagem' => isset($resultado['mensagem']) ? $resultado['mensagem'] : null,
+            'contexto' => array(
+                'pagador' => array(
+                    'id_cliente' => $this->safe($pagador, 'id_cliente'),
+                    'codigo_sacado' => $this->safe($pagador, 'codigo_sacado'),
+                    'nome' => $this->safe($pagador, 'nome_ou_fantasia', $this->safe($pagador, 'nome')),
+                    'cpf_cnpj' => $this->safe($pagador, 'cpf_cnpj')
+                ),
+                'valor' => $valor,
+                'vencimento' => $data_vencimento,
+                'outros' => $outros
+            ),
+            'retorno' => isset($resultado['response']) ? $resultado['response'] : null
+        ));
     }
 }

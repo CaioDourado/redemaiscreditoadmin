@@ -93,12 +93,18 @@ class Boleto extends ControllerAuth{
             $outros['descricao_boleto'] = $this->input->post('boleto_descricao');
 
 			$this->load->model('boletoV3_model','boletov3');
-			if($this->boletov3->newBoleto($id_cliente, $valor, $vencimento, $outros)){
+			$resultado = $this->boletov3->newBoletoResult($id_cliente, $valor, $vencimento, $outros, $this->session->userdata('id'));
+			if($resultado['success']){
             //if($this->boleto->criar($id_cliente,$valor,$vencimento,$outros)){
-                $ultimo_boleto = $this->boleto->retornar_ultimo_boleto()->row();
-                redirect('boleto/visualizar/'.$ultimo_boleto->hash);
+                redirect('boleto/visualizar/'.$resultado['hash']);
             }else{
-                set_msg('Ocorreu um erro ao gerar o boleto.');
+                $this->registrar_auditoria_boleto('boleto_manual', 'erro', $resultado, array(
+                    'id_cliente' => $id_cliente,
+                    'valor' => $valor,
+                    'vencimento' => $vencimento,
+                    'descricao' => $outros['descricao_boleto']
+                ));
+                set_msg('Ocorreu um erro ao gerar o boleto: '.$resultado['mensagem']);
             }
         }
 
@@ -403,4 +409,20 @@ class Boleto extends ControllerAuth{
 		$this->load->helper('phpmail');
 		enviar_email();
 	}
+
+    private function registrar_auditoria_boleto($acao, $status, $resultado, $contexto=array()){
+        $this->load->model('adminauditoria_model', 'adminauditoria');
+        $this->adminauditoria->registrar(array(
+            'area' => 'boleto',
+            'acao' => $acao,
+            'status' => $status,
+            'referencia_tipo' => isset($contexto['id_cliente']) ? 'cliente' : null,
+            'referencia_id' => isset($contexto['id_cliente']) ? $contexto['id_cliente'] : null,
+            'http_status' => isset($resultado['http_status']) ? $resultado['http_status'] : null,
+            'erro' => isset($resultado['erro']) ? $resultado['erro'] : null,
+            'mensagem' => isset($resultado['mensagem']) ? $resultado['mensagem'] : null,
+            'contexto' => $contexto,
+            'retorno' => isset($resultado['response']) ? $resultado['response'] : null
+        ));
+    }
 }
