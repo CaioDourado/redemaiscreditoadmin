@@ -512,11 +512,17 @@ class Faturamento_cli extends CI_Controller{
     }
 
     private function retornar_franquias_faturamento(){
+        if(!$this->db->field_exists('auto_faturar', 'franquia_configuracao')){
+            $this->log('Franquias ignoradas: coluna franquia_configuracao.auto_faturar nao existe.');
+            return array();
+        }
+
         $this->db->select('f.*, c.*');
         $this->db->from('franquia f');
         $this->db->join('franquia_configuracao c', 'c.id_franquia_fk = f.id_franquia', 'left');
         $this->db->where('f.status', 1);
         $this->db->where('f.id_franquia >', 0);
+        $this->db->where('c.auto_faturar', 1);
         return $this->db->get()->result();
     }
 
