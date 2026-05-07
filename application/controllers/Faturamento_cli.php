@@ -137,7 +137,7 @@ class Faturamento_cli extends CI_Controller{
         $config_matriz = $this->retornar_configuracao_faturamento_matriz();
         $periodo_matriz = $this->montar_periodo($dia_vcto, $competencia, $config_matriz->tipo_faturamento);
         $pular_franquias_clientes = isset($opcoes_escopo['pular_franquias_clientes']) && $opcoes_escopo['pular_franquias_clientes'];
-        $pular_adm_franquias = isset($opcoes_escopo['pular_adm_franquias']) && $opcoes_escopo['pular_adm_franquias'];
+        $pular_adm_franquias = true;
 
         $this->log('Iniciando faturamento. dia_vcto='.$dia_vcto.' competencia='.$competencia.' modo='.$modo.' boletos='.($gerar_boletos ? 'sim' : 'nao').' escopo='.$escopo.' nofranquias='.($pular_franquias_clientes ? 'sim' : 'nao').' noadm='.($pular_adm_franquias ? 'sim' : 'nao').' tipo_matriz='.$config_matriz->tipo_faturamento.' inicio='.$periodo_matriz['inicio'].' fim='.$periodo_matriz['fim']);
 
@@ -150,14 +150,14 @@ class Faturamento_cli extends CI_Controller{
             'boletos_ativados' => $gerar_boletos ? 1 : 0,
             'matriz' => $escopo==='nomatriz' ? $this->resumo_ignorado('Escopo nomatriz: matriz ignorada.') : $this->gerar_faturas_matriz($dia_vcto, $competencia, $modo, $periodo_matriz, $config_matriz),
             'franquias_clientes' => $pular_franquias_clientes ? $this->resumo_ignorado('Parametro nofranquias: faturamento dos clientes de franquias ignorado.') : $this->gerar_faturas_clientes_franquias_matriz($dia_vcto, $competencia, $modo),
-            'franquias' => $pular_adm_franquias ? $this->resumo_ignorado('Parametro noadm: faturamento administrativo das franquias ignorado.') : $this->gerar_faturas_franquias($dia_vcto, $competencia, $modo),
+            'franquias' => $this->resumo_ignorado('Faturamento administrativo das franquias foi movido para faturamento_franquia_cli.'),
             'boletos' => array('matriz'=>array(), 'franquias_clientes'=>array(), 'franquias'=>array())
         );
 
         if($gerar_boletos){
             $resultado['boletos']['matriz'] = $escopo==='nomatriz' ? $this->resumo_boletos_ignorado('Escopo nomatriz: boletos da matriz ignorados.') : $this->gerar_boletos_matriz($periodo_matriz, $dia_vcto, $modo);
             $resultado['boletos']['franquias_clientes'] = $pular_franquias_clientes ? $this->resumo_boletos_ignorado('Parametro nofranquias: boletos dos clientes de franquias ignorados.') : $this->gerar_boletos_clientes_franquias_matriz($competencia, $dia_vcto, $modo);
-            $resultado['boletos']['franquias'] = $pular_adm_franquias ? $this->resumo_boletos_ignorado('Parametro noadm: boletos administrativos das franquias ignorados.') : $this->gerar_boletos_franquias($competencia, $dia_vcto, $modo);
+            $resultado['boletos']['franquias'] = $this->resumo_boletos_ignorado('Boletos administrativos das franquias foram movidos para faturamento_franquia_cli.');
         }
 
         return $resultado;
