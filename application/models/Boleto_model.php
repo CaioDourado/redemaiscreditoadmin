@@ -44,7 +44,7 @@ class Boleto_model extends ModelAuth {
         $sql .= 'SUM(valor_boleto) AS valor_total ';
         $sql .= 'FROM boleto ';
         $sql .= 'GROUP BY YEAR(data_vencimento),MONTH(data_vencimento) ';
-        $sql .= 'ORDER BY data_vencimento DESC ';
+        $sql .= 'ORDER BY ano DESC, mes DESC ';
         return $this->db->query($sql);
     }
 
