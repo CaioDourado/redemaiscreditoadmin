@@ -281,7 +281,7 @@ switch($content):
                         <td class="text-right"><?php echo $boleto->nosso_numero; ?></td>
                         <td class="text-center"><?php echo data_pt($boleto->criado_em,false); ?></td>
                         <td class="text-center"><?php echo data_pt($boleto->data_vencimento,false); ?></td>
-                        <td><?php echo strtoupper($boleto->nome_sacado); ?></td>
+                        <td><?php echo strtoupper(!empty($boleto->nome_sacado) ? $boleto->nome_sacado : (isset($boleto->nome) ? $boleto->nome : '')); ?></td>
                         <td class="text-center"><?php if($boleto->data_pagamento!="0000-00-00") echo $boleto->data_pagamento; ?></td>
                         <td class="text-center"><?php echo $boleto->valor_boleto; ?></td>
                         <td class="text-center">

@@ -20,7 +20,10 @@ class Boleto_model extends ModelAuth {
         $inicio = $ano.'-'.$mes.'-01';
         $fim = date($ano.'-'.$mes.'-31');
 
-        $sql  = 'SELECT tbmain.*, UPPER(tb2.nome_ou_fantasia) AS nome FROM boleto AS tbmain ';
+        $sql  = 'SELECT tbmain.*, ';
+        $sql .= 'UPPER(COALESCE(NULLIF(tb2.nome_ou_fantasia, ""), NULLIF(tb2.razao_social, ""), NULLIF(tbmain.nome_sacado, ""))) AS nome, ';
+        $sql .= 'UPPER(COALESCE(NULLIF(tb2.nome_ou_fantasia, ""), NULLIF(tb2.razao_social, ""), NULLIF(tbmain.nome_sacado, ""))) AS nome_sacado ';
+        $sql .= 'FROM boleto AS tbmain ';
         $sql .= 'LEFT JOIN cliente AS tb2 ON tbmain.id_cliente_fk = tb2.id_cliente ';
         $sql .= 'WHERE data_vencimento BETWEEN "'.$inicio.'" AND "'.$fim.'" ';
         return $this->db->query($sql);
