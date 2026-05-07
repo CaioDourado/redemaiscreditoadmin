@@ -34,5 +34,16 @@
     if(isset($titulo)) $mpdf->SetTitle($titulo); else $mpdf->SetTitle('Domento Rede Mais Credito');
     $mpdf->WriteHTML($conteudo);
     if(isset($senha)) $mpdf->SetProtection(array(),$senha,'d41d8cd98f00b204e9800998ecf8427e');
-    if(isset($titulo)) $mpdf->Output($titulo.'.pdf','I'); else $mpdf->Output('documento_redemaiscredito.pdf','I');
+    $nome_arquivo = isset($titulo) ? $titulo.'.pdf' : 'documento_redemaiscredito.pdf';
+    $nome_arquivo = preg_replace('/[^A-Za-z0-9_. -]/', '', $nome_arquivo);
+
+    if (!headers_sent()) {
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: inline; filename="'.$nome_arquivo.'"');
+        header('X-Content-Type-Options: nosniff');
+        header('Cache-Control: private, max-age=0, must-revalidate');
+        header('Pragma: public');
+    }
+
+    $mpdf->Output($nome_arquivo,'I');
     exit;
