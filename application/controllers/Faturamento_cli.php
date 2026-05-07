@@ -32,12 +32,17 @@ class Faturamento_cli extends CI_Controller{
         $modo_param = $this->uri->segment(5);
         $extra_param = $this->uri->segment(6);
         $logs_param = $this->uri->segment(7);
+        $escopo_param = $this->uri->segment(8);
+        $opcao_param = $this->uri->segment(9);
+        $opcao2_param = $this->uri->segment(10);
 
-        $modo = $this->resolver_modo($dia_param, $competencia_param, $modo_param, $extra_param);
-        $competencia = $this->resolver_competencia($dia_param, $competencia_param, $modo_param, $extra_param);
+        $modo = $this->resolver_modo($dia_param, $competencia_param, $modo_param, $extra_param, $logs_param, $escopo_param, $opcao_param, $opcao2_param);
+        $competencia = $this->resolver_competencia($dia_param, $competencia_param, $modo_param, $extra_param, $logs_param, $escopo_param, $opcao_param, $opcao2_param);
         $dia_vcto = $this->resolver_dia_vencimento($dia_param);
-        $gerar_boletos = $this->resolver_gerar_boletos($dia_param, $competencia_param, $modo_param, $extra_param);
-        $this->mostrar_logs = $this->resolver_mostrar_logs($dia_param, $competencia_param, $modo_param, $extra_param, $logs_param);
+        $gerar_boletos = $this->resolver_gerar_boletos($dia_param, $competencia_param, $modo_param, $extra_param, $logs_param, $escopo_param, $opcao_param, $opcao2_param);
+        $escopo = $this->resolver_escopo($dia_param, $competencia_param, $modo_param, $extra_param, $logs_param, $escopo_param, $opcao_param, $opcao2_param);
+        $opcoes_escopo = $this->resolver_opcoes_escopo($dia_param, $competencia_param, $modo_param, $extra_param, $logs_param, $escopo_param, $opcao_param, $opcao2_param);
+        $this->mostrar_logs = $this->resolver_mostrar_logs($dia_param, $competencia_param, $modo_param, $extra_param, $logs_param, $escopo_param, $opcao_param, $opcao2_param);
 
         if($dia_vcto===null){
             $this->log('Hoje nao e dia automatico de faturamento. Nada a fazer.');
@@ -52,7 +57,7 @@ class Faturamento_cli extends CI_Controller{
         }
 
         try{
-            $resultado = $this->executar_faturamento($dia_vcto, $competencia, $modo, $gerar_boletos);
+            $resultado = $this->executar_faturamento($dia_vcto, $competencia, $modo, $gerar_boletos, $escopo, $opcoes_escopo);
             $this->log('Resumo: '.$this->json($resultado));
             $this->out($this->json($resultado));
         }catch(Exception $e){
@@ -61,7 +66,9 @@ class Faturamento_cli extends CI_Controller{
                 'dia_vencimento' => $dia_vcto,
                 'competencia' => $competencia,
                 'modo' => $modo,
-                'boletos' => $gerar_boletos ? 1 : 0
+                'boletos' => $gerar_boletos ? 1 : 0,
+                'escopo' => $escopo,
+                'opcoes_escopo' => $opcoes_escopo
             ));
             $this->out('ERRO GERAL: '.$e->getMessage());
         }
@@ -126,25 +133,31 @@ class Faturamento_cli extends CI_Controller{
         $this->out($this->json($resumo));
     }
 
-    private function executar_faturamento($dia_vcto, $competencia, $modo, $gerar_boletos){
+    private function executar_faturamento($dia_vcto, $competencia, $modo, $gerar_boletos, $escopo='todos', $opcoes_escopo=array()){
         $config_matriz = $this->retornar_configuracao_faturamento_matriz();
         $periodo_matriz = $this->montar_periodo($dia_vcto, $competencia, $config_matriz->tipo_faturamento);
+        $pular_franquias_clientes = isset($opcoes_escopo['pular_franquias_clientes']) && $opcoes_escopo['pular_franquias_clientes'];
+        $pular_adm_franquias = isset($opcoes_escopo['pular_adm_franquias']) && $opcoes_escopo['pular_adm_franquias'];
 
-        $this->log('Iniciando faturamento. dia_vcto='.$dia_vcto.' competencia='.$competencia.' modo='.$modo.' boletos='.($gerar_boletos ? 'sim' : 'nao').' tipo_matriz='.$config_matriz->tipo_faturamento.' inicio='.$periodo_matriz['inicio'].' fim='.$periodo_matriz['fim']);
+        $this->log('Iniciando faturamento. dia_vcto='.$dia_vcto.' competencia='.$competencia.' modo='.$modo.' boletos='.($gerar_boletos ? 'sim' : 'nao').' escopo='.$escopo.' nofranquias='.($pular_franquias_clientes ? 'sim' : 'nao').' noadm='.($pular_adm_franquias ? 'sim' : 'nao').' tipo_matriz='.$config_matriz->tipo_faturamento.' inicio='.$periodo_matriz['inicio'].' fim='.$periodo_matriz['fim']);
 
         $resultado = array(
             'modo' => $modo,
             'dia_vencimento' => $dia_vcto,
             'competencia' => $competencia,
+            'escopo' => $escopo,
+            'opcoes_escopo' => $opcoes_escopo,
             'boletos_ativados' => $gerar_boletos ? 1 : 0,
-            'matriz' => $this->gerar_faturas_matriz($dia_vcto, $competencia, $modo, $periodo_matriz, $config_matriz),
-            'franquias' => $this->gerar_faturas_franquias($dia_vcto, $competencia, $modo),
-            'boletos' => array('matriz'=>array(), 'franquias'=>array())
+            'matriz' => $escopo==='nomatriz' ? $this->resumo_ignorado('Escopo nomatriz: matriz ignorada.') : $this->gerar_faturas_matriz($dia_vcto, $competencia, $modo, $periodo_matriz, $config_matriz),
+            'franquias_clientes' => $pular_franquias_clientes ? $this->resumo_ignorado('Parametro nofranquias: faturamento dos clientes de franquias ignorado.') : $this->gerar_faturas_clientes_franquias_matriz($dia_vcto, $competencia, $modo),
+            'franquias' => $pular_adm_franquias ? $this->resumo_ignorado('Parametro noadm: faturamento administrativo das franquias ignorado.') : $this->gerar_faturas_franquias($dia_vcto, $competencia, $modo),
+            'boletos' => array('matriz'=>array(), 'franquias_clientes'=>array(), 'franquias'=>array())
         );
 
         if($gerar_boletos){
-            $resultado['boletos']['matriz'] = $this->gerar_boletos_matriz($periodo_matriz, $dia_vcto, $modo);
-            $resultado['boletos']['franquias'] = $this->gerar_boletos_franquias($competencia, $dia_vcto, $modo);
+            $resultado['boletos']['matriz'] = $escopo==='nomatriz' ? $this->resumo_boletos_ignorado('Escopo nomatriz: boletos da matriz ignorados.') : $this->gerar_boletos_matriz($periodo_matriz, $dia_vcto, $modo);
+            $resultado['boletos']['franquias_clientes'] = $pular_franquias_clientes ? $this->resumo_boletos_ignorado('Parametro nofranquias: boletos dos clientes de franquias ignorados.') : $this->gerar_boletos_clientes_franquias_matriz($competencia, $dia_vcto, $modo);
+            $resultado['boletos']['franquias'] = $pular_adm_franquias ? $this->resumo_boletos_ignorado('Parametro noadm: boletos administrativos das franquias ignorados.') : $this->gerar_boletos_franquias($competencia, $dia_vcto, $modo);
         }
 
         return $resultado;
@@ -226,6 +239,58 @@ class Faturamento_cli extends CI_Controller{
         $resultado['valor_total'] = round($resultado['valor_total'], 2);
         $resultado['clientes_valor'] = round($resultado['clientes_valor'], 2);
         return $resultado;
+    }
+
+    private function gerar_faturas_clientes_franquias_matriz($dia_vcto, $competencia, $modo){
+        $resultado = array('total_franquias'=>0, 'clientes'=>0, 'geradas'=>0, 'duplicadas'=>0, 'erros'=>0, 'valor_total'=>0, 'valor_completa'=>0, 'valor_prorata'=>0, 'faturas_completas'=>0, 'faturas_prorata'=>0, 'consumo_total'=>0, 'itens_total'=>0, 'ids'=>array(), 'detalhes'=>array());
+        $franquias = $this->retornar_franquias_boleto_matriz();
+
+        foreach($franquias as $franquia){
+            $tipo = in_array($franquia->tipo_faturamento, array('05a05','06a05')) ? $franquia->tipo_faturamento : '05a05';
+            $periodo = $this->montar_periodo($dia_vcto, $competencia, $tipo);
+            $clientes = $this->faturamento->retornar_clientes_faturamento_franquia($dia_vcto, (int)$franquia->id_franquia, $competencia)->result();
+            $faturamento = $this->faturamento->retornar_gerar_faturamento($periodo['inicio'].' 00:00:00', $periodo['fim'].' 23:59:59', $dia_vcto, $competencia)->result();
+            $faturas = $this->montar_faturas($clientes, $faturamento, $periodo, $dia_vcto);
+            $detalhe = array('id_franquia'=>(int)$franquia->id_franquia, 'tipo_faturamento'=>$tipo, 'inicio'=>$periodo['inicio'], 'fim'=>$periodo['fim'], 'clientes'=>count($faturas), 'geradas'=>0, 'duplicadas'=>0, 'erros'=>0, 'valor_total'=>0, 'ids'=>array());
+
+            $resultado['total_franquias']++;
+            $resultado['clientes'] += count($faturas);
+
+            foreach($faturas as $fatura){
+                $this->somar_resumo_fatura($resultado, $fatura);
+                $detalhe['valor_total'] += (float)$fatura->valor;
+
+                if($this->fatura_existe($fatura)){
+                    $resultado['duplicadas']++;
+                    $detalhe['duplicadas']++;
+                    $this->log('Cliente franquia duplicado ignorado. franquia='.$franquia->id_franquia.' cliente='.$fatura->id_cliente.' inicio='.$fatura->inicio.' fim='.$fatura->fim.' vencimento='.$fatura->vencimento);
+                    continue;
+                }
+
+                if($modo==='dry-run'){
+                    $this->log('DRY-RUN cliente franquia='.$franquia->id_franquia.' cliente='.$fatura->id_cliente.' valor='.$fatura->valor.' consumo='.$fatura->consumo.' itens='.count($fatura->itens));
+                    continue;
+                }
+
+                $id_fatura = $this->gravar_fatura($fatura);
+                if($id_fatura){
+                    $resultado['geradas']++;
+                    $detalhe['geradas']++;
+                    $resultado['ids'][] = $id_fatura;
+                    $detalhe['ids'][] = $id_fatura;
+                    $this->log('fatura cliente franquia '.$franquia->id_franquia.' - '.$id_fatura.' - success');
+                }else{
+                    $resultado['erros']++;
+                    $detalhe['erros']++;
+                    $this->log('fatura cliente franquia '.$franquia->id_franquia.' - '.$fatura->id_cliente.' - error');
+                }
+            }
+
+            $detalhe['valor_total'] = round($detalhe['valor_total'], 2);
+            $resultado['detalhes'][] = $detalhe;
+        }
+
+        return $this->fechar_resumo($resultado);
     }
 
     private function montar_faturas($clientes, $faturamento, $periodo, $dia_vcto){
@@ -367,7 +432,25 @@ class Faturamento_cli extends CI_Controller{
         $resumo['candidatas'] = count($faturas);
 
         foreach($faturas as $fatura){
-            $this->gerar_boleto_fatura_matriz($fatura, $modo, $resumo);
+            $this->gerar_boleto_fatura_matriz($fatura, $modo, $resumo, 'matriz');
+        }
+
+        return $resumo;
+    }
+
+    private function gerar_boletos_clientes_franquias_matriz($competencia, $dia_vcto, $modo){
+        $resumo = $this->novo_resumo_boletos();
+        $franquias = $this->retornar_franquias_boleto_matriz();
+
+        foreach($franquias as $franquia){
+            $tipo = in_array($franquia->tipo_faturamento, array('05a05','06a05')) ? $franquia->tipo_faturamento : '05a05';
+            $periodo = $this->montar_periodo($dia_vcto, $competencia, $tipo);
+            $faturas = $this->retornar_faturas_clientes_franquia_para_boleto($franquia->id_franquia, $periodo, $dia_vcto);
+            $resumo['candidatas'] += count($faturas);
+
+            foreach($faturas as $fatura){
+                $this->gerar_boleto_fatura_matriz($fatura, $modo, $resumo, 'cliente franquia '.$franquia->id_franquia);
+            }
         }
 
         return $resumo;
@@ -378,9 +461,6 @@ class Faturamento_cli extends CI_Controller{
         $franquias = $this->retornar_franquias_faturamento();
 
         foreach($franquias as $franquia){
-            if((int)$franquia->gerar_boleto_matriz!==1){
-                continue;
-            }
             $tipo = in_array($franquia->tipo_faturamento, array('05a05','06a05')) ? $franquia->tipo_faturamento : '05a05';
             $periodo = $this->montar_periodo($dia_vcto, $competencia, $tipo);
             $faturas = $this->retornar_faturas_franquia_para_boleto($franquia->id_franquia, $periodo, $dia_vcto);
@@ -394,7 +474,7 @@ class Faturamento_cli extends CI_Controller{
         return $resumo;
     }
 
-    private function gerar_boleto_fatura_matriz($fatura, $modo, &$resumo){
+    private function gerar_boleto_fatura_matriz($fatura, $modo, &$resumo, $origem='matriz'){
         if((float)$fatura->valor<=0){
             $resumo['ignoradas']++;
             return;
@@ -402,13 +482,13 @@ class Faturamento_cli extends CI_Controller{
 
         if(isset($fatura->id_boleto_fk) && $fatura->id_boleto_fk!==null && $fatura->id_boleto_fk!==''){
             $resumo['ignoradas']++;
-            $this->log('Boleto matriz ignorado: fatura ja possui boleto. fatura='.$fatura->id_fatura.' boleto='.$fatura->id_boleto_fk);
+            $this->log('Boleto '.$origem.' ignorado: fatura ja possui boleto. fatura='.$fatura->id_fatura.' boleto='.$fatura->id_boleto_fk);
             return;
         }
 
         if($modo==='dry-run'){
             $resumo['dry_run']++;
-            $this->log('DRY-RUN boleto matriz fatura='.$fatura->id_fatura.' cliente='.$fatura->id_cliente_fk.' valor='.$fatura->valor);
+            $this->log('DRY-RUN boleto '.$origem.' fatura='.$fatura->id_fatura.' cliente='.$fatura->id_cliente_fk.' valor='.$fatura->valor);
             return;
         }
 
@@ -425,14 +505,14 @@ class Faturamento_cli extends CI_Controller{
             $this->db->update('fatura', array('faturado'=>1, 'id_boleto_fk'=>$resultado['id_boleto'], 'hash_boleto'=>$resultado['hash']));
             $resumo['gerados']++;
             $resumo['ids'][] = $resultado['id_boleto'];
-            $this->log('Boleto matriz gerado. fatura='.$fatura->id_fatura.' boleto='.$resultado['id_boleto']);
-            $this->log('boleto matriz - '.$fatura->id_fatura.' - success');
+            $this->log('Boleto '.$origem.' gerado. fatura='.$fatura->id_fatura.' boleto='.$resultado['id_boleto']);
+            $this->log('boleto '.$origem.' - '.$fatura->id_fatura.' - success');
             return;
         }
 
         $resumo['erros']++;
-        $this->log('ERRO boleto matriz fatura='.$fatura->id_fatura.' erro='.$resultado['erro'].' mensagem='.$resultado['mensagem']);
-        $this->log('boleto matriz - '.$fatura->id_fatura.' - error');
+        $this->log('ERRO boleto '.$origem.' fatura='.$fatura->id_fatura.' erro='.$resultado['erro'].' mensagem='.$resultado['mensagem']);
+        $this->log('boleto '.$origem.' - '.$fatura->id_fatura.' - error');
     }
 
     private function gerar_boleto_fatura_franquia($fatura, $franquia, $modo, &$resumo){
@@ -640,6 +720,21 @@ class Faturamento_cli extends CI_Controller{
         return $this->db->get()->result();
     }
 
+    private function retornar_franquias_boleto_matriz(){
+        if(!$this->db->field_exists('gerar_boleto_matriz', 'franquia_configuracao')){
+            $this->log('Clientes de franquia ignorados: coluna franquia_configuracao.gerar_boleto_matriz nao existe.');
+            return array();
+        }
+
+        $this->db->select('f.*, c.*');
+        $this->db->from('franquia f');
+        $this->db->join('franquia_configuracao c', 'c.id_franquia_fk = f.id_franquia', 'inner');
+        $this->db->where('f.status', 1);
+        $this->db->where('f.id_franquia >', 0);
+        $this->db->where('c.gerar_boleto_matriz', 1);
+        return $this->db->get()->result();
+    }
+
     private function retornar_faturas_matriz_para_boleto($periodo, $dia_vcto){
         $this->db->select('f.*');
         $this->db->from('fatura f');
@@ -650,6 +745,19 @@ class Faturamento_cli extends CI_Controller{
         $this->db->where('f.valor >', 0);
         $this->db->where('f.id_boleto_fk IS NULL', null, false);
         $this->db->where('c.id_franquia_fk', 0);
+        return $this->db->get()->result();
+    }
+
+    private function retornar_faturas_clientes_franquia_para_boleto($id_franquia, $periodo, $dia_vcto){
+        $this->db->select('f.*');
+        $this->db->from('fatura f');
+        $this->db->join('cliente c', 'c.id_cliente = f.id_cliente_fk', 'inner');
+        $this->db->where('f.inicio', $periodo['inicio']);
+        $this->db->where('f.fim', $periodo['fim']);
+        $this->db->where('f.vencimento', $this->montar_vencimento($periodo['competencia'], $dia_vcto));
+        $this->db->where('f.valor >', 0);
+        $this->db->where('f.id_boleto_fk IS NULL', null, false);
+        $this->db->where('c.id_franquia_fk', (int)$id_franquia);
         return $this->db->get()->result();
     }
 
@@ -751,6 +859,31 @@ class Faturamento_cli extends CI_Controller{
         return false;
     }
 
+    private function resolver_escopo(){
+        foreach(func_get_args() as $param){
+            if($param==='nomatriz' || $param==='no-matriz' || $param==='franquias') return 'nomatriz';
+        }
+        return 'todos';
+    }
+
+    private function resolver_opcoes_escopo(){
+        $opcoes = array(
+            'pular_franquias_clientes' => false,
+            'pular_adm_franquias' => false
+        );
+
+        foreach(func_get_args() as $param){
+            if($param==='nofranquias' || $param==='no-franquias'){
+                $opcoes['pular_franquias_clientes'] = true;
+            }
+            if($param==='noadm' || $param==='no-adm'){
+                $opcoes['pular_adm_franquias'] = true;
+            }
+        }
+
+        return $opcoes;
+    }
+
     private function parece_competencia($valor){
         return is_string($valor) && preg_match('/^[0-9]{4}\-[0-9]{2}$/', $valor);
     }
@@ -842,6 +975,17 @@ class Faturamento_cli extends CI_Controller{
 
     private function novo_resumo_boletos(){
         return array('candidatas'=>0, 'gerados'=>0, 'ignoradas'=>0, 'erros'=>0, 'dry_run'=>0, 'ids'=>array());
+    }
+
+    private function resumo_ignorado($motivo){
+        return array('ignorado'=>1, 'motivo'=>$motivo);
+    }
+
+    private function resumo_boletos_ignorado($motivo){
+        $resumo = $this->novo_resumo_boletos();
+        $resumo['ignorado'] = 1;
+        $resumo['motivo'] = $motivo;
+        return $resumo;
     }
 
     private function criar_lock(){
