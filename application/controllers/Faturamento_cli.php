@@ -201,7 +201,7 @@ class Faturamento_cli extends CI_Controller{
 
     private function gerar_faturas_franquias($dia_vcto, $competencia, $modo){
         $resultado = array('total'=>0, 'geradas'=>0, 'duplicadas'=>0, 'erros'=>0, 'valor_total'=>0, 'clientes_total'=>0, 'clientes_valor'=>0, 'itens_total'=>0, 'ids'=>array(), 'detalhes'=>array());
-        $franquias = $this->retornar_franquias_faturamento();
+        $franquias = $this->retornar_franquias_adm_faturamento();
 
         foreach($franquias as $franquia){
             $tipo = in_array($franquia->tipo_faturamento, array('05a05','06a05')) ? $franquia->tipo_faturamento : '05a05';
@@ -401,14 +401,14 @@ class Faturamento_cli extends CI_Controller{
                 $item['nome'] = $row->nome;
                 $item['qtd'] = (int)$row->qtd;
                 $item['und'] = (float)$row->und;
-                $item['total'] = $grupo['grupo']==='negativacoes' ? ((float)$row->und * (int)$row->qtd) : (float)$row->custo;
+                $item['total'] = (float)$row->custo;
                 $total += $item['total'];
                 $itens[] = $item;
             }
         }
 
         $qtd_clientes = (int)$this->franquia->franquia_qtd_clientes($id_franquia, $periodo['fim'], $dia_vcto, $periodo['competencia']);
-        $valor_cliente = (float)$franquia->mensalidade;
+        $valor_cliente = isset($franquia->valor_cliente_adm) && $franquia->valor_cliente_adm!==null ? (float)$franquia->valor_cliente_adm : 28.65;
 
         $fatura = new stdClass();
         $fatura->id_franquia = $id_franquia;
@@ -717,6 +717,15 @@ class Faturamento_cli extends CI_Controller{
         $this->db->where('f.status', 1);
         $this->db->where('f.id_franquia >', 0);
         $this->db->where('c.auto_faturar', 1);
+        return $this->db->get()->result();
+    }
+
+    private function retornar_franquias_adm_faturamento(){
+        $this->db->select('f.*, c.*');
+        $this->db->from('franquia f');
+        $this->db->join('franquia_configuracao c', 'c.id_franquia_fk = f.id_franquia', 'inner');
+        $this->db->where('f.status', 1);
+        $this->db->where('f.id_franquia >', 0);
         return $this->db->get()->result();
     }
 
