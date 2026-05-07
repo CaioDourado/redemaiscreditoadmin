@@ -110,13 +110,13 @@ class Faturamento_model extends CI_Model{
         $sql .= 'FROM ( ';
         $sql .= 'SELECT id_cliente_fk,pesquisa AS entrada,nome,slug AS grupo,valor,criado_em AS data FROM consulta_efetuada WHERE criado_em BETWEEN "'.$inicio_faturamento.'" AND "'.$fim_faturamento.'" ';
         $sql .= 'UNION ALL ';
-        $sql .= 'SELECT id_cliente_fk,"" AS entrada,"+ CrÃ©dito Veicular" AS nome,"veicular" AS grupo,valor,criado_em AS data FROM consulta_veicular WHERE criado_em BETWEEN "'.$inicio_faturamento.'" AND "'.$fim_faturamento.'" ';
+        $sql .= 'SELECT id_cliente_fk,"" AS entrada,"+ Credito Veicular" AS nome,"veicular" AS grupo,valor,criado_em AS data FROM consulta_veicular WHERE criado_em BETWEEN "'.$inicio_faturamento.'" AND "'.$fim_faturamento.'" ';
         $sql .= 'UNION ALL ';
-        $sql .= 'SELECT id_cliente_fk,CONCAT("CPF/CNPJ: ",cpf_cnpj) AS entrada,"+ CrÃ©dito Carta Extra Judicial" AS nome,"carta" AS grupo, valor_carta AS valor, criado_em AS data FROM carta WHERE criado_em BETWEEN "'.$inicio_faturamento.'" AND "'.$fim_faturamento.'" ';
+        $sql .= 'SELECT id_cliente_fk,CONCAT("CPF/CNPJ: ",cpf_cnpj) AS entrada,"+ Credito Carta Extra Judicial" AS nome,"carta" AS grupo, valor_carta AS valor, criado_em AS data FROM carta WHERE criado_em BETWEEN "'.$inicio_faturamento.'" AND "'.$fim_faturamento.'" ';
         $sql .= 'UNION ALL ';
-        $sql .= 'SELECT id_cliente_fk,CONCAT("CPF/CNPJ: ",cpf_cnpj) AS entrada,"+ CrÃ©dito NegativaÃ§Ã£o" AS nome,"negativacao" AS grupo, valor, criado_em AS data FROM negativacao WHERE criado_em BETWEEN "'.$inicio_faturamento.'" AND "'.$fim_faturamento.'" ';
+        $sql .= 'SELECT id_cliente_fk,CONCAT("CPF/CNPJ: ",cpf_cnpj) AS entrada,"+ Credito Negativacao" AS nome,"negativacao" AS grupo, valor, criado_em AS data FROM negativacao WHERE criado_em BETWEEN "'.$inicio_faturamento.'" AND "'.$fim_faturamento.'" ';
         $sql .= 'UNION ALL ';
-        $sql .= 'SELECT id_cliente_fk,CONCAT("CPF/CNPJ: ",cpf_cnpj) AS entrada,"+ CrÃ©dito Baixa" AS nome,"baixa" AS grupo, valor, criado_em AS data FROM negativacao_baixa WHERE criado_em BETWEEN "'.$inicio_faturamento.'" AND "'.$fim_faturamento.'" ';
+        $sql .= 'SELECT id_cliente_fk,CONCAT("CPF/CNPJ: ",cpf_cnpj) AS entrada,"+ Credito Baixa" AS nome,"baixa" AS grupo, valor, criado_em AS data FROM negativacao_baixa WHERE criado_em BETWEEN "'.$inicio_faturamento.'" AND "'.$fim_faturamento.'" ';
 		$sql .= 'UNION ALL ';
 		$sql .= 'SELECT id_cliente_fk,CONCAT("CPF/CNPJ: ",pesquisa) AS entrada, nome, "scorepluspfnova" AS grupo, valor, criado_em AS data FROM consulta_gerada WHERE criado_em BETWEEN "'.$inicio_faturamento.'" AND "'.$fim_faturamento.'" ';
         $sql .= ') AS tbmain ';
@@ -132,13 +132,13 @@ class Faturamento_model extends CI_Model{
         $sql .= 'FROM ( ';
         $sql .= 'SELECT id_cliente_fk,pesquisa AS entrada,nome,slug AS grupo,valor,criado_em AS data FROM consulta_efetuada WHERE criado_em BETWEEN "'.$inicio_faturamento.'" AND "'.$fim_faturamento.'" ';
         $sql .= 'UNION ALL ';
-        $sql .= 'SELECT id_cliente_fk,"" AS entrada,"+ CrÃ©dito Veicular" AS nome,"veicular" AS grupo,valor,criado_em AS data FROM consulta_veicular WHERE criado_em BETWEEN "'.$inicio_faturamento.'" AND "'.$fim_faturamento.'" ';
+        $sql .= 'SELECT id_cliente_fk,"" AS entrada,"+ Credito Veicular" AS nome,"veicular" AS grupo,valor,criado_em AS data FROM consulta_veicular WHERE criado_em BETWEEN "'.$inicio_faturamento.'" AND "'.$fim_faturamento.'" ';
         $sql .= 'UNION ALL ';
-        $sql .= 'SELECT id_cliente_fk,CONCAT("CPF/CNPJ: ",cpf_cnpj) AS entrada,"+ CrÃ©dito Carta Extra Judicial" AS nome,"carta" AS grupo, valor_carta AS valor, criado_em AS data FROM carta WHERE criado_em BETWEEN "'.$inicio_faturamento.'" AND "'.$fim_faturamento.'" ';
+        $sql .= 'SELECT id_cliente_fk,CONCAT("CPF/CNPJ: ",cpf_cnpj) AS entrada,"+ Credito Carta Extra Judicial" AS nome,"carta" AS grupo, valor_carta AS valor, criado_em AS data FROM carta WHERE criado_em BETWEEN "'.$inicio_faturamento.'" AND "'.$fim_faturamento.'" ';
         $sql .= 'UNION ALL ';
-        $sql .= 'SELECT id_cliente_fk,CONCAT("CPF/CNPJ: ",cpf_cnpj) AS entrada,"+ CrÃ©dito NegativaÃ§Ã£o" AS nome,"negativacao" AS grupo, valor, criado_em AS data FROM negativacao WHERE criado_em BETWEEN "'.$inicio_faturamento.'" AND "'.$fim_faturamento.'" ';
+        $sql .= 'SELECT id_cliente_fk,CONCAT("CPF/CNPJ: ",cpf_cnpj) AS entrada,"+ Credito Negativacao" AS nome,"negativacao" AS grupo, valor, criado_em AS data FROM negativacao WHERE criado_em BETWEEN "'.$inicio_faturamento.'" AND "'.$fim_faturamento.'" ';
         $sql .= 'UNION ALL ';
-        $sql .= 'SELECT id_cliente_fk,CONCAT("CPF/CNPJ: ",cpf_cnpj) AS entrada,"+ CrÃ©dito Baixa" AS nome,"baixa" AS grupo, valor, criado_em AS data FROM negativacao_baixa WHERE criado_em BETWEEN "'.$inicio_faturamento.'" AND "'.$fim_faturamento.'" ';
+        $sql .= 'SELECT id_cliente_fk,CONCAT("CPF/CNPJ: ",cpf_cnpj) AS entrada,"+ Credito Baixa" AS nome,"baixa" AS grupo, valor, criado_em AS data FROM negativacao_baixa WHERE criado_em BETWEEN "'.$inicio_faturamento.'" AND "'.$fim_faturamento.'" ';
 		$sql .= 'UNION ALL ';
 		$sql .= 'SELECT id_cliente_fk,CONCAT("CPF/CNPJ: ",pesquisa) AS entrada, nome, "scorepluspfnova" AS grupo, valor, criado_em AS data FROM consulta_gerada WHERE criado_em BETWEEN "'.$inicio_faturamento.'" AND "'.$fim_faturamento.'" ';
         $sql .= ') AS tbmain ';
@@ -186,7 +186,7 @@ class Faturamento_model extends CI_Model{
     }
 
     public function retornar_faturamento_franquia_negativacoes_resumido($id_franquia, $inicio, $fim, $dia_vencimento=null, $competencia=null){
-        $sql  = 'SELECT "NegativaÃ§Ã£o" AS nome,COUNT(*) AS qtd, ROUND(MAX(custo_franquia),2) AS und, ROUND(SUM(custo_franquia),2) AS custo, ROUND(SUM(custo)) AS custo_interno ';
+        $sql  = 'SELECT "Negativacao" AS nome,COUNT(*) AS qtd, ROUND(MAX(custo_franquia),2) AS und, ROUND(SUM(custo_franquia),2) AS custo, ROUND(SUM(custo)) AS custo_interno ';
         $sql .= 'FROM `negativacao` AS tbmain ';
         $sql .= 'LEFT JOIN cliente AS tb2 ON tbmain.id_cliente_fk = tb2.id_cliente ';
         $sql .= 'WHERE tbmain.criado_em BETWEEN "'.$inicio.' 00:00:00" AND "'.$fim.' 23:59:59" AND '.$this->sql_filtro_cliente_franquia($id_franquia, $dia_vencimento, $competencia).' ';

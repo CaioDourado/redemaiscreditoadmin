@@ -3,6 +3,7 @@
 class Faturamento_cli extends CI_Controller{
     private $log_file;
     private $lock_file;
+    private $mostrar_logs = false;
 
     public function __construct(){
         parent::__construct();
@@ -30,11 +31,13 @@ class Faturamento_cli extends CI_Controller{
         $competencia_param = $this->uri->segment(4);
         $modo_param = $this->uri->segment(5);
         $extra_param = $this->uri->segment(6);
+        $logs_param = $this->uri->segment(7);
 
         $modo = $this->resolver_modo($dia_param, $competencia_param, $modo_param, $extra_param);
         $competencia = $this->resolver_competencia($dia_param, $competencia_param, $modo_param, $extra_param);
         $dia_vcto = $this->resolver_dia_vencimento($dia_param);
         $gerar_boletos = $this->resolver_gerar_boletos($dia_param, $competencia_param, $modo_param, $extra_param);
+        $this->mostrar_logs = $this->resolver_mostrar_logs($dia_param, $competencia_param, $modo_param, $extra_param, $logs_param);
 
         if($dia_vcto===null){
             $this->log('Hoje nao e dia automatico de faturamento. Nada a fazer.');
@@ -173,8 +176,10 @@ class Faturamento_cli extends CI_Controller{
             if($id_fatura){
                 $resultado['geradas']++;
                 $resultado['ids'][] = $id_fatura;
+                $this->log('fatura matriz - '.$id_fatura.' - success');
             }else{
                 $resultado['erros']++;
+                $this->log('fatura matriz - '.$fatura->id_cliente.' - error');
             }
         }
 
@@ -211,8 +216,10 @@ class Faturamento_cli extends CI_Controller{
             if($id_fatura){
                 $resultado['geradas']++;
                 $resultado['ids'][] = $id_fatura;
+                $this->log('fatura franquia '.$fatura->id_franquia.' - '.$id_fatura.' - success');
             }else{
                 $resultado['erros']++;
+                $this->log('fatura franquia '.$fatura->id_franquia.' - error');
             }
         }
 
@@ -419,11 +426,13 @@ class Faturamento_cli extends CI_Controller{
             $resumo['gerados']++;
             $resumo['ids'][] = $resultado['id_boleto'];
             $this->log('Boleto matriz gerado. fatura='.$fatura->id_fatura.' boleto='.$resultado['id_boleto']);
+            $this->log('boleto matriz - '.$fatura->id_fatura.' - success');
             return;
         }
 
         $resumo['erros']++;
         $this->log('ERRO boleto matriz fatura='.$fatura->id_fatura.' erro='.$resultado['erro'].' mensagem='.$resultado['mensagem']);
+        $this->log('boleto matriz - '.$fatura->id_fatura.' - error');
     }
 
     private function gerar_boleto_fatura_franquia($fatura, $franquia, $modo, &$resumo){
@@ -459,11 +468,13 @@ class Faturamento_cli extends CI_Controller{
             $resumo['gerados']++;
             $resumo['ids'][] = $resultado['id_boleto'];
             $this->log('Boleto franquia gerado. fatura='.$fatura->id_adm_franquia_fatura.' boleto='.$resultado['id_boleto']);
+            $this->log('boleto franquia '.$fatura->id_franquia_fk.' - '.$fatura->id_adm_franquia_fatura.' - success');
             return;
         }
 
         $resumo['erros']++;
         $this->log('ERRO boleto franquia fatura='.$fatura->id_adm_franquia_fatura.' erro='.$resultado['erro'].' mensagem='.$resultado['mensagem']);
+        $this->log('boleto franquia '.$fatura->id_franquia_fk.' - '.$fatura->id_adm_franquia_fatura.' - error');
     }
 
     private function montar_pagador_franquia($franquia){
@@ -523,9 +534,11 @@ class Faturamento_cli extends CI_Controller{
 
             $this->db->insert('fatura', $dados);
 
+            $fatura_itens = array();
+            $proximo_item_id = $this->proximo_id('fatura_item', 'id_fatura_item');
             foreach($fatura->itens as $item){
-                $this->db->insert('fatura_item', array(
-                    'id_fatura_item' => $this->proximo_id('fatura_item', 'id_fatura_item'),
+                $fatura_itens[] = array(
+                    'id_fatura_item' => $proximo_item_id++,
                     'id_fatura_fk' => $id_fatura,
                     'id_cliente_fk' => $item->id_cliente_fk,
                     'nome' => $item->nome,
@@ -533,7 +546,11 @@ class Faturamento_cli extends CI_Controller{
                     'grupo' => $item->grupo,
                     'valor' => $item->valor,
                     'data' => $item->data
-                ));
+                );
+            }
+
+            if(!empty($fatura_itens)){
+                $this->db->insert_batch('fatura_item', $fatura_itens);
             }
 
             if((float)$fatura->debito>0){
@@ -582,10 +599,16 @@ class Faturamento_cli extends CI_Controller{
                 'clientes_valor' => $fatura->clientes_valor
             ));
 
+            $fatura_itens = array();
+            $proximo_item_id = $this->proximo_id('adm_franquia_fatura_item', 'id_adm_fraqnuia_fatura_item');
             foreach($fatura->itens as $item){
-                $item['id_adm_fraqnuia_fatura_item'] = $this->proximo_id('adm_franquia_fatura_item', 'id_adm_fraqnuia_fatura_item');
+                $item['id_adm_fraqnuia_fatura_item'] = $proximo_item_id++;
                 $item['id_fatura_fk'] = $id_fatura;
-                $this->db->insert('adm_franquia_fatura_item', $item);
+                $fatura_itens[] = $item;
+            }
+
+            if(!empty($fatura_itens)){
+                $this->db->insert_batch('adm_franquia_fatura_item', $fatura_itens);
             }
 
             if($this->db->trans_status()===false){
@@ -721,6 +744,13 @@ class Faturamento_cli extends CI_Controller{
         return true;
     }
 
+    private function resolver_mostrar_logs(){
+        foreach(func_get_args() as $param){
+            if($param==='logs' || $param==='log' || $param==='verbose') return true;
+        }
+        return false;
+    }
+
     private function parece_competencia($valor){
         return is_string($valor) && preg_match('/^[0-9]{4}\-[0-9]{2}$/', $valor);
     }
@@ -834,6 +864,9 @@ class Faturamento_cli extends CI_Controller{
     private function log($mensagem){
         $linha = '['.date('Y-m-d H:i:s').'] '.$mensagem.PHP_EOL;
         file_put_contents($this->log_file, $linha, FILE_APPEND);
+        if($this->mostrar_logs){
+            $this->out($mensagem);
+        }
     }
 
     private function out($mensagem){
