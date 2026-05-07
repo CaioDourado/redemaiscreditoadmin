@@ -59,6 +59,60 @@ class Faturamento_cli extends CI_Controller{
         $this->remover_lock();
     }
 
+    public function boleto(){
+        set_time_limit(0);
+        ini_set('memory_limit', '256M');
+
+        $id_fatura = (int)$this->uri->segment(3);
+        $modo = $this->uri->segment(4)==='execute' ? 'execute' : 'dry-run';
+        $tipo = $this->uri->segment(5)==='franquia' ? 'franquia' : 'matriz';
+
+        if($id_fatura<=0){
+            $this->out('Informe o id da fatura. Ex: php index.php faturamento_cli boleto 14656 dry-run');
+            return;
+        }
+
+        $resumo = $this->novo_resumo_boletos();
+        $resumo['modo'] = $modo;
+        $resumo['tipo'] = $tipo;
+        $resumo['fatura'] = $id_fatura;
+
+        if($tipo==='franquia'){
+            $fatura = $this->retornar_fatura_franquia_por_id($id_fatura);
+            if($fatura===null){
+                $resumo['erros']++;
+                $this->log('ERRO boleto teste franquia: fatura nao encontrada. fatura='.$id_fatura);
+                $this->out($this->json($resumo));
+                return;
+            }
+
+            $franquia = $this->retornar_franquia_por_id($fatura->id_franquia_fk);
+            if($franquia===null){
+                $resumo['erros']++;
+                $this->log('ERRO boleto teste franquia: franquia nao encontrada. fatura='.$id_fatura.' franquia='.$fatura->id_franquia_fk);
+                $this->out($this->json($resumo));
+                return;
+            }
+
+            $resumo['candidatas'] = 1;
+            $this->gerar_boleto_fatura_franquia($fatura, $franquia, $modo, $resumo);
+            $this->out($this->json($resumo));
+            return;
+        }
+
+        $fatura = $this->retornar_fatura_matriz_por_id($id_fatura);
+        if($fatura===null){
+            $resumo['erros']++;
+            $this->log('ERRO boleto teste matriz: fatura nao encontrada. fatura='.$id_fatura);
+            $this->out($this->json($resumo));
+            return;
+        }
+
+        $resumo['candidatas'] = 1;
+        $this->gerar_boleto_fatura_matriz($fatura, $modo, $resumo);
+        $this->out($this->json($resumo));
+    }
+
     private function executar_faturamento($dia_vcto, $competencia, $modo, $gerar_boletos){
         $config_matriz = $this->retornar_configuracao_faturamento_matriz();
         $periodo_matriz = $this->montar_periodo($dia_vcto, $competencia, $config_matriz->tipo_faturamento);
@@ -329,14 +383,25 @@ class Faturamento_cli extends CI_Controller{
             return;
         }
 
+        if(isset($fatura->id_boleto_fk) && $fatura->id_boleto_fk!==null && $fatura->id_boleto_fk!==''){
+            $resumo['ignoradas']++;
+            $this->log('Boleto matriz ignorado: fatura ja possui boleto. fatura='.$fatura->id_fatura.' boleto='.$fatura->id_boleto_fk);
+            return;
+        }
+
         if($modo==='dry-run'){
             $resumo['dry_run']++;
             $this->log('DRY-RUN boleto matriz fatura='.$fatura->id_fatura.' cliente='.$fatura->id_cliente_fk.' valor='.$fatura->valor);
             return;
         }
 
-        $outros = array('descricao_boleto'=>$fatura->nome);
-        $resultado = $this->boletov3->newBoletoResult($fatura->id_cliente_fk, $fatura->valor, $fatura->vencimento, $outros, 0);
+        try{
+            $outros = array('descricao_boleto'=>$fatura->nome);
+            $resultado = $this->boletov3->newBoletoResult($fatura->id_cliente_fk, $fatura->valor, $fatura->vencimento, $outros, 0);
+        }catch(Exception $e){
+            $resultado = array('success'=>false, 'erro'=>'EXCEPTION', 'mensagem'=>$e->getMessage());
+        }
+
         if($resultado['success']){
             $this->db->where('id_fatura', $fatura->id_fatura);
             $this->db->update('fatura', array('faturado'=>1, 'id_boleto_fk'=>$resultado['id_boleto'], 'hash_boleto'=>$resultado['hash']));
@@ -356,15 +421,26 @@ class Faturamento_cli extends CI_Controller{
             return;
         }
 
+        if(isset($fatura->id_boleto_fk) && $fatura->id_boleto_fk!==null && $fatura->id_boleto_fk!==''){
+            $resumo['ignoradas']++;
+            $this->log('Boleto franquia ignorado: fatura ja possui boleto. fatura='.$fatura->id_adm_franquia_fatura.' boleto='.$fatura->id_boleto_fk);
+            return;
+        }
+
         if($modo==='dry-run'){
             $resumo['dry_run']++;
             $this->log('DRY-RUN boleto franquia fatura='.$fatura->id_adm_franquia_fatura.' franquia='.$fatura->id_franquia_fk.' valor='.$fatura->valor);
             return;
         }
 
-        $pagador = $this->montar_pagador_franquia($franquia);
-        $outros = array('descricao_boleto'=>$fatura->nome, 'descricao_boleto2'=>'Fatura de franquia #'.$fatura->id_adm_franquia_fatura);
-        $resultado = $this->boletov3->newBoletoPessoaResult($pagador, $fatura->valor, $fatura->vencimento, $outros, 0);
+        try{
+            $pagador = $this->montar_pagador_franquia($franquia);
+            $outros = array('descricao_boleto'=>$fatura->nome, 'descricao_boleto2'=>'Fatura de franquia #'.$fatura->id_adm_franquia_fatura);
+            $resultado = $this->boletov3->newBoletoPessoaResult($pagador, $fatura->valor, $fatura->vencimento, $outros, 0);
+        }catch(Exception $e){
+            $resultado = array('success'=>false, 'erro'=>'EXCEPTION', 'mensagem'=>$e->getMessage());
+        }
+
         if($resultado['success']){
             $this->db->where('id_adm_franquia_fatura', $fatura->id_adm_franquia_fatura);
             $this->db->update('adm_franquia_fatura', array('faturado'=>1, 'id_boleto_fk'=>$resultado['id_boleto'], 'hash_boleto'=>$resultado['hash']));
@@ -540,6 +616,27 @@ class Faturamento_cli extends CI_Controller{
         $this->db->where('f.id_boleto_fk IS NULL', null, false);
         $this->db->where('c.id_franquia_fk', 0);
         return $this->db->get()->result();
+    }
+
+    private function retornar_fatura_matriz_por_id($id_fatura){
+        $this->db->where('id_fatura', (int)$id_fatura);
+        $this->db->limit(1);
+        return $this->db->get('fatura')->row();
+    }
+
+    private function retornar_fatura_franquia_por_id($id_fatura){
+        $this->db->where('id_adm_franquia_fatura', (int)$id_fatura);
+        $this->db->limit(1);
+        return $this->db->get('adm_franquia_fatura')->row();
+    }
+
+    private function retornar_franquia_por_id($id_franquia){
+        $this->db->select('f.*, c.*');
+        $this->db->from('franquia f');
+        $this->db->join('franquia_configuracao c', 'c.id_franquia_fk = f.id_franquia', 'left');
+        $this->db->where('f.id_franquia', (int)$id_franquia);
+        $this->db->limit(1);
+        return $this->db->get()->row();
     }
 
     private function retornar_faturas_franquia_para_boleto($id_franquia, $periodo, $dia_vcto){

@@ -1,0 +1,65 @@
+name: Deploy admin
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      remote_dir:
+        description: "Remote deploy path"
+        required: true
+        default: "/sistemaadm.redemaiscredito.com.br/"
+
+jobs:
+  deploy:
+    name: Deploy to sistemaadm.redemaiscredito.com.br
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.1"
+          extensions: curl, json, simplexml, mbstring, gd, intl
+          tools: composer:v2
+
+      - name: Install production dependencies
+        run: composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader --ignore-platform-reqs
+
+      - name: Deploy by FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USERNAME }}
+          password: ${{ secrets.DEPLOY_PASSWORD }}
+          protocol: ftp
+          local-dir: ./
+          server-dir: ${{ github.event.inputs.remote_dir || '/sistemaadm.redemaiscredito.com.br/' }}
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/.github/**
+            **/.env
+            **/.env.*
+            **/*.bak
+            **/*.backup
+            **/*.log
+            **/*.pem
+            **/*.key
+            **/*.p12
+            **/*.pfx
+            **/.DS_Store
+            **/application/cache/**
+            **/application/logs/**
+            **/node_modules/**
+            **/nbproject/**
+            **/.idea/**
+            **/.vscode/**
+            **/tests/**
+            **/tmp/**
+            **/user_guide/**
+            **/user_guide_src/**
