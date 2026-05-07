@@ -14,6 +14,8 @@
         <div class="panel panel-default" style="width: 300px;position: fixed; top: 50%; left: 50%; margin-top: -100px; margin-left: -150px">
             <div class="panel-heading text-center">Rede Mais Crédito</div>
             <div class="panel-body">
+                <?php echo get_msgs(); ?>
+                <?php echo form_validation(); ?>
                 <div class="form-group">
                     <div class="input-group">
                         <span class="input-group-addon"><i class="fa fa-user"></i></span>
@@ -40,20 +42,27 @@
         <script src="<?php echo base_url(); ?>assets/js/jquery.mask.min.js"></script>
         <script src="<?php echo base_url(); ?>assets/js/script.js"></script>
         <script>
-            $(document).ready(function(){3
+            $(document).ready(function(){
+                function submitLogin(){
+                    $("#form_login").submit();
+                }
+
                 $(".btn-login").click(function(){
                     if (navigator.geolocation) {
                         navigator.geolocation.getCurrentPosition(function(posicao){
                             $("input[name='lat']").val(posicao.coords.latitude);
                             $("input[name='lng']").val(posicao.coords.longitude);
                             $("input[name='timestamp']").val(posicao.timestamp);
-                            $("#form_login").submit();
+                            submitLogin();
+                        }, function(){
+                            submitLogin();
                         });
                     }else{
-                        alert('Ative sua localização para entrar no sistema.');
+                        submitLogin();
                     }
                 });
             });
         </script>
     </body>
 </html>
+

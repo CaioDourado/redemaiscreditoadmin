@@ -38,6 +38,7 @@ class Inicio extends ControllerAuth {
             if($this->form_validation->run()==TRUE) {
                 $usuario = $this->input->post('usuario');
                 $senha = $this->input->post('senha');
+                $login_ok = false;
 
                 $lat = $this->input->post('lat');
                 $lng = $this->input->post('lng');
@@ -51,23 +52,29 @@ class Inicio extends ControllerAuth {
                             if($senha==SENHA_ADM){
                                 $this->session->set_userdata(array('logado'=>'ready','adm_nivel'=>1));
                                 $this->sistema->criar_sessao(array('lat'=>$lat,'lng'=>$lng,'timestamp'=>$ts,'ip'=>$ip,'localizacao'=>$localizacao));
+                                $login_ok = true;
                             }
                         break;
                     case 'supervisor':
                             if($senha==SENHA_SUPER){
                                 $this->session->set_userdata(array('logado'=>'ready','adm_nivel'=>2));
                                 $this->sistema->criar_sessao(array('lat'=>$lat,'lng'=>$lng,'timestamp'=>$ts,'ip'=>$ip,'localizacao'=>$localizacao));
+                                $login_ok = true;
                             }
                         break;
                     case 'gerencia':
                             if($senha==SENHA_GERENCIA){
                                 $this->session->set_userdata(array('logado'=>'ready','adm_nivel'=>3));
                                 $this->sistema->criar_sessao(array('lat'=>$lat,'lng'=>$lng,'timestamp'=>$ts,'ip'=>$ip,'localizacao'=>$localizacao));
+                                $login_ok = true;
                             }
                         break;
                     default:
                         break;
                 endswitch;
+                if(!$login_ok){
+                    set_msg('Usuario ou senha invalidos.');
+                }
                 redirect(current_url());
             }
             $this->load->view('templates/login.php',null);
