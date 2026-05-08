@@ -233,8 +233,6 @@ switch($content):
                                                 | Media: <?php echo number_format($provider->media_ms / 1000, 2, ',', '.'); ?>s
                                             <?php endif; ?>
                                         </small>
-                                    <?php else: ?>
-                                        <small>Sem fornecedor</small>
                                     <?php endif; ?>
                                 </td>
                             <?php endfor; ?>
