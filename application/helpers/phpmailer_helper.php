@@ -1,4 +1,5 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
+require_once APPPATH.'config/env.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -10,13 +11,27 @@ require __DIR__.'/../third_party/phpmailer/src/SMTP.php';
 function enviar_email($from,$to,$assunto,$mensagem,$nome=null,$cc=NULL,$anexo=null){
     $mail = new PHPMailer(true);
     try {
+        $host = adm_env('MAIL_HOST');
+        $username = adm_env('MAIL_USERNAME');
+        $password = adm_env('MAIL_PASSWORD');
+        $port = (int)adm_env('MAIL_PORT', 465);
+        $secure = adm_env('MAIL_ENCRYPTION', 'ssl');
+
+        if(empty($host) || empty($username) || empty($password)){
+            return array('status'=>'erro', 'retorno'=>'Configuracao de e-mail incompleta.');
+        }
+
+        if(empty($to)){
+            return array('status'=>'erro', 'retorno'=>'Destinatario de e-mail nao informado.');
+        }
+
         $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com';
+        $mail->Host = $host;
         $mail->SMTPAuth = true;
-        $mail->Username = 'redemaiscreditoboletos@gmail.com';
-        $mail->Password = 'sosabfdstjtrdisj';
-        $mail->SMTPSecure = 'tls';
-        $mail->Port = 587;
+        $mail->Username = $username;
+        $mail->Password = $password;
+        $mail->SMTPSecure = strtolower($secure)==='tls' ? 'tls' : 'ssl';
+        $mail->Port = $port;
         $mail->CharSet = 'UTF-8';
         $mail->SMTPOptions = array(
             'ssl' => array(

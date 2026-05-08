@@ -163,8 +163,18 @@ class Boleto extends ControllerAuth{
         $this->load->model('cliente_model','cliente');
 
         $boleto = $this->boleto->retornar_hash($hash)->row();
+        if($boleto==null){
+            set_msg('Boleto nao encontrado.');
+            redirect('boleto');
+        }
         $conta = $this->boleto->retornar_conta($boleto->id_conta_banco)->row();
-        $cliente= $this->cliente->retornar($boleto->id_cliente_fk)->row();
+        $cliente = null;
+        if($boleto->id_cliente_fk!=null){
+            $cliente= $this->cliente->retornar($boleto->id_cliente_fk)->row();
+        }
+        if($cliente==null){
+            $cliente = $this->cliente_boleto_fallback($boleto);
+        }
 
         $pdf = array();
         $pdf['conteudo'] = $this->load->view('components/boleto',array('boleto'=>$boleto,'conta'=>$conta,'cliente'=>$cliente),true);
@@ -176,12 +186,13 @@ class Boleto extends ControllerAuth{
         //$this->load->helper('phpmailer');
 		$this->load->helper('phpmail');
 
-        $from = 'boletos@redemaiscredito.com.br';
+        $from = adm_env('MAIL_FROM', 'boletos@redemaiscredito.com.br');
         $nome = 'Rede Mais Crédito';
-        $to = $cliente->email;
+        $to = !empty($cliente->email) ? $cliente->email : $boleto->email;
         //$cc = array('gigiomangia@hotmail.com','caiof.dourado@gmail.com');
 		//$to = "caiof.dourado@gmail.com";
-        $cc = array('gigiomangia@hotmail.com');
+        $cc_env = adm_env('MAIL_BCC', 'gigiomangia@hotmail.com');
+        $cc = $cc_env!==null && $cc_env!=='' ? array_map('trim', explode(',', $cc_env)) : null;
 
         $assunto = 'Boleto Rede Mais Crédito';
         $corpo = 'Prezado Cliente,<br><br>Segue em anexo o seu boleto da Rede Mais Crédito.';
@@ -191,12 +202,15 @@ class Boleto extends ControllerAuth{
         );
 
         $retorno_email = enviar_email($from,$to,$assunto,$corpo,$nome,$cc,$anexo);
-        unlink(FCPATH.'tmp/'.$hash.'.pdf');
+        if(is_file(FCPATH.'tmp/'.$hash.'.pdf')){
+            unlink(FCPATH.'tmp/'.$hash.'.pdf');
+        }
 
-        if($retorno_email['status']==='ok'){
+        if(is_array($retorno_email) && $retorno_email['status']==='ok'){
             set_msg('E-mail Enviado com sucesso!.','sucesso');
         }else{
-            set_msg('Ocorreu um erro ao enviar o E-mail. ['.$retorno_email['retorno'].']');
+            $erro = is_array($retorno_email) && isset($retorno_email['retorno']) ? $retorno_email['retorno'] : 'Erro desconhecido.';
+            set_msg('Ocorreu um erro ao enviar o E-mail. ['.$erro.']');
         }
         redirect('boleto');
     }
@@ -206,8 +220,18 @@ class Boleto extends ControllerAuth{
         $this->load->model('cliente_model','cliente');
 
         $boleto = $this->boleto->retornar_hash($hash)->row();
+        if($boleto==null){
+            echo json_encode(array('status'=>'erro','msg'=>'Boleto nao encontrado.'));
+            exit;
+        }
         $conta = $this->boleto->retornar_conta($boleto->id_conta_banco)->row();
-        $cliente= $this->cliente->retornar($boleto->id_cliente_fk)->row();
+        $cliente = null;
+        if($boleto->id_cliente_fk!=null){
+            $cliente= $this->cliente->retornar($boleto->id_cliente_fk)->row();
+        }
+        if($cliente==null){
+            $cliente = $this->cliente_boleto_fallback($boleto);
+        }
 
         $pdf = array();
         $pdf['conteudo'] = $this->load->view('components/boleto',array('boleto'=>$boleto,'conta'=>$conta,'cliente'=>$cliente),true);
@@ -220,9 +244,9 @@ class Boleto extends ControllerAuth{
 		$this->load->helper('phpmail');
 
         //$from = 'boletos@redemaiscredito.com.br';
-		$from = 'boleto@redemaiscredito.com.br';
+		$from = adm_env('MAIL_FROM', 'boleto@redemaiscredito.com.br');
         $nome = 'Rede Mais Crédito';
-        $to = $cliente->email;
+        $to = !empty($cliente->email) ? $cliente->email : $boleto->email;
 		//$to = "caiof.dourado@gmail.com";
 		//$cc = array('gigiomangia@hotmail.com');
 		$cc = null;
@@ -237,14 +261,24 @@ class Boleto extends ControllerAuth{
 		$retorno_email = enviar_email($from,$to,$assunto,$corpo,$nome,$cc,$anexo);
 
 		//$retorno_email = enviar_email_sendgrid($to, $assunto, $corpo, $anexo);
-        unlink(FCPATH.'tmp/'.$hash.'.pdf');
+        if(is_file(FCPATH.'tmp/'.$hash.'.pdf')){
+            unlink(FCPATH.'tmp/'.$hash.'.pdf');
+        }
 
-        if($retorno_email['status'] === 'ok')
+        if(is_array($retorno_email) && $retorno_email['status'] === 'ok')
             echo json_encode(array('status'=>'sucesso','msg'=>'E-mail Enviado com sucesso!'));
         else
             echo json_encode(array('status'=>'erro','msg'=>'Ocorreu um erro ao enviar o E-mail.'));
         exit;
 
+    }
+
+    private function cliente_boleto_fallback($boleto){
+        $cliente = new stdClass();
+        $cliente->nome_ou_fantasia = $boleto->nome_sacado;
+        $cliente->razao_social = null;
+        $cliente->email = isset($boleto->email) ? $boleto->email : null;
+        return $cliente;
     }
 
 	public function remessa(){

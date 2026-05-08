@@ -1,4 +1,5 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
+require_once APPPATH.'config/env.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
@@ -10,16 +11,29 @@ function enviar_email($from,$to,$assunto,$mensagem,$nome=null,$cc=NULL,$anexo=nu
 	$mail = new PHPMailer(true);
 
 	try {
+		$host = adm_env('MAIL_HOST');
+		$username = adm_env('MAIL_USERNAME');
+		$password = adm_env('MAIL_PASSWORD');
+		$port = (int)adm_env('MAIL_PORT', 465);
+		$secure = adm_env('MAIL_ENCRYPTION', 'ssl');
+
+		if(empty($host) || empty($username) || empty($password)){
+			return array('status'=>'erro', 'retorno'=>'Configuracao de e-mail incompleta.');
+		}
+
+		if(empty($to)){
+			return array('status'=>'erro', 'retorno'=>'Destinatario de e-mail nao informado.');
+		}
+
 		//Server settings
 		$mail->SMTPDebug = SMTP::DEBUG_OFF;                      //Enable verbose debug output
 		$mail->isSMTP();                                            //Send using SMTP
-		$mail->Host       = 'br458.hostgator.com.br';                     //Set the SMTP server to send through
+		$mail->Host       = $host;                     //Set the SMTP server to send through
 		$mail->SMTPAuth   = true;                                   //Enable SMTP authentication
-		$mail->Username   = 'boleto@redemaiscredito.com.br';                     //SMTP username
-		//$mail->Password   = 'Rmc*2024';                               //SMTP password
-		$mail->Password   = '6:MX5c9?Ciwk';                               //SMTP password
-		$mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
-		$mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+		$mail->Username   = $username;                     //SMTP username
+		$mail->Password   = $password;                               //SMTP password
+		$mail->SMTPSecure = strtolower($secure)==='tls' ? PHPMailer::ENCRYPTION_STARTTLS : PHPMailer::ENCRYPTION_SMTPS;
+		$mail->Port       = $port;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
 		$mail->CharSet 	  = 'UTF-8';
 
 		/*
@@ -64,6 +78,6 @@ function enviar_email($from,$to,$assunto,$mensagem,$nome=null,$cc=NULL,$anexo=nu
 			return array('status' => 'erro', 'retorno' => $mail->ErrorInfo);
 		}
 	} catch (Exception $e) {
-		echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+		return array('status'=>'erro', 'retorno'=>$mail->ErrorInfo);
 	}
 }
