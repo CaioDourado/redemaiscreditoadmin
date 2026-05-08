@@ -14,5 +14,14 @@
     if(isset($titulo)) $mpdf->SetTitle($titulo); else $mpdf->SetTitle('Documento Rede Mais Credito');
     $mpdf->WriteHTML($conteudo);
     if(isset($senha)) $mpdf->SetProtection(array(),$senha,'d41d8cd98f00b204e9800998ecf8427e');
-    if(isset($nome_arquivo)) $mpdf->Output('tmp/'.$nome_arquivo.'.pdf','F'); else $mpdf->Output('tmp/documento_redemaiscredito.pdf','F');
+    $tmp_path = FCPATH.'tmp'.DIRECTORY_SEPARATOR;
+    if(!is_dir($tmp_path)){
+        mkdir($tmp_path, 0755, true);
+    }
+
+    if(isset($nome_arquivo)){
+        $mpdf->Output($tmp_path.$nome_arquivo.'.pdf','F');
+    }else{
+        $mpdf->Output($tmp_path.'documento_redemaiscredito.pdf','F');
+    }
     //exit;

@@ -2,6 +2,10 @@
 require_once APPPATH.'config/env.php';
 
 class Boleto extends ControllerAuth{
+    public $boleto;
+    public $cliente;
+    public $boletov3;
+
     public function __construct(){
         parent::__construct();
         $this->load->model('boleto_model', 'boleto');
