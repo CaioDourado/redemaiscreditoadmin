@@ -5,7 +5,9 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
-require 'vendor/autoload.php';
+require_once APPPATH.'third_party/phpmailer/src/Exception.php';
+require_once APPPATH.'third_party/phpmailer/src/PHPMailer.php';
+require_once APPPATH.'third_party/phpmailer/src/SMTP.php';
 
 function enviar_email($from,$to,$assunto,$mensagem,$nome=null,$cc=NULL,$anexo=null){
 	$mail = new PHPMailer(true);

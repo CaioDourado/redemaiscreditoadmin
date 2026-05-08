@@ -163,6 +163,10 @@ class Boleto extends ControllerAuth{
     }
 
     public function enviar_email(){
+		ini_set('display_errors', '1');
+		ini_set('display_startup_errors', '1');
+		error_reporting(E_ALL);
+
         $hash = $this->verificar_parametro(3,'Não foi informado ','boleto');
         $this->load->model('cliente_model','cliente');
 
