@@ -34,7 +34,7 @@ function enviar_email($from,$to,$assunto,$mensagem,$nome=null,$cc=NULL,$anexo=nu
 		$mail->SMTPAuth   = true;                                   //Enable SMTP authentication
 		$mail->Username   = $username;                     //SMTP username
 		$mail->Password   = $password;                               //SMTP password
-		$mail->SMTPSecure = strtolower($secure)==='tls' ? PHPMailer::ENCRYPTION_STARTTLS : PHPMailer::ENCRYPTION_SMTPS;
+		$mail->SMTPSecure = strtolower($secure)==='tls' ? 'tls' : 'ssl';
 		$mail->Port       = $port;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
 		$mail->CharSet 	  = 'UTF-8';
 
