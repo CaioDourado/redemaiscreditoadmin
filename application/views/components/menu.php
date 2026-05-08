@@ -15,6 +15,7 @@ switch($menu):
             <?php echo anchor('arquivo','<i class="fa fa-file"></i> Arquivos',array('class'=>'item_solto')); ?>
             <?php echo anchor('relatorio','<i class="fa fa-bar-chart"></i> Relatorios',array('class'=>'item_solto')); ?>
             <?php echo anchor('operacao','<i class="fa fa-heartbeat"></i> Operacao',array('class'=>'item_solto')); ?>
+            <?php echo anchor('operacao/top3','<i class="fa fa-list-ol"></i> Top 3',array('class'=>'item_solto')); ?>
         <?php break;
     case 'padrao': ?>
             <?php switch($this->session->userdata('adm_nivel')){

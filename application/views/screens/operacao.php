@@ -166,4 +166,83 @@ switch($content):
             </div>
         </div>
         <?php break;
+    case 'top3': ?>
+        <form method="get" action="<?php echo site_url('operacao/top3'); ?>">
+            <div class="panel panel-google">
+                <div class="panel-heading">Filtros</div>
+                <div class="panel-body border-top">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Inicio</label>
+                                <input type="date" name="inicio" class="form-control" value="<?php echo $filtros['inicio']; ?>">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Fim</label>
+                                <input type="date" name="fim" class="form-control" value="<?php echo $filtros['fim']; ?>">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-footer text-right">
+                    <?php echo anchor('operacao/top3', 'Limpar', array('class' => 'btn btn-default')); ?>
+                    <button type="submit" class="btn btn-success">Atualizar</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="panel panel-google">
+            <div class="panel-heading">Top 3 Fornecedores por Consulta Disponivel</div>
+            <div class="table-responsive">
+                <table class="panel-table table-hover table-striped no-margin">
+                    <thead>
+                    <tr>
+                        <th>Consulta</th>
+                        <th class="text-right">Venda</th>
+                        <th>1o Fornecedor</th>
+                        <th>2o Fornecedor</th>
+                        <th>3o Fornecedor</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php foreach($top3_consultas as $consulta): ?>
+                        <tr>
+                            <td>
+                                <b><?php echo $consulta->nome; ?></b><br>
+                                <small><?php echo $consulta->slug; ?></small>
+                            </td>
+                            <td class="text-right">R$ <?php echo number_format($consulta->venda, 2, ',', '.'); ?></td>
+                            <?php for($i=0; $i<3; $i++): ?>
+                                <?php $provider = isset($consulta->fornecedores[$i]) ? $consulta->fornecedores[$i] : null; ?>
+                                <td class="<?php echo $provider != null ? $provider->classe : 'warning'; ?>">
+                                    <?php if($provider != null): ?>
+                                        <b><?php echo $provider->fornecedor_nome; ?></b><br>
+                                        <small>
+                                            <?php echo $provider->rotulo; ?>
+                                            <?php if($provider->sucesso_percentual !== null): ?>
+                                                - <?php echo number_format($provider->sucesso_percentual, 1, ',', '.'); ?>%
+                                            <?php else: ?>
+                                                - sem amostra
+                                            <?php endif; ?>
+                                        </small><br>
+                                        <small>
+                                            Tentativas: <?php echo $provider->tentativas; ?>
+                                            <?php if($provider->media_ms !== null): ?>
+                                                | Media: <?php echo number_format($provider->media_ms / 1000, 2, ',', '.'); ?>s
+                                            <?php endif; ?>
+                                        </small>
+                                    <?php else: ?>
+                                        <small>Sem fornecedor</small>
+                                    <?php endif; ?>
+                                </td>
+                            <?php endfor; ?>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <?php break;
 endswitch;

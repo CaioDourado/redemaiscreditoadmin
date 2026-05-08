@@ -40,6 +40,31 @@ class Operacao extends ControllerAuth {
         $this->load->view('templates/maing', $this->parameters);
     }
 
+    public function top3(){
+        $inicio = $this->input->get('inicio');
+        $fim = $this->input->get('fim');
+
+        if($inicio == null) $inicio = date('Y-m-d', strtotime('-7 days'));
+        if($fim == null) $fim = date('Y-m-d');
+
+        $filtros = array(
+            'inicio' => $inicio,
+            'fim' => $fim,
+            'slug' => null,
+            'fornecedor' => null,
+            'tipo_erro' => null
+        );
+
+        $this->parameters['pg_title'] = '<i class="fa fa-list-ol"></i> Top 3 Fornecedores';
+        $this->parameters['pg_subtitle'] = 'Principais fornecedores por consulta disponivel aos clientes.';
+        $this->parameters['content'] = $this->load->view('screens/operacao', array(
+            'content' => 'top3',
+            'filtros' => $filtros,
+            'top3_consultas' => $this->operacao->top3_consultas_clientes($filtros)
+        ), true);
+        $this->load->view('templates/maing', $this->parameters);
+    }
+
     private function guard_admin(){
         if($this->session->userdata('logado') == null){
             set_msg('Sessao expirada. Entre novamente.');
