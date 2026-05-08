@@ -2,6 +2,10 @@
 
 switch($content):
     case 'gerenciar': ?>
+            <?php
+            $total_faturas_adm = 0;
+            $total_faturas = 0;
+            ?>
             <div class="panel panel-google">
                 <div class="panel-heading">Faturas ADM de Franquias</div>
                 <table class="panel-table table-condensed table-hover no-margin table-bordered">
@@ -19,6 +23,7 @@ switch($content):
                     <tbody>
                     <?php if(isset($faturas_adm) && count($faturas_adm)>0): ?>
                         <?php foreach($faturas_adm as $index => $fatura): ?>
+                            <?php $total_faturas_adm += $fatura->valor; ?>
                             <tr>
                                 <td class="text-right"><?php echo $fatura->id_adm_franquia_fatura; ?></td>
                                 <td><?php echo strtoupper($fatura->franquia_nome); ?></td>
@@ -42,6 +47,13 @@ switch($content):
                         </tr>
                     <?php endif; ?>
                     </tbody>
+                    <tfoot>
+                    <tr>
+                        <th colspan="4" class="text-right">Total</th>
+                        <th class="text-right"><?php echo dinheiro($total_faturas_adm); ?></th>
+                        <th colspan="2"></th>
+                    </tr>
+                    </tfoot>
                 </table>
             </div>
 
@@ -61,6 +73,7 @@ switch($content):
                     </thead>
                     <tbody>
                     <?php foreach($faturas as $index => $fatura): ?>
+                        <?php $total_faturas += $fatura->valor; ?>
                         <tr>
                             <td class="text-right"><?php echo $fatura->id_fatura; ?></td>
                             <td class="text-right"><?php echo $fatura->id_cliente_fk; ?></td>
@@ -83,6 +96,13 @@ switch($content):
                         </tr>
                     <?php endforeach; ?>
                     </tbody>
+                    <tfoot>
+                    <tr>
+                        <th colspan="4" class="text-right">Total</th>
+                        <th class="text-right"><?php echo dinheiro($total_faturas); ?></th>
+                        <th colspan="2"></th>
+                    </tr>
+                    </tfoot>
                 </table>
             </div>
         <?php break;
