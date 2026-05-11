@@ -130,7 +130,8 @@ class ControllerAuth extends CI_Controller{
         $method = strtolower($this->router->fetch_method());
 
         $public_routes = array(
-            'inicio' => array('index', 'sair')
+            'inicio' => array('index', 'sair'),
+            'boletov3' => array('retorno', 'retorno_req', 'check_retorno')
         );
 
         return isset($public_routes[$class]) && in_array($method, $public_routes[$class]);
