@@ -2,6 +2,7 @@
 require_once APPPATH.'config/env.php';
 
 class BoletoV3 extends ControllerAuth {
+    private $debug_steps = array();
     function __construct(){
 		//ini_set('display_errors', 1);
 		//ini_set('display_startup_errors', 1);
@@ -22,7 +23,10 @@ class BoletoV3 extends ControllerAuth {
 
     public function check_retorno(){
         $id_solicitacao = $this->uri->segment(3);
-        $this->verifica_retorno($id_solicitacao);
+        $this->verifica_retorno($id_solicitacao, $this->debugEnabled(), !$this->debugEnabled());
+        if($this->debugEnabled()){
+            $this->renderDebug('Debug Retorno Sicoob - Verificar');
+        }
     }
 
     public function nbol(){
@@ -90,21 +94,43 @@ class BoletoV3 extends ControllerAuth {
         var_dump($req);
     }
 
-    public function get_retorno($d, $d_1){
+    public function get_retorno($d, $d_1, $debug=false){
+        if($debug){
+            $this->debugStep('Inicio da requisicao de retorno', array('inicio'=>$d_1, 'fim'=>$d));
+        }
         $token = $this->getSicoobToken();
+        if($debug){
+            $this->debugStep('Token Sicoob obtido', array('obtido'=>($token ? 'sim' : 'nao'), 'tamanho'=>strlen((string)$token)));
+        }
         $fields = array();
         $fields['numeroCliente'] = (int)adm_env('SICOOB_NUMERO_CLIENTE', 0);
         $fields['tipoMovimento'] = 5;
         $fields['dataInicial'] = $d_1;
         $fields['dataFinal'] = $d;
-        $req = $this->sicoobRequest("boletos/movimentacoes", json_encode($fields), $token);
-        $req = json_decode($req);
+        if($debug){
+            $this->debugStep('Payload enviado ao Sicoob', $fields);
+        }
+        $raw_req = $this->sicoobRequest("boletos/movimentacoes", json_encode($fields), $token);
+        $req = json_decode($raw_req);
+        if($debug){
+            $this->debugStep('Resposta crua da requisicao', $raw_req);
+            $this->debugStep('Resposta decodificada da requisicao', $req);
+        }
 
         if(isset($req->resultado->codigoSolicitacao)){
             $bd_data = ["id_solicitacao"=>$req->resultado->codigoSolicitacao, "inicio"=>$d_1, "fim"=>$d];
             $this->boletoV3->inserirRetornoReq($bd_data);
+            if($debug){
+                $this->debugStep('Solicitacao gravada em retorno_req', $bd_data);
+                $this->verifica_retorno($req->resultado->codigoSolicitacao, true, false);
+                return;
+            }
 			set_msg("Retorno requisitado com sucesso!","sucesso");
         }else{
+            if($debug){
+                $this->debugStep('Solicitacao nao retornou codigoSolicitacao', $req);
+                return;
+            }
 			set_msg("Ocorreu um erro ao requisitar o retorno.","erro");
         }
         redirect('boletoV3/retorno');
@@ -112,79 +138,164 @@ class BoletoV3 extends ControllerAuth {
 
     public function retorno_req(){
         if(isset($_GET["fim"])){
+            $debug = $this->debugEnabled();
             $d = trim(data_db(urldecode($_GET["fim"])));
             $d_1 = trim(date("Y-m-d",strtotime($d.' -1 day')));
 
-            $this->get_retorno($d, $d_1);
+            $this->get_retorno($d, $d_1, $debug);
+            if($debug){
+                $this->renderDebug('Debug Retorno Sicoob - Pedir Retorno');
+            }
         }else{
             set_msg("Não foi informada uma data para a solicitação de retorno.");
             redirect('boletoV3/retorno');
         }
     }
 
-    public function verifica_retorno($codigo_solicitacao){
+    public function verifica_retorno($codigo_solicitacao, $debug=false, $redirect=true){
+        if($debug){
+            $this->debugStep('Inicio da verificacao do retorno', array('codigo_solicitacao'=>$codigo_solicitacao));
+        }
         $token = $this->getSicoobToken();
+        if($debug){
+            $this->debugStep('Token Sicoob obtido para verificar', array('obtido'=>($token ? 'sim' : 'nao'), 'tamanho'=>strlen((string)$token)));
+        }
         $path = "boletos/movimentacoes?numeroCliente=".adm_env('SICOOB_NUMERO_CLIENTE', 0)."&codigoSolicitacao=".$codigo_solicitacao;
-        $req = $this->sicoobRequestGET($path, $token);
-        $req = json_decode($req, false);
+        if($debug){
+            $this->debugStep('Endpoint de verificacao', $path);
+        }
+        $raw_req = $this->sicoobRequestGET($path, $token);
+        $req = json_decode($raw_req, false);
+        if($debug){
+            $this->debugStep('Resposta crua da verificacao', $raw_req);
+            $this->debugStep('Resposta decodificada da verificacao', $req);
+        }
         if(isset($req->mensagens)){
+            if($debug){
+                $this->debugStep('Sicoob retornou mensagem na verificacao', $req->mensagens);
+                return;
+            }
 			set_msg($req->mensagens[0]->mensagem,"alerta");
         }else{
-            $this->download_retorno($codigo_solicitacao, $req->resultado->idArquivos[0]);
+            if(!isset($req->resultado->idArquivos[0])){
+                if($debug){
+                    $this->debugStep('Nenhum arquivo disponivel para download', $req);
+                    return;
+                }
+                set_msg("Retorno sem arquivo disponivel para download.","alerta");
+                if($redirect){
+                    redirect("boletoV3/retorno");
+                }
+                return;
+            }
+            $this->download_retorno($codigo_solicitacao, $req->resultado->idArquivos[0], $debug);
+            if($debug){
+                return;
+            }
 			set_msg("Retorno consolidado com sucesso!","sucesso");
         }
-        redirect("boletoV3/retorno");
+        if($redirect){
+            redirect("boletoV3/retorno");
+        }
     }
 
-    public function download_retorno($codigo_solicitacao, $id_arquivo){
+    public function download_retorno($codigo_solicitacao, $id_arquivo, $debug=false){
         //$codigo_solicitacao = "29165897";
         $token = $this->getSicoobToken();
         $path = "boletos/movimentacoes/download?numeroCliente=".adm_env('SICOOB_NUMERO_CLIENTE', 0)."&codigoSolicitacao=".$codigo_solicitacao.'&idArquivo='.$id_arquivo;
-        $req = $this->sicoobRequestGET($path, $token);
-        $req = json_decode($req, false);
-        $this->b64Conversion($req->resultado->arquivo, $req->resultado->nomeArquivo);
+        if($debug){
+            $this->debugStep('Endpoint de download', $path);
+        }
+        $raw_req = $this->sicoobRequestGET($path, $token);
+        $req = json_decode($raw_req, false);
+        if($debug){
+            $debug_req = json_decode(json_encode($req));
+            if(isset($debug_req->resultado->arquivo)){
+                $debug_req->resultado->arquivo = '[base64 omitido - tamanho '.strlen((string)$req->resultado->arquivo).']';
+            }
+            $this->debugStep('Resposta crua do download', '[conteudo omitido por conter arquivo base64 - tamanho '.strlen((string)$raw_req).']');
+            $this->debugStep('Resposta decodificada do download', $debug_req);
+        }
+        if(!isset($req->resultado->arquivo) || !isset($req->resultado->nomeArquivo)){
+            if($debug){
+                $this->debugStep('Download nao retornou arquivo/nomeArquivo', $req);
+            }
+            return;
+        }
+        $this->b64Conversion($req->resultado->arquivo, $req->resultado->nomeArquivo, $debug);
     }
 
-    public function b64Conversion($fileData=null, $fileName=null){
+    public function b64Conversion($fileData=null, $fileName=null, $debug=false){
         if($fileData!==null && $fileName!==null){
             $data = $fileData;
             $decoded = base64_decode($data);
             $file = 'retornos/'.$fileName;
             file_put_contents($file, $decoded);
+            if($debug){
+                $this->debugStep('Arquivo zip salvo', array('arquivo'=>$file, 'bytes'=>strlen((string)$decoded)));
+            }
 
             $zip = new ZipArchive;
             $res = $zip->open($file);
+            if($debug){
+                $this->debugStep('Resultado ao abrir zip', array('resultado'=>$res));
+            }
             if ($res === TRUE) {
                 $zip->extractTo('retornos/zips/');
+                if($debug){
+                    $nomes = array();
+                    for($i=0; $i<$zip->numFiles; $i++){
+                        $nomes[] = $zip->getNameIndex($i);
+                    }
+                    $this->debugStep('Arquivos encontrados no zip', $nomes);
+                }
                 $zip->close();
                 unlink($file);
-                $this->readFilesFromRetornosZips();
+                $this->readFilesFromRetornosZips($debug);
+            }elseif($debug){
+                $this->debugStep('Falha ao abrir zip', array('arquivo'=>$file, 'resultado'=>$res));
             }
+        }elseif($debug){
+            $this->debugStep('Conversao base64 ignorada por dados ausentes', array('fileData'=>($fileData!==null), 'fileName'=>$fileName));
         }
     }
 
-    public function readFilesFromRetornosZips(){
+    public function readFilesFromRetornosZips($debug=false){
         $files = scandir("retornos/zips");
+        if($debug){
+            $this->debugStep('Arquivos na pasta retornos/zips', $files);
+        }
         foreach($files as $i => $f):
             if($i>1):
-                $this->readJsonData("retornos/zips/".$f);
+                $this->readJsonData("retornos/zips/".$f, $debug);
             endif;
         endforeach;
     }
 
-    private function readJsonData($path){
-        $content = json_decode(file_get_contents($path), false);
+    private function readJsonData($path, $debug=false){
+        $raw_content = file_get_contents($path);
+        $content = json_decode($raw_content, false);
+        if($debug){
+            $this->debugStep('Conteudo bruto do arquivo de retorno', array('arquivo'=>$path, 'conteudo'=>$raw_content));
+            $this->debugStep('Boletos decodificados do arquivo de retorno', $content);
+        }
+        if(!is_array($content)){
+            if($debug){
+                $this->debugStep('Arquivo de retorno nao possui lista de boletos valida', $content);
+            }
+            return;
+        }
         $retorno = array();
         foreach($content as $i => $c):
             $now = array();
-            $now['numero_titulo'] = $c->numeroTitulo;
-            $now['seu_numero'] = $c->seuNumero;
-            $now['valor_titulo'] = $c->valorTitulo;
-            $now['data_liquidacao'] = $this->convertData($c->dataLiquidacao);
-            $now['data_previsao'] = $this->convertData($c->dataPrevisaoCredito);
-            $now['valor_liquido'] = $c->valorLiquido;
-            $now['valor_tarifa'] = $c->valorTarifaMovimento;
-            $this->boletoV3->inserirRetorno($now);
+            $now['numero_titulo'] = isset($c->numeroTitulo) ? $c->numeroTitulo : null;
+            $now['seu_numero'] = isset($c->seuNumero) ? $c->seuNumero : null;
+            $now['valor_titulo'] = isset($c->valorTitulo) ? $c->valorTitulo : null;
+            $now['data_liquidacao'] = isset($c->dataLiquidacao) ? $this->convertData($c->dataLiquidacao) : null;
+            $now['data_previsao'] = isset($c->dataPrevisaoCredito) ? $this->convertData($c->dataPrevisaoCredito) : null;
+            $now['valor_liquido'] = isset($c->valorLiquido) ? $c->valorLiquido : null;
+            $now['valor_tarifa'] = isset($c->valorTarifaMovimento) ? $c->valorTarifaMovimento : null;
+            $insert = $this->boletoV3->inserirRetorno($now);
 
             $update = array();
             $update['data_pagamento'] = $now['data_liquidacao'];
@@ -193,11 +304,57 @@ class BoletoV3 extends ControllerAuth {
             $update['valor_pago'] = $now['valor_liquido'];
             $update['valor_tarifa'] = $now['valor_tarifa'];
             $update['codigo_retorno'] = "05";
-            $this->boletoV3->updateBoleto($update, array('seu_numero'=>$now['seu_numero']));
+            $update_result = $this->boletoV3->updateBoleto($update, array('seu_numero'=>$now['seu_numero']));
+
+            if($debug){
+                $this->debugStep('Boleto processado para baixa', array(
+                    'indice'=>$i,
+                    'retorno'=>$now,
+                    'insert_retorno'=>$insert ? 'ok' : 'verificar',
+                    'update_boleto_por_seu_numero'=>$now['seu_numero'],
+                    'update_boleto'=>$update_result ? 'ok' : 'verificar'
+                ));
+            }
 
             $retorno[] = $now;
         endforeach;
+        if($debug){
+            $this->debugStep('Resumo dos boletos processados', array('quantidade'=>count($retorno), 'boletos'=>$retorno));
+        }
         unlink($path);
+        if($debug){
+            $this->debugStep('Arquivo de retorno removido apos processamento', $path);
+        }
+    }
+
+    private function debugEnabled(){
+        return isset($_GET['debug']) && $_GET['debug']=='1';
+    }
+
+    private function debugStep($title, $data=null){
+        $this->debug_steps[] = array('title'=>$title, 'data'=>$data);
+    }
+
+    private function renderDebug($title){
+        $this->output->set_content_type('text/html', 'UTF-8');
+        echo '<!doctype html><html><head><meta charset="utf-8">';
+        echo '<title>'.htmlspecialchars($title, ENT_QUOTES, 'UTF-8').'</title>';
+        echo '<style>body{font-family:Arial,sans-serif;margin:24px;background:#f7f7f7;color:#222}';
+        echo 'h1{font-size:24px;margin:0 0 18px}.step{background:#fff;border:1px solid #ddd;border-left:5px solid #0b8f53;margin:0 0 14px;padding:14px}';
+        echo '.step h2{font-size:16px;margin:0 0 10px;color:#0b6f40}pre{white-space:pre-wrap;word-break:break-word;background:#111;color:#e8e8e8;padding:12px;border-radius:3px;font-size:12px;line-height:1.4}';
+        echo '.muted{color:#777;font-size:12px;margin-bottom:18px}</style></head><body>';
+        echo '<h1>'.htmlspecialchars($title, ENT_QUOTES, 'UTF-8').'</h1>';
+        echo '<div class="muted">Debug gerado em '.date('d/m/Y H:i:s').'. Token e certificado nao sao exibidos.</div>';
+        foreach($this->debug_steps as $i => $step){
+            echo '<div class="step">';
+            echo '<h2>'.($i+1).'. '.htmlspecialchars($step['title'], ENT_QUOTES, 'UTF-8').'</h2>';
+            if($step['data']!==null){
+                echo '<pre>'.htmlspecialchars(print_r($step['data'], true), ENT_QUOTES, 'UTF-8').'</pre>';
+            }
+            echo '</div>';
+        }
+        echo '</body></html>';
+        exit;
     }
 
     private function getSicoobToken(){

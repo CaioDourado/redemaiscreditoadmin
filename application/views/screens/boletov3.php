@@ -3,6 +3,7 @@ switch ($tela):
     case 'retorno': ?>
             <h1>Tela de Retorno</h1>
             <form action="<?php echo base_url()."index.php/boletoV3/retorno_req" ?>" method="GET">
+                <input type="hidden" name="debug" value="1">
                 <div class="panel panel-google">
                     <div class="panel-heading">Requisitar Retorno</div>
                     <div class="panel-body border-top">
@@ -46,7 +47,7 @@ switch ($tela):
 									<td><?php echo data_pt($req->fim, false); ?></td>
 									<td><?php echo data_pt($req->criado_em, true); ?></td>
 									<td class="text-right">
-										<?php echo anchor('boletoV3/check_retorno/'.$req->id_solicitacao,'Verificar'); ?>
+										<?php echo anchor('boletoV3/check_retorno/'.$req->id_solicitacao.'?debug=1','Verificar'); ?>
 									</td>
 								</tr>
 							<?php endforeach; ?>
