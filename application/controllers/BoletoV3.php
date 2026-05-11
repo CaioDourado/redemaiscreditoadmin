@@ -227,12 +227,25 @@ class BoletoV3 extends ControllerAuth {
 
     public function b64Conversion($fileData=null, $fileName=null, $debug=false){
         if($fileData!==null && $fileName!==null){
-            $data = $fileData;
-            $decoded = base64_decode($data);
-            $file = 'retornos/'.$fileName;
+            $this->ensureRetornoDirs();
+            $data = preg_replace('/\s+/', '', (string)$fileData);
+            $decoded = base64_decode($data, true);
+            if($decoded===false){
+                if($debug){
+                    $this->debugStep('Falha ao decodificar base64', array('nomeArquivo'=>$fileName, 'tamanho_base64'=>strlen($data)));
+                }
+                return;
+            }
+
+            $file = $this->retornoPath($fileName);
             file_put_contents($file, $decoded);
             if($debug){
-                $this->debugStep('Arquivo zip salvo', array('arquivo'=>$file, 'bytes'=>strlen((string)$decoded)));
+                $this->debugStep('Arquivo de retorno salvo', array(
+                    'arquivo'=>$file,
+                    'bytes'=>strlen((string)$decoded),
+                    'primeiros_bytes_hex'=>bin2hex(substr($decoded, 0, 16)),
+                    'primeiros_bytes_texto'=>substr($decoded, 0, 80)
+                ));
             }
 
             $zip = new ZipArchive;
@@ -241,7 +254,8 @@ class BoletoV3 extends ControllerAuth {
                 $this->debugStep('Resultado ao abrir zip', array('resultado'=>$res));
             }
             if ($res === TRUE) {
-                $zip->extractTo('retornos/zips/');
+                $zip_dir = $this->retornoPath('zips');
+                $zip->extractTo($zip_dir);
                 if($debug){
                     $nomes = array();
                     for($i=0; $i<$zip->numFiles; $i++){
@@ -252,8 +266,8 @@ class BoletoV3 extends ControllerAuth {
                 $zip->close();
                 unlink($file);
                 $this->readFilesFromRetornosZips($debug);
-            }elseif($debug){
-                $this->debugStep('Falha ao abrir zip', array('arquivo'=>$file, 'resultado'=>$res));
+            }else{
+                $this->processNonZipRetorno($decoded, $fileName, $file, $res, $debug);
             }
         }elseif($debug){
             $this->debugStep('Conversao base64 ignorada por dados ausentes', array('fileData'=>($fileData!==null), 'fileName'=>$fileName));
@@ -261,13 +275,15 @@ class BoletoV3 extends ControllerAuth {
     }
 
     public function readFilesFromRetornosZips($debug=false){
-        $files = scandir("retornos/zips");
+        $this->ensureRetornoDirs();
+        $dir = $this->retornoPath('zips');
+        $files = scandir($dir);
         if($debug){
-            $this->debugStep('Arquivos na pasta retornos/zips', $files);
+            $this->debugStep('Arquivos na pasta retornos/zips', array('diretorio'=>$dir, 'arquivos'=>$files));
         }
         foreach($files as $i => $f):
             if($i>1):
-                $this->readJsonData("retornos/zips/".$f, $debug);
+                $this->readJsonData($dir.DIRECTORY_SEPARATOR.$f, $debug);
             endif;
         endforeach;
     }
@@ -329,6 +345,70 @@ class BoletoV3 extends ControllerAuth {
 
     private function debugEnabled(){
         return isset($_GET['debug']) && $_GET['debug']=='1';
+    }
+
+    private function ensureRetornoDirs(){
+        $base = $this->retornoPath();
+        $zips = $this->retornoPath('zips');
+        if(!is_dir($base)){
+            mkdir($base, 0775, true);
+        }
+        if(!is_dir($zips)){
+            mkdir($zips, 0775, true);
+        }
+    }
+
+    private function retornoPath($path=''){
+        $base = rtrim(FCPATH, '/\\').DIRECTORY_SEPARATOR.'retornos';
+        if($path===''){
+            return $base;
+        }
+        return $base.DIRECTORY_SEPARATOR.str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $path);
+    }
+
+    private function processNonZipRetorno($decoded, $fileName, $file, $zipResult, $debug=false){
+        if($debug){
+            $this->debugStep('Arquivo nao abriu como zip, tentando formatos alternativos', array(
+                'arquivo'=>$file,
+                'nomeArquivo'=>$fileName,
+                'resultado_zip'=>$zipResult,
+                'primeiros_bytes_hex'=>bin2hex(substr($decoded, 0, 16)),
+                'preview'=>substr($decoded, 0, 300)
+            ));
+        }
+
+        $content = $decoded;
+        if(substr($decoded, 0, 2)==="\x1f\x8b"){
+            $unzipped = gzdecode($decoded);
+            if($unzipped!==false){
+                $content = $unzipped;
+                if($debug){
+                    $this->debugStep('Conteudo gzip descompactado', array('bytes'=>strlen($content), 'preview'=>substr($content, 0, 300)));
+                }
+            }
+        }
+
+        $trimmed = ltrim($content, "\xEF\xBB\xBF\r\n\t ");
+        if($trimmed!=='' && ($trimmed[0]=='[' || $trimmed[0]=='{')){
+            $json_name = preg_replace('/\.[^.]+$/', '', basename($fileName)).'.json';
+            $json_path = $this->retornoPath('zips'.DIRECTORY_SEPARATOR.$json_name);
+            file_put_contents($json_path, $trimmed);
+            if(file_exists($file)){
+                unlink($file);
+            }
+            if($debug){
+                $this->debugStep('Arquivo tratado como JSON direto', array('arquivo'=>$json_path));
+            }
+            $this->readJsonData($json_path, $debug);
+            return;
+        }
+
+        if($debug){
+            $this->debugStep('Formato do retorno nao reconhecido', array(
+                'arquivo_salvo_para_inspecao'=>$file,
+                'observacao'=>'O Sicoob retornou um arquivo que nao e zip, json ou gzip reconhecido.'
+            ));
+        }
     }
 
     private function debugStep($title, $data=null){
