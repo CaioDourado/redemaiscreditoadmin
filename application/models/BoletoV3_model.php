@@ -30,7 +30,7 @@ class BoletoV3_model extends CI_Model{
     }
 
     public function getRetornoReq(){
-        return $this->db->query('SELECT * FROM retorno_req');
+        return $this->db->query('SELECT * FROM retorno_req ORDER BY criado_em DESC, id_retorno_req DESC LIMIT 20');
     }
 
     public function getRetornoReqArray($reqs){

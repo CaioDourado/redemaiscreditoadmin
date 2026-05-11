@@ -2,6 +2,7 @@
 require_once APPPATH.'config/env.php';
 
 class BoletoV3 extends ControllerAuth {
+    private $debug = false;
     private $debug_steps = array();
     function __construct(){
 		//ini_set('display_errors', 1);
@@ -344,7 +345,7 @@ class BoletoV3 extends ControllerAuth {
     }
 
     private function debugEnabled(){
-        return isset($_GET['debug']) && $_GET['debug']=='1';
+        return $this->debug===true && isset($_GET['debug']) && $_GET['debug']=='1';
     }
 
     private function ensureRetornoDirs(){
