@@ -42,6 +42,16 @@ class Franquia_model extends ModelAuth {
         return $this->db->query($sql);
     }
 
+    public function retornar_boletos_por_cnpj($cnpj=null){
+        if($cnpj==null) return null;
+
+        $cnpj_numeros = preg_replace('/\D/', '', $cnpj);
+        $sql  = 'SELECT * FROM boleto ';
+        $sql .= 'WHERE REPLACE(REPLACE(REPLACE(cpf_cnpj, ".", ""), "/", ""), "-", "") = "'.$this->db->escape_str($cnpj_numeros).'" ';
+        $sql .= 'ORDER BY data_vencimento DESC, id_boleto DESC';
+        return $this->db->query($sql);
+    }
+
     public function retornar_faturas($id_franquia=null){
         if($id_franquia!=null):
             $this->db->where(array('id_franquia_fk'=>$id_franquia));

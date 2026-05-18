@@ -27,6 +27,10 @@ class Franquia extends ControllerAuth{
         }
         $franquia = $this->franquia->retornar_franquia($id_franquia)->row();
         $unidades = $this->franquia->retornar_unidades($id_franquia)->result();
+        $boletos = array();
+        if($franquia!=null&&$franquia->cnpj!=null){
+            $boletos = $this->franquia->retornar_boletos_por_cnpj($franquia->cnpj)->result();
+        }
 
         $this->parameters['pg_title'] = '<i class="fa fa-user"></i> Perfil de Franquia';
         $this->parameters['pg_subtitle'] = 'Dados base, unidades, boletos e faturas.';
@@ -48,7 +52,7 @@ class Franquia extends ControllerAuth{
         */
 
         $this->parameters['menu'] = $this->load_menu('franquia');
-        $this->parameters['content'] = $this->load->view('screens/franquia', array('content' => 'perfil', 'franquia'=>$franquia, 'unidades'=>$unidades, 'id_franquia'=>$id_franquia), true);
+        $this->parameters['content'] = $this->load->view('screens/franquia', array('content' => 'perfil', 'franquia'=>$franquia, 'unidades'=>$unidades, 'boletos'=>$boletos, 'id_franquia'=>$id_franquia), true);
         $this->load->view('templates/maing', $this->parameters);
     }
 

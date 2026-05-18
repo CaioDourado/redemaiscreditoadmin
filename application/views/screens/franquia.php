@@ -94,8 +94,54 @@ switch($content):
 
             <div class="panel panel-google">
                 <div class="panel-heading">Boletos</div>
-                <div class="panel-body border-top">
-
+                <div class="table-responsive">
+                    <table class="panel-table table-hover no-margin">
+                        <thead>
+                            <tr>
+                                <th class="text-right">#</th>
+                                <th class="text-right">ID</th>
+                                <th class="text-right">NN</th>
+                                <th class="text-center">Geracao</th>
+                                <th class="text-center">Vencimento</th>
+                                <th>Descricao</th>
+                                <th class="text-center">Pagamento</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-right">Valor</th>
+                                <th class="text-center">Opcoes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if(empty($boletos)): ?>
+                                <tr>
+                                    <td colspan="10" class="text-center">Nenhum boleto encontrado para o CNPJ desta franquia.</td>
+                                </tr>
+                            <?php endif; ?>
+                            <?php foreach($boletos as $index => $boleto): ?>
+                                <?php
+                                    $status_boleto = 'Em aberto';
+                                    if(isset($boleto->cancelado)&&$boleto->cancelado==1) $status_boleto = 'Cancelado';
+                                    if(isset($boleto->pago)&&$boleto->pago==1) $status_boleto = 'Pago';
+                                ?>
+                                <tr>
+                                    <td class="text-right"><?php echo $index+1; ?></td>
+                                    <td class="text-right"><?php echo $boleto->id_boleto; ?></td>
+                                    <td class="text-right"><?php echo $boleto->nosso_numero; ?></td>
+                                    <td class="text-center"><?php echo data_pt($boleto->criado_em,false); ?></td>
+                                    <td class="text-center"><?php echo data_pt($boleto->data_vencimento,false); ?></td>
+                                    <td><?php echo $boleto->descricao_boleto; ?></td>
+                                    <td class="text-center">
+                                        <?php if($boleto->data_pagamento!="0000-00-00"&&$boleto->data_pagamento!=""): echo data_pt($boleto->data_pagamento,false); endif; ?>
+                                    </td>
+                                    <td class="text-center"><?php echo $status_boleto; ?></td>
+                                    <td class="text-right"><?php echo dinheiro($boleto->valor_boleto); ?></td>
+                                    <td class="text-center">
+                                        <?php echo anchor('boleto/visualizar/'.$boleto->hash,'Visualizar',array('target'=>'_blank')); ?> |
+                                        <?php echo anchor('boleto/baixar/'.$boleto->hash,'Baixar'); ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
                 </div>
             </div>
             <div class="panel panel-google">
