@@ -467,14 +467,14 @@ class Cliente extends ControllerAuth {
                     $this->form_validation->set_rules('uf', 'UF', 'required');
                     if($this->form_validation->run()==TRUE) {
                         $parametros = array();
-                        $parametros['DEVEDOR_CPF'] = $this->complete($this->input->post('cpf'),11,'left','0');
+                        $parametros['DEVEDOR_CPF'] = $this->complete(only_numbers($this->input->post('cpf')),11,'left','0');
                         $parametros['DEVEDOR_NOME'] = $this->complete($this->replaceSpecialCarac($this->input->post('nome')),60);
                         $parametros['DEVEDOR_ENDERECO'] = $this->complete($this->replaceSpecialCarac($this->input->post('logradouro').' '.$this->input->post('numero').' '.$this->input->post('complemento')),40);
                         $parametros['DEVEDOR_BAIRRO'] = $this->complete($this->replaceSpecialCarac($this->input->post('bairro')),30);
                         $parametros['DEVEDOR_CIDADE'] = $this->complete($this->replaceSpecialCarac($this->input->post('cidade')),30);
                         $parametros['DEVEDOR_UF'] = $this->input->post('uf');
                         $parametros['DEVEDOR_NASCIMENTO'] = str_replace('/','',$this->input->post('data_nascimento'));
-                        $parametros['DEVEDOR_CEP'] = $this->input->post('cep');
+                        $parametros['DEVEDOR_CEP'] = only_numbers($this->input->post('cep'));
                         $parametros['VALOR'] = str_replace('.','',$this->input->post('valor'));
                         $parametros['VALOR'] = $this->complete(str_replace(',','',$parametros['VALOR']),'11','left','0');
                         $parametros['CONTRATO'] = $this->complete($this->input->post('contrato'),20);
@@ -504,13 +504,13 @@ class Cliente extends ControllerAuth {
                     $this->form_validation->set_rules('uf', 'UF', 'required');
                     if($this->form_validation->run()==TRUE) {
                         $parametros = array();
-                        $parametros['DEVEDOR_CNPJ'] = $this->complete($this->input->post('cnpj'),14,'left','0');
+                        $parametros['DEVEDOR_CNPJ'] = $this->complete(only_numbers($this->input->post('cnpj')),14,'left','0');
                         $parametros['DEVEDOR_RAZAO_SOCIAL'] = $this->complete($this->replaceSpecialCarac($this->input->post('razao_social')),60);
                         $parametros['DEVEDOR_ENDERECO'] = $this->complete($this->replaceSpecialCarac($this->input->post('logradouro')),60);
                         $parametros['DEVEDOR_BAIRRO'] = $this->complete($this->replaceSpecialCarac($this->input->post('bairro')),30);
                         $parametros['DEVEDOR_CIDADE'] = $this->complete($this->replaceSpecialCarac($this->input->post('cidade')),30);
                         $parametros['DEVEDOR_UF'] = $this->input->post('uf');
-                        $parametros['DEVEDOR_CEP'] = $this->input->post('cep');
+                        $parametros['DEVEDOR_CEP'] = only_numbers($this->input->post('cep'));
                         $parametros['VALOR'] = str_replace('.','',$this->input->post('valor'));
                         $parametros['VALOR'] = $this->complete(str_replace(',','',$parametros['VALOR']),'14','left','0');
                         $parametros['CONTRATO'] = $this->complete($this->input->post('contrato'),20);
@@ -869,20 +869,13 @@ class Cliente extends ControllerAuth {
             $parametros['CIDADE_CREDOR'] = $this->complete($this->replaceSpecialCarac($cliente->cidade),30);
         }
 
-        $url_preparada = $this->prepara_url($consulta->requisicao,$parametros);
-
-        if(!isset($parametros['NOME_PAI'])) $url_preparada = str_replace('&nome_pai={{NOME_PAI}}','',$url_preparada);
-        if(!isset($parametros['NOME_MAE'])) $url_preparada = str_replace('&nome_mae={{NOME_MAE}}','',$url_preparada);
-        if(!isset($parametros['DEVEDOR_MAE'])) $url_preparada = str_replace('&nome_mae={{DEVEDOR_MAE}}','&nome_mae=++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++',$url_preparada);
-
         if($slug=="negativacaoscpcpf"||$slug=="negativacaoscpcpj"){
-            if($slug=="negativacaoscpcpf"){
-                if(!isset($parametros['DEVEDOR_DDD'])) $url_preparada = str_replace('&ddd={{DEVEDOR_DDD}}','&ddd=0000',$url_preparada);
-                if(!isset($parametros['DEVEDOR_TELEFONE'])) $url_preparada = str_replace('&telefone={{DEVEDOR_TELEFONE}}','&telefone=000000000',$url_preparada);
-            }else{
-                if(!isset($parametros['DEVEDOR_DDD'])) $url_preparada = str_replace('&ddd={{DEVEDOR_DDD}}','&ddd=000',$url_preparada);
-                if(!isset($parametros['DEVEDOR_TELEFONE'])) $url_preparada = str_replace('&telefone={{DEVEDOR_TELEFONE}}','&telefone=00000000',$url_preparada);
-            }
+            $url_preparada = $this->montar_url_negativacao_scpc($slug, $parametros);
+        }else{
+            $url_preparada = $this->prepara_url($consulta->requisicao,$parametros);
+
+            if(!isset($parametros['NOME_PAI'])) $url_preparada = str_replace('&nome_pai={{NOME_PAI}}','',$url_preparada);
+            if(!isset($parametros['NOME_MAE'])) $url_preparada = str_replace('&nome_mae={{NOME_MAE}}','',$url_preparada);
         }
 
         $milis_atual = strtotime(date('Y-m-d H:i:s'));
@@ -903,13 +896,18 @@ class Cliente extends ControllerAuth {
         $dados_consulta_efetuada['criado_em'] = $negativacao->criado_em;
         $dados_consulta_efetuada['recriacao'] = date('Y-m-d H:i:s');
 
-        $retorno_principal = file_get_contents($url_preparada);
+        $retorno_principal = @file_get_contents($url_preparada);
+        if($retorno_principal === false || trim($retorno_principal) === ''){
+            set_msg('Ocorreu um erro na negativação: fornecedor não retornou uma resposta válida.');
+            redirect(current_url());
+        }
         if($slug!="negativacaoscpcpf"&&$slug!="negativacaoscpcpj"){
             $retorno_array = simplexml_load_string($retorno_principal);
             $retorno_json = json_encode($retorno_array);
         }else{
             $retorno_json = '{}';
-            if (strpos($retorno_principal, 'ERRO') !== false){
+            $retorno_scpc = trim($retorno_principal);
+            if (strpos($retorno_scpc, 'ERRO') !== false || substr($retorno_scpc, 0, 1) === '3'){
                 set_msg('Ocorreu um erro na negativação: '.$retorno_principal);
                 redirect(current_url());
             }else{
@@ -924,6 +922,106 @@ class Cliente extends ControllerAuth {
         $this->cliente->inserir_negativacao($dados_consulta_efetuada);
         $id_consulta = $this->cliente->retornar_id_ultima_negativacao($negativacao->id_cliente_fk,$negativacao->id_usuario_fk);
         return $id_consulta;
+    }
+
+    private function montar_url_negativacao_scpc($slug, &$parametros){
+        if($slug=="negativacaoscpcpf"){
+            $parametros['TIPO_DEVEDOR'] = isset($parametros['TIPO_DEVEDOR']) ? $parametros['TIPO_DEVEDOR'] : 'C';
+            $parametros['DEVEDOR_MAE'] = isset($parametros['DEVEDOR_MAE']) ? $parametros['DEVEDOR_MAE'] : '';
+            $parametros['DEVEDOR_DDD'] = isset($parametros['DEVEDOR_DDD']) ? $parametros['DEVEDOR_DDD'] : '';
+            $parametros['DEVEDOR_TELEFONE'] = isset($parametros['DEVEDOR_TELEFONE']) ? $parametros['DEVEDOR_TELEFONE'] : '';
+
+            $campos = array(
+                'codigo' => $this->scpc_texto($parametros['USUARIO'], 5),
+                'senha' => $this->scpc_texto($parametros['SENHA'], 5),
+                'cnpj_empresa' => $this->scpc_numero($parametros['CNPJ_CREDOR'], 15),
+                'nome_empresa' => $this->scpc_texto($parametros['RAZAO_CREDOR'], 60),
+                'endereco_empresa' => $this->scpc_texto($parametros['ENDERECO_CREDOR'], 40),
+                'bairro_empresa' => $this->scpc_texto($parametros['BAIRRO_CREDOR'], 30),
+                'cidade_empresa' => $this->scpc_texto($parametros['CIDADE_CREDOR'], 30),
+                'estado_empresa' => strtoupper($this->scpc_texto($parametros['UF_CREDOR'], 2)),
+                'cep_empresa' => $this->scpc_numero($parametros['CEP_CREDOR'], 8),
+                'ddd_empresa' => $this->scpc_numero($parametros['DDD_CREDOR'], 4),
+                'telefone_empresa' => $this->scpc_numero($parametros['TELEFONE_CREDOR'], 9),
+                'tipo_devedor' => $this->scpc_texto($parametros['TIPO_DEVEDOR'], 1),
+                'nome' => $this->scpc_texto($parametros['DEVEDOR_NOME'], 60),
+                'cpf' => $this->scpc_numero($parametros['DEVEDOR_CPF'], 11),
+                'data_nascimento' => $this->scpc_data($parametros['DEVEDOR_NASCIMENTO']),
+                'nome_mae' => $this->scpc_texto($parametros['DEVEDOR_MAE'], 60),
+                'ddd' => $this->scpc_numero($parametros['DEVEDOR_DDD'], 4),
+                'telefone' => $this->scpc_numero($parametros['DEVEDOR_TELEFONE'], 9),
+                'endereco' => $this->scpc_texto($parametros['DEVEDOR_ENDERECO'], 40),
+                'bairro' => $this->scpc_texto($parametros['DEVEDOR_BAIRRO'], 30),
+                'municipio' => $this->scpc_texto($parametros['DEVEDOR_CIDADE'], 30),
+                'estado' => strtoupper($this->scpc_texto($parametros['DEVEDOR_UF'], 2)),
+                'cep' => $this->scpc_numero($parametros['DEVEDOR_CEP'], 8),
+                'natureza_operacao' => $this->scpc_numero($parametros['NATUREZA_OPERACAO'], 2),
+                'contrato' => $this->scpc_texto($parametros['CONTRATO'], 20),
+                'parcelas' => $this->scpc_numero($parametros['PARCELAS'], 2),
+                'valor' => $this->scpc_numero($parametros['VALOR'], 11),
+                'data_atraso' => $this->scpc_data($parametros['DATA_ATRASO']),
+                'data_termino' => $this->scpc_data($parametros['DATA_TERMINO']),
+            );
+
+            return $this->scpc_url('http://www.3ccomunicacao.com.br/webservice/inclusao/pf/string.php', $campos);
+        }
+
+        $parametros['TIPO_DEVEDOR'] = isset($parametros['TIPO_DEVEDOR']) ? $parametros['TIPO_DEVEDOR'] : 'D';
+        $parametros['DEVEDOR_DDD'] = isset($parametros['DEVEDOR_DDD']) ? $parametros['DEVEDOR_DDD'] : '';
+        $parametros['DEVEDOR_TELEFONE'] = isset($parametros['DEVEDOR_TELEFONE']) ? $parametros['DEVEDOR_TELEFONE'] : '';
+
+        $campos = array(
+            'codigo' => $this->scpc_texto($parametros['USUARIO'], 10),
+            'senha' => $this->scpc_texto($parametros['SENHA'], 10),
+            'cnpj_empresa' => $this->scpc_numero($parametros['CNPJ_CREDOR'], 14),
+            'nome_empresa' => $this->scpc_texto($parametros['RAZAO_CREDOR'], 60),
+            'endereco_empresa' => $this->scpc_texto($parametros['ENDERECO_CREDOR'], 40),
+            'bairro_empresa' => $this->scpc_texto($parametros['BAIRRO_CREDOR'], 30),
+            'cidade_empresa' => $this->scpc_texto($parametros['CIDADE_CREDOR'], 30),
+            'estado_empresa' => strtoupper($this->scpc_texto($parametros['UF_CREDOR'], 2)),
+            'cep_empresa' => $this->scpc_numero($parametros['CEP_CREDOR'], 8),
+            'ddd_empresa' => $this->scpc_numero($parametros['DDD_CREDOR'], 4),
+            'telefone_empresa' => $this->scpc_numero($parametros['TELEFONE_CREDOR'], 9),
+            'tipo_devedor' => $this->scpc_texto($parametros['TIPO_DEVEDOR'], 1),
+            'nome' => $this->scpc_texto($parametros['DEVEDOR_RAZAO_SOCIAL'], 60),
+            'cnpj' => $this->scpc_numero($parametros['DEVEDOR_CNPJ'], 14),
+            'ddd' => $this->scpc_numero($parametros['DEVEDOR_DDD'], 3),
+            'telefone' => $this->scpc_numero($parametros['DEVEDOR_TELEFONE'], 8),
+            'endereco' => $this->scpc_texto($parametros['DEVEDOR_ENDERECO'], 40),
+            'bairro' => $this->scpc_texto($parametros['DEVEDOR_BAIRRO'], 30),
+            'municipio' => $this->scpc_texto($parametros['DEVEDOR_CIDADE'], 30),
+            'estado' => strtoupper($this->scpc_texto($parametros['DEVEDOR_UF'], 2)),
+            'cep' => $this->scpc_numero($parametros['DEVEDOR_CEP'], 8),
+            'natureza_operacao' => $this->scpc_numero($parametros['NATUREZA_OPERACAO'], 2),
+            'razao_devedor' => $this->scpc_texto($parametros['DEVEDOR_RAZAO_SOCIAL'], 60),
+            'titulo' => $this->scpc_texto($parametros['CONTRATO'], 20),
+            'parcelas' => $this->scpc_numero($parametros['PARCELAS'], 2),
+            'valor' => $this->scpc_numero($parametros['VALOR'], 14),
+            'data_atraso' => $this->scpc_data($parametros['DATA_ATRASO']),
+            'data_termino' => $this->scpc_data($parametros['DATA_TERMINO']),
+        );
+
+        return $this->scpc_url('http://www.3ccomunicacao.com.br/webservice/inclusao/pj/string.php', $campos);
+    }
+
+    private function scpc_url($base, $campos){
+        return $base.'?'.http_build_query($campos, '', '&');
+    }
+
+    private function scpc_texto($valor, $tamanho){
+        $valor = $this->replaceSpecialCarac((string) $valor);
+        $valor = preg_replace('/[^A-Za-z0-9 ]/', ' ', $valor);
+        $valor = preg_replace('/\s+/', ' ', trim($valor));
+        return str_pad(substr($valor, 0, $tamanho), $tamanho, ' ', STR_PAD_RIGHT);
+    }
+
+    private function scpc_numero($valor, $tamanho){
+        $valor = only_numbers((string) $valor);
+        return str_pad(substr($valor, -$tamanho), $tamanho, '0', STR_PAD_LEFT);
+    }
+
+    private function scpc_data($valor){
+        return $this->scpc_numero($valor, 8);
     }
     public function redefinir_senha(){
 
