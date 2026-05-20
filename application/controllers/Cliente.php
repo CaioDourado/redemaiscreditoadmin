@@ -65,7 +65,7 @@ class Cliente extends ControllerAuth {
             $this->load->helper('phpmailer');
 
             $from = 'redemaiscredito@gmail.com';
-            $nome = 'Rede Mais CrÃ©dito';
+            $nome = 'Rede Mais Crédito';
             $assunto = $this->input->post('titulo');
             $mensagem = $this->input->post('mensagem');
 
@@ -91,18 +91,18 @@ class Cliente extends ControllerAuth {
         $this->load->view('templates/maingtext',$this->parameters);
     }
     public function gestao_negativacao(){
-        $id_cliente = $this->verificar_parametro(3,'NÃ£o foi informado um cliente vÃ¡lido','cliente');
+        $id_cliente = $this->verificar_parametro(3,'Não foi informado um cliente válido','cliente');
         $cliente = $this->cliente->retornar($id_cliente)->row();
         $negativacoes = $this->cliente->retornar_negativacoes($id_cliente)->result();
         foreach($negativacoes as $index => $n):
             $negativacoes[$index]->parametros = json_decode($n->parametros);
         endforeach;
 
-        array_push($this->parameters['breadcrumb'],array('cliente/gestao_negativacao/'.$cliente->id_cliente,'GestÃ£o de NegativaÃ§Ãµes de '.$cliente->nome_ou_fantasia));
+        array_push($this->parameters['breadcrumb'],array('cliente/gestao_negativacao/'.$cliente->id_cliente,'Gestão de Negativações de '.$cliente->nome_ou_fantasia));
         $this->parameters['menu'] = $this->load->view('components/menu',array('menu'=>'cliente_perfil','cliente'=>$cliente),true);
         $this->parameters['menu'] .= $this->load->view('components/menu',array('menu'=>'mais_opcoes'),true);
 
-        $this->parameters['pg_title'] = '<i class="fa fa-minus-circle"></i> GestÃ£o de NegativaÃ§Ãµes';
+        $this->parameters['pg_title'] = '<i class="fa fa-minus-circle"></i> Gestão de Negativações';
         $this->parameters['pg_subtitle'] = $cliente->nome_ou_fantasia;
 
         $this->parameters['content'] = $this->load->view('screens/cliente',array('content'=>'gestao_negativacao','cliente'=>$cliente,'negativacoes'=>$negativacoes),true);
@@ -148,8 +148,8 @@ class Cliente extends ControllerAuth {
         var_dump(valida_cnpj('16692549000124'));
     }
     public function ultimas_aberturas(){
-        $this->parameters['pg_title'] = '<i class="fa fa-users"></i> Ãšltimas Aberturas';
-        $this->parameters['pg_subtitle'] = 'Dados dos Ãºltimos clientes abertos no sistema.';
+        $this->parameters['pg_title'] = '<i class="fa fa-users"></i> Últimas Aberturas';
+        $this->parameters['pg_subtitle'] = 'Dados dos últimos clientes abertos no sistema.';
 
         $this->parameters['menu'] = $this->load_menu('clientes');
 
@@ -162,7 +162,7 @@ class Cliente extends ControllerAuth {
         $clientes = $this->cliente->retornar_agrupado_por_cidade()->result();
 
         $this->parameters['pg_title'] = '<i class="fa fa-users"></i> Clientes';
-        $this->parameters['pg_subtitle'] = 'Gerenciamento de Clientes por Ãrea';
+        $this->parameters['pg_subtitle'] = 'Gerenciamento de Clientes por Área';
 
         $this->parameters['menu'] = $this->load_menu('clientes');
 
@@ -170,12 +170,12 @@ class Cliente extends ControllerAuth {
         $this->load->view('templates/maing',$this->parameters);
     }
     public function clientes_por_area(){
-        $cidade = $this->verificar_parametro(3,'NÃ£o foi informada uma cidade','cliente');
+        $cidade = $this->verificar_parametro(3,'Não foi informada uma cidade','cliente');
         $cidade = str_replace('_',' ',$cidade);
         $clientes = $this->cliente->retornar_de_cidade($cidade)->result();
 
         $this->parameters['pg_title'] = '<i class="fa fa-users"></i> Clientes';
-        $this->parameters['pg_subtitle'] = 'Clientes filtrados por Ãrea';
+        $this->parameters['pg_subtitle'] = 'Clientes filtrados por Área';
 
         $this->parameters['menu'] = $this->load_menu('clientes');
 
@@ -225,9 +225,9 @@ class Cliente extends ControllerAuth {
                 $id = $this->cliente->retornar_ultimo_id();
                 $dados_usuario = $this->cliente->criar_usuario($id,$nome);
                 if($dados_usuario!=null)
-                    set_msg('<br><b>UsuÃ¡rio: </b> '.$dados_usuario['usuario'].'<br><b>Senha: </b>'.$dados_usuario['senha'],'sucesso');
+                    set_msg('<br><b>Usuário: </b> '.$dados_usuario['usuario'].'<br><b>Senha: </b>'.$dados_usuario['senha'],'sucesso');
                 else
-                    set_msg('Ocorreu um erro na criaÃ§Ã£o de UsuÃ¡rio.');
+                    set_msg('Ocorreu um erro na criação de Usuário.');
                 redirect('cliente');
             }else{
                 set_msg('Ocorreu um erro na hora de cadastrar o Cliente.');
@@ -242,7 +242,7 @@ class Cliente extends ControllerAuth {
         $this->load->view('templates/main_sem_janela',$this->parameters);
     }
     public function perfil(){
-        $id_cliente = $this->verificar_parametro(3,'NÃ£o foi informado um cliente vÃ¡lido','cliente');
+        $id_cliente = $this->verificar_parametro(3,'Não foi informado um cliente válido','cliente');
         $cliente = $this->cliente->retornar($id_cliente)->row();
         $consultas = $this->cliente->retornar_consultas_efetuadas($id_cliente, 300)->result();
         $veiculares = $this->cliente->retornar_consultas_veiculares($id_cliente)->result();
@@ -287,7 +287,7 @@ class Cliente extends ControllerAuth {
     public function alterar(){
         $this->load->model('plano_model','plano');
 
-        $id_cliente = $this->verificar_parametro(3,'NÃ£o foi informado um cliente vÃ¡lido','cliente');
+        $id_cliente = $this->verificar_parametro(3,'Não foi informado um cliente válido','cliente');
         $cliente = $this->cliente->retornar($id_cliente)->row();
         $consultores = $this->cliente->retornar_consultores_array();
         $planos = $this->plano->retornar_todos_array();
@@ -340,10 +340,10 @@ class Cliente extends ControllerAuth {
         $this->load->view('templates/main_sem_janela',$this->parameters);
     }
     public function Inativar(){
-        $id_cliente = $this->verificar_parametro(3,'NÃ£o foi informado um cliente vÃ¡lido','cliente');
+        $id_cliente = $this->verificar_parametro(3,'Não foi informado um cliente válido','cliente');
         $cliente = $this->cliente->retornar($id_cliente)->row();
 
-        $this->form_validation->set_rules('status', 'Motivo de InativaÃ§Ã£o', 'required');
+        $this->form_validation->set_rules('status', 'Motivo de Inativação', 'required');
 
         if($this->form_validation->run()==TRUE) {
            if($this->cliente->alterar($id_cliente,array('status'=>$this->input->post('status')))){
@@ -364,7 +364,7 @@ class Cliente extends ControllerAuth {
         $this->load->view('templates/main_sem_janela',$this->parameters);
     }
     public function reativar(){
-        $id_cliente = $this->verificar_parametro(3,'NÃ£o foi informado um cliente vÃ¡lido','cliente');
+        $id_cliente = $this->verificar_parametro(3,'Não foi informado um cliente válido','cliente');
         $cliente = $this->cliente->retornar($id_cliente)->row();
 
         if($this->cliente->alterar($id_cliente,array('status'=>1))) {
@@ -376,7 +376,7 @@ class Cliente extends ControllerAuth {
         redirect('cliente');
     }
     public function ver_consulta(){
-        $id_consulta_efetuada = $this->verificar_parametro('3','NÃ£o foi informada uma consulta vÃ¡lida.','cliente');
+        $id_consulta_efetuada = $this->verificar_parametro('3','Não foi informada uma consulta válida.','cliente');
         $consulta_efetuada = $this->cliente->retornar_consulta_efetuada($id_consulta_efetuada)->row();
         $cliente = $this->cliente->retornar($consulta_efetuada->id_cliente_fk)->row();
 
@@ -393,7 +393,7 @@ class Cliente extends ControllerAuth {
         $this->load->view('templates/main_sem_janela',$this->parameters);
     }
     public function produtos_valores(){
-        $id_cliente = $this->verificar_parametro(3,'NÃ£o foi informado um cliente vÃ¡lido','cliente');
+        $id_cliente = $this->verificar_parametro(3,'Não foi informado um cliente válido','cliente');
         $cliente = $this->cliente->retornar($id_cliente)->row();
 
         $this->load->model('consulta_model','consulta');
@@ -432,19 +432,19 @@ class Cliente extends ControllerAuth {
     }
     public function negativacao_visualizar(){
         $this->load->model('negativacao_model','negativacao');
-        $id_negativacao = $this->verificar_parametro(3,'NÃ£o foi informada uma negativacaÃ§Ã£o.');
+        $id_negativacao = $this->verificar_parametro(3,'Não foi informada uma negativacação.');
         $negativacao = $this->negativacao->retornar($id_negativacao)->row();
         $dados_parametros = json_decode($negativacao->parametros);
 
         array_push($this->parameters['breadcrumb'],array('cliente/cadastrar','Cadastrar'));
-        $this->parameters['title'] .= ' - NegativaÃ§Ã£o';
-        $this->parameters['title_window'] .= ' - Visualizar NegativaÃ§Ã£o';
+        $this->parameters['title'] .= ' - Negativação';
+        $this->parameters['title_window'] .= ' - Visualizar Negativação';
         $this->parameters['content'] = $this->load->view('screens/cliente',array('content'=>'visualizar_'.$negativacao->slug,'negativacao'=>$negativacao,'parametros'=>$dados_parametros),true);
         $this->load->view('templates/main_sem_janela',$this->parameters);
     }
     public function negativacao_refazer(){
         $this->load->model('negativacao_model','negativacao');
-        $id_negativacao = $this->verificar_parametro(3,'NÃ£o foi informada uma negativacaÃ§Ã£o.');
+        $id_negativacao = $this->verificar_parametro(3,'Não foi informada uma negativacação.');
         $negativacao = $this->negativacao->retornar($id_negativacao)->row();
 		$dados = json_decode($negativacao->parametros);
 		$cliente = $this->cliente->retornar($negativacao->id_cliente_fk)->row();
@@ -487,13 +487,13 @@ class Cliente extends ControllerAuth {
                         $parametros['DATA_TERMINO'] = str_replace('/','',$this->input->post('vencimento_fim'));
 
                         $id_consulta = $this->requisicao_negativacao($parametros, $negativacao->slug,$negativacao,$cliente);
-                        set_msg('Sua NegativaÃ§Ã£o foi efetuada com sucesso!','successo');
+                        set_msg('Sua Negativação foi efetuada com sucesso!','successo');
                         redirect('cliente/perfil/'.$cliente->id_cliente);
                     }
                 break;
             case 'negativacaoscpcpj':
                     $this->form_validation->set_rules('cnpj', 'CNPJ', 'required|only_numbers');
-                    $this->form_validation->set_rules('razao_social', 'RazÃ£o Social', 'required');
+                    $this->form_validation->set_rules('razao_social', 'Razão Social', 'required');
                     $this->form_validation->set_rules('natureza', 'Natureza', 'required');
                     $this->form_validation->set_rules('vencimento_inicio', 'Vencimento Inicio', 'required');
                     $this->form_validation->set_rules('vencimento_fim', 'Vencimento Fim', 'required');
@@ -526,20 +526,20 @@ class Cliente extends ControllerAuth {
                         $parametros['DATA_TERMINO'] = str_replace('/','',$this->input->post('vencimento_fim'));
 
                         $id_consulta = $this->requisicao_negativacao($parametros, $negativacao->slug,$negativacao,$cliente);
-                        set_msg('Sua NegativaÃ§Ã£o foi efetuada com sucesso!','successo');
+                        set_msg('Sua Negativação foi efetuada com sucesso!','successo');
                         redirect('cliente/perfil/'.$cliente->id_cliente);
                     }
                 break;
         endswitch;
 
-        $this->parameters['title'] .= ' - NegativaÃ§Ã£o';
-        $this->parameters['title_window'] .= ' - RecriaÃ§Ã£o de NegativaÃ§Ã£o';
+        $this->parameters['title'] .= ' - Negativação';
+        $this->parameters['title_window'] .= ' - Recriação de Negativação';
         $this->parameters['content'] = $this->load->view('screens/cliente',array('content'=>'refazer_'.$negativacao->slug,'negativacao'=>$negativacao,'cliente'=>$cliente,'devedor'=>$dados),true);
         $this->load->view('templates/main_sem_janela',$this->parameters);
     }
     public function negativacao_baixar(){
         $this->load->model('negativacao_model','negativacao');
-        $id_negativacao = $this->verificar_parametro(3,'NÃ£o foi informada uma negativacaÃ§Ã£o.');
+        $id_negativacao = $this->verificar_parametro(3,'Não foi informada uma negativacação.');
         $negativacao = $this->negativacao->retornar($id_negativacao)->row();
         $dados_parametros = json_decode($negativacao->parametros);
 
@@ -601,7 +601,7 @@ class Cliente extends ControllerAuth {
         $this->load->view('templates/main_sem_janela',$this->parameters);
     }
     public function gerar_faturamento(){
-        $id_cliente = $this->verificar_parametro(3,'NÃ£o foi informado um cliente vÃ¡lido','cliente');
+        $id_cliente = $this->verificar_parametro(3,'Não foi informado um cliente válido','cliente');
         $cliente = $this->cliente->retornar($id_cliente)->row();
         $faturas = $this->cliente->retornar_faturas($id_cliente)->result();
 
@@ -641,8 +641,8 @@ class Cliente extends ControllerAuth {
                 $fatura_item_atual = new stdClass();
                 $fatura_item_atual->id_cliente_fk = $linha->id_cliente_fk;
                 $fatura_item_atual->nome = $linha->nome;
-                if($linha->nome=="+ CrÃ©dito Pefin + Varejo") $fatura_item_atual->nome = "+ CrÃ©dito Pefin";
-                if($linha->nome=="+ CrÃ©dito Pefin + Varejo PJ") $fatura_item_atual->nome = "+ CrÃ©dito Pefin PJ";
+                if($linha->nome=="+ Crédito Pefin + Varejo") $fatura_item_atual->nome = "+ Crédito Pefin";
+                if($linha->nome=="+ Crédito Pefin + Varejo PJ") $fatura_item_atual->nome = "+ Crédito Pefin PJ";
                 $fatura_item_atual->descricao = $linha->entrada;
                 $fatura_item_atual->grupo = $linha->grupo;
                 $fatura_item_atual->valor = $linha->valor;
@@ -672,11 +672,11 @@ class Cliente extends ControllerAuth {
         $this->load->view('templates/maing',$this->parameters);
     }
     public function gerar_faturamento_prorata(){
-		$id_cliente = $this->verificar_parametro(3,'NÃ£o foi informado um cliente vÃ¡lido','cliente');
+		$id_cliente = $this->verificar_parametro(3,'Não foi informado um cliente válido','cliente');
 		$cliente = $this->cliente->retornar($id_cliente)->row();
 		$faturas = $this->cliente->retornar_faturas($id_cliente)->result();
 
-		$this->form_validation->set_rules('inicio', 'InÃ­cio', 'required');
+		$this->form_validation->set_rules('inicio', 'Início', 'required');
 		$this->form_validation->set_rules('fim', 'Fim', 'required');
 		$this->form_validation->set_rules('vencimento', 'Vencimento', 'required');
 
@@ -688,32 +688,32 @@ class Cliente extends ControllerAuth {
 			$fim        = data_db($this->input->post('fim'));
 			$vencimento = data_db($this->input->post('vencimento'));
 
-			// diferenÃ§a em dias entre as datas (mantendo sua funÃ§Ã£o atual)
+			// diferença em dias entre as datas (mantendo sua função atual)
 			$dias_fat = diferenca_datas($inicio, $fim);
 
-			// valor base da mensalidade (numÃ©rico)
+			// valor base da mensalidade (numérico)
 			$mensalidade_base = (float) $cliente->mensalidade;
 
-			// por padrÃ£o, assume fatura completa
+			// por padrão, assume fatura completa
 			$tipo_fatura      = 'Completa';
 			$mensalidade_cobrada = $mensalidade_base;
 
-			// --- PRÃ“-RATA SE PERÃODO < 30 DIAS ---
+			// --- PRÓ-RATA SE PERÍODO < 30 DIAS ---
 			if ($dias_fat < 30) {
-				// valor diÃ¡rio da mensalidade (base 30 dias)
+				// valor diário da mensalidade (base 30 dias)
 				$valor_diario = $mensalidade_base / 30;
 
-				// mensalidade proporcional ao perÃ­odo informado
+				// mensalidade proporcional ao período informado
 				$mensalidade_cobrada = $valor_diario * $dias_fat;
 
-				// opcional: marcar o tipo da fatura como prÃ³-rata
-				$tipo_fatura = 'PrÃ³-rata';
+				// opcional: marcar o tipo da fatura como pró-rata
+				$tipo_fatura = 'Pró-rata';
 			}
-			// se quiser tambÃ©m tratar > 30 dias como prÃ³-rata "pra mais", vocÃª pode fazer:
+			// se quiser também tratar > 30 dias como pró-rata "pra mais", você pode fazer:
 			// else if ($dias_fat > 30) {
 			//     $valor_diario = $mensalidade_base / 30;
 			//     $mensalidade_cobrada = $valor_diario * $dias_fat;
-			//     $tipo_fatura = 'PrÃ³-rata (+30 dias)';
+			//     $tipo_fatura = 'Pró-rata (+30 dias)';
 			// }
 
 			$faturamento = $this->faturamento
@@ -728,16 +728,16 @@ class Cliente extends ControllerAuth {
 			$fatura_atual->credito              = 0;
 			$fatura_atual->inicio               = $inicio;
 			$fatura_atual->fim                  = $fim;
-			$fatura_atual->nome                 = 'Consumo ('.data_pt($inicio, false).' Ã  '.data_pt($fim, false).')';
+			$fatura_atual->nome                 = 'Consumo ('.data_pt($inicio, false).' à '.data_pt($fim, false).')';
 
 			// agora usamos o tipo calculado
 			$fatura_atual->tipo         = $tipo_fatura;
 
-			// mantÃ©m registro da mensalidade cheia e da mensalidade efetivamente cobrada
+			// mantém registro da mensalidade cheia e da mensalidade efetivamente cobrada
 			$fatura_atual->mensalidade  = $mensalidade_cobrada;
 			$fatura_atual->franquia     = $cliente->franquia;
 
-			// valor inicial da fatura = mensalidade (jÃ¡ prÃ³-rata se for o caso)
+			// valor inicial da fatura = mensalidade (já pró-rata se for o caso)
 			$fatura_atual->valor        = $mensalidade_cobrada;
 
 			$fatura_atual->consumo      = 0;
@@ -748,15 +748,15 @@ class Cliente extends ControllerAuth {
 				$fatura_item_atual->id_cliente_fk = $linha->id_cliente_fk;
 
 				$fatura_item_atual->nome = $linha->nome;
-				if ($linha->nome == "+ CrÃ©dito Pefin + Varejo")   $fatura_item_atual->nome = "+ CrÃ©dito Pefin";
-				if ($linha->nome == "+ CrÃ©dito Pefin + Varejo PJ") $fatura_item_atual->nome = "+ CrÃ©dito Pefin PJ";
+				if ($linha->nome == "+ Crédito Pefin + Varejo")   $fatura_item_atual->nome = "+ Crédito Pefin";
+				if ($linha->nome == "+ Crédito Pefin + Varejo PJ") $fatura_item_atual->nome = "+ Crédito Pefin PJ";
 
 				$fatura_item_atual->descricao = $linha->entrada;
 				$fatura_item_atual->grupo     = $linha->grupo;
 				$fatura_item_atual->valor     = $linha->valor;
 				$fatura_item_atual->data      = $linha->data;
 
-				// soma o consumo real do perÃ­odo
+				// soma o consumo real do período
 				$fatura_atual->consumo += $linha->valor;
 
 				$fatura_atual->itens[] = $fatura_item_atual;
@@ -781,7 +781,7 @@ class Cliente extends ControllerAuth {
         $this->parameters['menu'] = $this->load->view('components/menu',array('menu'=>'cliente_perfil','cliente'=>$cliente),true);
         $this->parameters['menu'] .= $this->load->view('components/menu',array('menu'=>'mais_opcoes'),true);
 
-        $this->parameters['pg_title'] = '<i class="fa fa-file-text"></i> Gerar Faturamento PrÃ³-Rata de Cliente';
+        $this->parameters['pg_title'] = '<i class="fa fa-file-text"></i> Gerar Faturamento Pró-Rata de Cliente';
         $this->parameters['pg_subtitle'] = $cliente->nome_ou_fantasia;
 
         $this->parameters['content'] = $this->load->view('screens/cliente',array('content'=>'gerar_faturamento_prorata','cliente'=>$cliente,'faturas'=>$faturas),true);
@@ -789,7 +789,7 @@ class Cliente extends ControllerAuth {
     }
     public function gerar_boleto_via_fatura(){
         $this->load->model('fatura_model','fatura');
-        $id_fatura = $this->verificar_parametro(3,'NÃ£o foi informada uma fatura vÃ¡lida.','cliente');
+        $id_fatura = $this->verificar_parametro(3,'Não foi informada uma fatura válida.','cliente');
         $fatura = $this->fatura->retornar($id_fatura)->row();
         
         $id_cliente = $fatura->id_cliente_fk;
@@ -924,7 +924,7 @@ class Cliente extends ControllerAuth {
         $dados_consulta_efetuada['retorno_json'] = $retorno_json;
         $dados_consulta_efetuada['tempo_retorno'] = strtotime(date('Y-m-d H:i:s')) - $milis_atual;
         if(isset($retorno_array->id_consulta)) $dados_consulta_efetuada['id_consulta'] = $retorno_array->id_consulta;
-        // InserÃ§Ã£o no banco de dados
+        // Inserção no banco de dados
         $this->cliente->inserir_negativacao($dados_consulta_efetuada);
         $id_consulta = $this->cliente->retornar_id_ultima_negativacao($negativacao->id_cliente_fk,$negativacao->id_usuario_fk);
         return $id_consulta;
@@ -1103,7 +1103,7 @@ class Cliente extends ControllerAuth {
         $pastas = $this->cliente->clientes_pastas()->result();
 
         $this->parameters['pg_title'] = '<i class="fa fa-folder"></i> Pasta de Cliente';
-        $this->parameters['pg_subtitle'] = 'Controle de Pastas de Clientes para emissÃ£o de relatÃ³rios';
+        $this->parameters['pg_subtitle'] = 'Controle de Pastas de Clientes para emissão de relatórios';
 
         $this->parameters['menu'] = $this->load_menu('clientes');
 
@@ -1145,7 +1145,7 @@ class Cliente extends ControllerAuth {
             $id_cliente = $this->input->post('cliente');
             $dados = array('id_cliente_fk'=>$id_cliente,'id_cliente_pasta_fk'=>$id_pasta);
             if($this->cliente->cliente_pasta_sub_cadastrar($dados)){
-                set_msg('InscriÃ§Ã£o Efetuada com sucesso.','sucesso');
+                set_msg('Inscrição Efetuada com sucesso.','sucesso');
                 redirect('cliente/pasta_subs/'.$id_pasta);
             }else{
                 set_msg('Ocorreu um erro na hora de cadastrar a Pasta.');
@@ -1155,8 +1155,8 @@ class Cliente extends ControllerAuth {
 
         $subs = $this->cliente->cliente_pasta_subs($id_pasta)->result();
 
-        $this->parameters['pg_title'] = '<i class="fa fa-plus"></i> InscriÃ§Ãµes em Pastas de Clientes';
-        $this->parameters['pg_subtitle'] = 'InscriÃ§Ã£o de cliente em Pasta de Clientes';
+        $this->parameters['pg_title'] = '<i class="fa fa-plus"></i> Inscrições em Pastas de Clientes';
+        $this->parameters['pg_subtitle'] = 'Inscrição de cliente em Pasta de Clientes';
 
         $this->parameters['menu'] = $this->load_menu('clientes');
 
@@ -1181,8 +1181,8 @@ class Cliente extends ControllerAuth {
             exit;
         }
 
-        $this->parameters['pg_title'] = '<i class="fa fa-file-text"></i> RelatÃ³rio de Valores';
-        $this->parameters['pg_subtitle'] = 'RelatÃ³rio com os dados do cliente';
+        $this->parameters['pg_title'] = '<i class="fa fa-file-text"></i> Relatório de Valores';
+        $this->parameters['pg_subtitle'] = 'Relatório com os dados do cliente';
 
         $this->parameters['menu'] = $this->load_menu('clientes');
 
@@ -1202,13 +1202,13 @@ class Cliente extends ControllerAuth {
     }
 
     private function replaceSpecialCarac($str) {
-        $str = preg_replace('/[Ã¡Ã Ã£Ã¢Ã¤]/ui', 'a', $str);
-        $str = preg_replace('/[Ã©Ã¨ÃªÃ«]/ui', 'e', $str);
-        $str = preg_replace('/[Ã­Ã¬Ã®Ã¯]/ui', 'i', $str);
-        $str = preg_replace('/[Ã³Ã²ÃµÃ´Ã¶]/ui', 'o', $str);
-        $str = preg_replace('/[ÃºÃ¹Ã»Ã¼]/ui', 'u', $str);
-        $str = preg_replace('/[Ã§]/ui', 'c', $str);
-        // $str = preg_replace('/[,(),;:|!"#$%&/=?~^><ÂªÂº-]/', '_', $str);
+        $str = preg_replace('/[áàãâä]/ui', 'a', $str);
+        $str = preg_replace('/[éèêë]/ui', 'e', $str);
+        $str = preg_replace('/[íìîï]/ui', 'i', $str);
+        $str = preg_replace('/[óòõôö]/ui', 'o', $str);
+        $str = preg_replace('/[úùûü]/ui', 'u', $str);
+        $str = preg_replace('/[ç]/ui', 'c', $str);
+        // $str = preg_replace('/[,(),;:|!"#$%&/=?~^><ªº-]/', '_', $str);
         //$str = preg_replace('/[^a-z0-9]/i', '_', $str);
         //$str = preg_replace('/_+/', '_', $str); // ideia do Bacco :)
         return $str;
