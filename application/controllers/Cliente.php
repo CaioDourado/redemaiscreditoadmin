@@ -472,7 +472,7 @@ class Cliente extends ControllerAuth {
                         $parametros['DEVEDOR_NOME'] = $this->complete($this->replaceSpecialCarac($this->input->post('nome')),60);
                         $parametros['DEVEDOR_NUMERO'] = $this->scpc_numero_endereco($endereco_devedor['numero']);
                         $parametros['DEVEDOR_COMPLEMENTO'] = $this->input->post('complemento');
-                        $parametros['DEVEDOR_ENDERECO'] = $this->complete($this->montar_endereco_scpc($endereco_devedor['logradouro'], $parametros['DEVEDOR_NUMERO'], $parametros['DEVEDOR_COMPLEMENTO']),40);
+                        $parametros['DEVEDOR_ENDERECO'] = $this->complete($this->replaceSpecialCarac($endereco_devedor['logradouro']),40);
                         $parametros['DEVEDOR_BAIRRO'] = $this->complete($this->replaceSpecialCarac($this->input->post('bairro')),30);
                         $parametros['DEVEDOR_CIDADE'] = $this->complete($this->replaceSpecialCarac($this->input->post('cidade')),30);
                         $parametros['DEVEDOR_UF'] = $this->input->post('uf');
@@ -512,7 +512,7 @@ class Cliente extends ControllerAuth {
                         $parametros['DEVEDOR_RAZAO_SOCIAL'] = $this->complete($this->replaceSpecialCarac($this->input->post('razao_social')),60);
                         $parametros['DEVEDOR_NUMERO'] = $this->scpc_numero_endereco($endereco_devedor['numero']);
                         $parametros['DEVEDOR_COMPLEMENTO'] = $this->input->post('complemento');
-                        $parametros['DEVEDOR_ENDERECO'] = $this->complete($this->montar_endereco_scpc($endereco_devedor['logradouro'], $parametros['DEVEDOR_NUMERO'], $parametros['DEVEDOR_COMPLEMENTO']),60);
+                        $parametros['DEVEDOR_ENDERECO'] = $this->complete($this->replaceSpecialCarac($endereco_devedor['logradouro']),60);
                         $parametros['DEVEDOR_BAIRRO'] = $this->complete($this->replaceSpecialCarac($this->input->post('bairro')),30);
                         $parametros['DEVEDOR_CIDADE'] = $this->complete($this->replaceSpecialCarac($this->input->post('cidade')),30);
                         $parametros['DEVEDOR_UF'] = $this->input->post('uf');
