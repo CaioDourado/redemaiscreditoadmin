@@ -1,4 +1,4 @@
-﻿<?php defined('BASEPATH') OR exit('No direct script access allowed');
+<?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Cliente extends ControllerAuth {
     public function __construct(){
@@ -840,7 +840,7 @@ class Cliente extends ControllerAuth {
 
         $this->faturamento->inserir_fatura_item($dados);
     }
-    private function requisicao_negativacao($parametros,$slug='negativacaopefinpf',$negativacao,$cliente){
+    private function requisicao_negativacao($parametros,$slug,$negativacao,$cliente){
         $consulta = $this->cliente->retornar_consulta_mais_barata($slug,$cliente->id_cliente)->row();
 
         $parametros['CHAVE'] = $consulta->chave;
