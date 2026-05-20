@@ -1,4 +1,4 @@
-<?php defined('BASEPATH') OR exit('No direct script access allowed');
+﻿<?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 switch($content):
     case 'email_geral': ?>
@@ -45,7 +45,7 @@ switch($content):
         <?php break;
     case 'gestao_negativacao': ?>
             <div class="panel panel-google">
-                <div class="panel-heading">Lista de Negativações</div>
+                <div class="panel-heading">Lista de NegativaÃ§Ãµes</div>
                 <div class="table-resposive">
                     <table class="panel-table table-hover table-striped no-margin">
                         <thead>
@@ -57,7 +57,7 @@ switch($content):
                                 <th class="text-right">Contrato</th>
                                 <th class="text-right">Parcelas</th>
                                 <th class="text-right">Data</th>
-                                <th class="text-center">Opções</th>
+                                <th class="text-center">OpÃ§Ãµes</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -87,7 +87,7 @@ switch($content):
         <?php break;
     case 'validacao': ?>
             <div class="panel panel-blue">
-                <div class="panel-heading">Validação de Clientes</div>
+                <div class="panel-heading">ValidaÃ§Ã£o de Clientes</div>
                 <div class="panel-body">
                     <table class="table table-bordered table-condensed table-consulta table-hover">
                         <thead>
@@ -124,10 +124,10 @@ switch($content):
                         <div class="col-md-4">
                             <dl>
                                 <dt>Nome/Fantasia</dt><dd><?php echo $cliente->nome_ou_fantasia; ?></dd>
-                                <dt>Razão Social</dt><dd><?php echo $cliente->razao_social; ?></dd>
+                                <dt>RazÃ£o Social</dt><dd><?php echo $cliente->razao_social; ?></dd>
                                 <dt>CPF/CNPJ</dt><dd><?php echo $cliente->cpf_cnpj; ?></dd>
                                 <br>
-                                <dt>Endereço</dt><dd><?php echo $cliente->logradouro.' '.$cliente->numero.', '.$cliente->complemento; ?></dd>
+                                <dt>EndereÃ§o</dt><dd><?php echo $cliente->logradouro.' '.$cliente->numero.', '.$cliente->complemento; ?></dd>
                                 <dt>Bairro</dt><dd><?php echo $cliente->bairro; ?></dd>
                                 <dt>Cidade</dt><dd><?php echo $cliente->cidade; ?></dd>
                                 <dt>UF</dt><dd><?php echo $cliente->uf; ?></dd>
@@ -140,7 +140,7 @@ switch($content):
                                 <dt>Celular</dt><dd><?php echo $cliente->celular; ?></dd>
                                 <dt>E-mail</dt><dd><?php echo $cliente->email; ?></dd>
                                 <br>
-                                <dt>Proprietário</dt><dd><?php echo $cliente->nome_proprietario; ?></dd>
+                                <dt>ProprietÃ¡rio</dt><dd><?php echo $cliente->nome_proprietario; ?></dd>
                                 <dt>CPF</dt><dd><?php echo $cliente->cpf_proprietario; ?></dd>
                                 <dt>Data Nasc.</dt><dd><?php echo data_pt($cliente->data_nascimento_proprietario,false); ?></dd>
                                 <dt>Criado em</dt><dd><?php echo data_pt($cliente->criado_em,true); ?></dd>
@@ -164,7 +164,7 @@ switch($content):
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" class="active"><a href="#consumo" aria-controls="consumo" role="tab" data-toggle="tab">Consumo</a></li>
                 <!--li role="presentation"><a href="#valores_produtos" aria-controls="valores_produtos" role="tab" data-toggle="tab">Valores e Produtos</a></li-->
-                <li role="presentation"><a href="#usuarios" aria-controls="usuarios" role="tab" data-toggle="tab">Usuários</a></li>
+                <li role="presentation"><a href="#usuarios" aria-controls="usuarios" role="tab" data-toggle="tab">UsuÃ¡rios</a></li>
                 <li role="presentation"><a href="#boletos" aria-controls="boletos" role="tab" data-toggle="tab">Boletos</a></li>
                 <li role="presentation"><a href="#faturas" aria-controls="faturas" role="tab" data-toggle="tab">Faturas</a></li>
             </ul>
@@ -174,7 +174,7 @@ switch($content):
                         <li role="presentation" class="active"><a href="#consultas" aria-controls="consultas" role="tab" data-toggle="tab">Consul<span class="hide_xs">tas</span></a></li>
                         <li role="presentation"><a href="#veiculares" aria-controls="veiculares" role="tab" data-toggle="tab">Veic<span class="hide_xs">ulares</span></a></li>
                         <li role="presentation"><a href="#cartas" aria-controls="cartas" role="tab" data-toggle="tab">Cartas</a></li>
-                        <li role="presentation"><a href="#negativacoes" aria-controls="negativacoes" role="tab" data-toggle="tab">Neg<span class="hide_xs">ativações</span></a></li>
+                        <li role="presentation"><a href="#negativacoes" aria-controls="negativacoes" role="tab" data-toggle="tab">Neg<span class="hide_xs">ativaÃ§Ãµes</span></a></li>
                         <li role="presentation"><a href="#baixas" aria-controls="baixas" role="tab" data-toggle="tab">Baixas</a></li>
                     </ul>
                     <div class="tab-content clear">
@@ -191,7 +191,7 @@ switch($content):
                                         <th class="text-right">Custo</th>
                                         <th class="text-right">Venda</th>
                                         <th class="text-center">Data</th>
-                                        <th class="text-center">Opções</th>
+                                        <th class="text-center">OpÃ§Ãµes</th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -210,7 +210,7 @@ switch($content):
                                                 <?php endif; ?>
                                             </td>
                                             <td class="text-right"><?php echo $index+1; ?></td>
-                                            <td><?php echo str_replace('+ Crédito ','',$consulta->nome); ?></td>
+                                            <td><?php echo str_replace('+ CrÃ©dito ','',$consulta->nome); ?></td>
                                             <td><?php echo $consulta->pesquisa; ?></td>
                                             <td class="text-right"><?php echo dinheiro($consulta->custo); ?></td>
                                             <td class="text-right"><?php echo dinheiro($consulta->valor); ?></td>
@@ -244,7 +244,7 @@ switch($content):
                                         <th class="text-right">Custo</th>
                                         <th class="text-right">Venda</th>
                                         <th class="text-center">Data</th>
-                                        <th class="text-center">Opções</th>
+                                        <th class="text-center">OpÃ§Ãµes</th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -284,7 +284,7 @@ switch($content):
                                         <th class="text-right">Custo</th>
                                         <th class="text-right">Venda</th>
                                         <th class="text-center">Data</th>
-                                        <th class="text-center">Opções</th>
+                                        <th class="text-center">OpÃ§Ãµes</th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -326,7 +326,7 @@ switch($content):
                                         <th class="text-right">Custo</th>
                                         <th class="text-right">Venda</th>
                                         <th class="text-center">Data</th>
-                                        <th class="text-center">Opções</th>
+                                        <th class="text-center">OpÃ§Ãµes</th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -373,7 +373,7 @@ switch($content):
                                         <th class="text-right">Custo</th>
                                         <th class="text-right">Venda</th>
                                         <th class="text-center">Data</th>
-                                        <th class="text-center">Opções</th>
+                                        <th class="text-center">OpÃ§Ãµes</th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -415,9 +415,9 @@ switch($content):
                                     <th>Id</th>
                                     <th class="text-center">Status</th>
                                     <th>Nome</th>
-                                    <th class="text-center">Usuário</th>
+                                    <th class="text-center">UsuÃ¡rio</th>
                                     <th class="text-center">Senha</th>
-                                    <th class="text-center">Criação</th>
+                                    <th class="text-center">CriaÃ§Ã£o</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -445,12 +445,12 @@ switch($content):
                                 <tr>
                                     <th class="text-right">#</th>
                                     <th class="text-right">NN</th>
-                                    <th class="text-center">Geração</th>
+                                    <th class="text-center">GeraÃ§Ã£o</th>
                                     <th class="text-center">Vencimento</th>
-                                    <th>Descrição</th>
+                                    <th>DescriÃ§Ã£o</th>
                                     <th class="text-center">Pagamento</th>
                                     <th class="text-right">Valor</th>
-                                    <th class="text-center">Opções</th>
+                                    <th class="text-center">OpÃ§Ãµes</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -475,7 +475,7 @@ switch($content):
                 </div>
                 <div role="tabpanel" class="tab-pane" id="faturas">
                     <div class="text-right" style="margin-bottom: 10px;">
-                        <?php echo anchor('cliente/gerar_faturamento_prorata/'.$cliente->id_cliente,'Gerar Fatura Pró-Rata', array('class'=>'btn btn-info')); ?>
+                        <?php echo anchor('cliente/gerar_faturamento_prorata/'.$cliente->id_cliente,'Gerar Fatura PrÃ³-Rata', array('class'=>'btn btn-info')); ?>
                         <?php echo anchor('cliente/gerar_faturamento/'.$cliente->id_cliente,'Gerar Fatura', array('class'=>'btn btn-info')); ?>
                     </div>
                     <div class="table-responsive">
@@ -484,11 +484,11 @@ switch($content):
                                 <tr>
                                     <th class="text-right">#</th>
                                     <th class="text-center">Vencimento</th>
-                                    <th>Descrição</th>
+                                    <th>DescriÃ§Ã£o</th>
                                     <th class="text-center">Inicio</th>
                                     <th class="text-center">Fim</th>
                                     <th class="text-right">Valor</th>
-                                    <th class="text-center">Opções</th>
+                                    <th class="text-center">OpÃ§Ãµes</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -517,7 +517,7 @@ switch($content):
     case 'gerar_faturamento': ?>
             <?php echo form_open(current_url()); ?>
                 <div class="panel panel-google">
-                    <div class="panel-heading">Dados da Geração</div>
+                    <div class="panel-heading">Dados da GeraÃ§Ã£o</div>
                     <div class="panel-body border-top">
                         <div class="row">
                             <div class="col-md-3">
@@ -553,13 +553,13 @@ switch($content):
                 </div>
             <?php form_close(); ?>
             <div class="panel panel-google">
-                <div class="panel-heading">Dados da Geração</div>
+                <div class="panel-heading">Dados da GeraÃ§Ã£o</div>
                 <table class="panel-table">
                     <thead>
                         <tr>
                             <th class="text-right">#</th>
                             <th class="text-center">Vencimento</th>
-                            <th>Descrição</th>
+                            <th>DescriÃ§Ã£o</th>
                             <th class="text-center">Inicio</th>
                             <th class="text-center">Fim</th>
                             <th class="text-right">Valor</th>
@@ -589,12 +589,12 @@ switch($content):
             <?php echo form_open(current_url()); ?>
                 <?php $now = date('Y-m-d').' 00:00:00' ?>
                 <div class="panel panel-google">
-                    <div class="panel-heading">Dados da Geração</div>
+                    <div class="panel-heading">Dados da GeraÃ§Ã£o</div>
                     <div class="panel-body border-top">
                         <div class="row">
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <label for="inicio">Início</label>
+                                    <label for="inicio">InÃ­cio</label>
                                     <input type="text" name="inicio" class="form-control text-center" value="<?php echo date('d/m/Y H:i:s', strtotime($now.' -1 month')) ?>">
                                 </div>
                             </div>
@@ -621,13 +621,13 @@ switch($content):
                 </div>
             <?php form_close(); ?>
             <div class="panel panel-google">
-                <div class="panel-heading">Dados da Geração</div>
+                <div class="panel-heading">Dados da GeraÃ§Ã£o</div>
                 <table class="panel-table">
                     <thead>
                         <tr>
                             <th class="text-right">#</th>
                             <th class="text-center">Vencimento</th>
-                            <th>Descrição</th>
+                            <th>DescriÃ§Ã£o</th>
                             <th class="text-center">Inicio</th>
                             <th class="text-center">Fim</th>
                             <th class="text-right">Valor</th>
@@ -705,8 +705,8 @@ switch($content):
                                 <th class="text-center">Status</th>
                                 <th class="text-right">Mens.</th>
                                 <th class="text-center">Vcto</th>
-                                <th class="text-center">Criação</th>
-                                <th class="text-center">Opções</th>
+                                <th class="text-center">CriaÃ§Ã£o</th>
+                                <th class="text-center">OpÃ§Ãµes</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -781,8 +781,8 @@ switch($content):
                                 <th class="text-center">Status</th>
                                 <th class="text-right">Mens.</th>
                                 <th class="text-center">Vcto</th>
-                                <th class="text-center">Criação</th>
-                                <th class="text-center">Opções</th>
+                                <th class="text-center">CriaÃ§Ã£o</th>
+                                <th class="text-center">OpÃ§Ãµes</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -851,8 +851,8 @@ switch($content):
                             <th class="text-center">Status</th>
                             <th class="text-right">Mens.</th>
                             <th class="text-center">Vcto</th>
-                            <th class="text-center">Opções</th>
-                            <th class="text-center">Criação</th>
+                            <th class="text-center">OpÃ§Ãµes</th>
+                            <th class="text-center">CriaÃ§Ã£o</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -881,7 +881,7 @@ switch($content):
     case 'cadastrar': ?>
             <div class="panel panel-default">
                 <div class="panel-body">
-                    <p style="margin: 0">É necessário consultar os dados do cliente no site da receita, <a href="https://www.receita.fazenda.gov.br/pessoajuridica/cnpj/cnpjreva/cnpjreva_solicitacao2.asp" target="_blank">Clique Aqui</a>.</p>
+                    <p style="margin: 0">Ã‰ necessÃ¡rio consultar os dados do cliente no site da receita, <a href="https://www.receita.fazenda.gov.br/pessoajuridica/cnpj/cnpjreva/cnpjreva_solicitacao2.asp" target="_blank">Clique Aqui</a>.</p>
                     <p style="margin: 0">* Para que o cliente possa ser negativado todos os dados devem ser iguais aos da receita.</p>
                 </div>
             </div>
@@ -890,14 +890,14 @@ switch($content):
                 <div class="panel-heading">Cadastrar Cliente</div>
 				<div class="panel-body">
 					<div class="col-md-6"></div>
-					<div class="col-md-3"><?php echo form_select('bloqueavel','Cliente Bloqueavel ?',array('0'=>'Não','1'=>'Sim')); ?></div>
+					<div class="col-md-3"><?php echo form_select('bloqueavel','Cliente Bloqueavel ?',array('0'=>'NÃ£o','1'=>'Sim')); ?></div>
 					<div class="col-md-3"><?php echo form_input('limite_bloqueio','Limite do Bloqueio','300,00','dinheiro text-right'); ?></div>
 				</div>
                 <div class="panel-body" style="border-top: 1px solid #AAA">
                     <div class="row">
-                        <div class="col-md-3"><?php echo form_select('consultor','É Consultor ?',array('0'=>'Cliente','1'=>'Consultor')); ?></div>
+                        <div class="col-md-3"><?php echo form_select('consultor','Ã‰ Consultor ?',array('0'=>'Cliente','1'=>'Consultor')); ?></div>
                         <div class="col-md-3"><?php echo form_select('id_consultor_fk','Consultor',$consultores); ?></div>
-                        <div class="col-md-3"><?php echo form_select('status','Situação',array('1'=>'Ativo','0'=>'Bloqueado')); ?></div>
+                        <div class="col-md-3"><?php echo form_select('status','SituaÃ§Ã£o',array('1'=>'Ativo','0'=>'Bloqueado')); ?></div>
                         <div class="col-md-3"><?php echo form_select('id_plano_fk','Plano',$planos); ?></div>
                     </div>
                     <div class="row">
@@ -909,14 +909,14 @@ switch($content):
                 </div>
                 <div class="panel-body" style="border-top: 1px solid #AAA">
                     <div class="row">
-                        <div class="col-md-3"><?php echo form_select('tipo_pessoa','Tipo de Pessoa',array('1'=>'Física','2'=>'Jurídica')); ?></div>
+                        <div class="col-md-3"><?php echo form_select('tipo_pessoa','Tipo de Pessoa',array('1'=>'FÃ­sica','2'=>'JurÃ­dica')); ?></div>
                         <div class="col-md-3"><?php echo form_input('cpf_cnpj','CPF/CNPJ','') ?></div>
                         <div class="col-md-3"><?php echo form_input('data_nascimento','Data de Abertura','','data text-center','<i class="fa fa-calendar"></i>') ?></div>
                         <!--div class="col-md-3"><?php //echo form_input('documento','Doc. Identidade','','text-center') ?></div-->
                     </div>
                     <div class="row">
                         <div class="col-md-6"><?php echo form_input('nome_ou_fantasia','Nome ou Nome Fantasia',''); ?></div>
-                        <div class="col-md-6"><?php echo form_input('razao_social','Razão Social',''); ?></div>
+                        <div class="col-md-6"><?php echo form_input('razao_social','RazÃ£o Social',''); ?></div>
                     </div>
                     <div class="row">
                         <div class="col-md-4"><?php echo form_input('carta_nome1','Nome em Carta 1'); ?></div>
@@ -933,7 +933,7 @@ switch($content):
                     <div class="row">
                         <div class="col-md-2"><?php echo form_input('cep','CEP','','cep'); ?></div>
                         <div class="col-md-4"><?php echo form_input('logradouro','Logradouro','','logradouro'); ?></div>
-                        <div class="col-md-3"><?php echo form_input('numero','Número'); ?></div>
+                        <div class="col-md-3"><?php echo form_input('numero','NÃºmero'); ?></div>
                         <div class="col-md-3"><?php echo form_input('complemento','Complemento'); ?></div>
                     </div>
                     <div class="row">
@@ -944,9 +944,9 @@ switch($content):
                 </div>
                 <div class="panel-body" style="border-top: 1px solid #AAA">
                     <div class="row">
-                        <div class="col-md-3"><?php echo form_input('nome_proprietario','Nome Proprietário',''); ?></div>
-                        <div class="col-md-3"><?php echo form_input('cpf_proprietario','CPF Proprietário','') ?></div>
-                        <div class="col-md-3"><?php echo form_input('data_nascimento_proprietario','Nasc. Proprietário','','data text-center','<i class="fa fa-calendar"></i>') ?></div>
+                        <div class="col-md-3"><?php echo form_input('nome_proprietario','Nome ProprietÃ¡rio',''); ?></div>
+                        <div class="col-md-3"><?php echo form_input('cpf_proprietario','CPF ProprietÃ¡rio','') ?></div>
+                        <div class="col-md-3"><?php echo form_input('data_nascimento_proprietario','Nasc. ProprietÃ¡rio','','data text-center','<i class="fa fa-calendar"></i>') ?></div>
                         <div class="col-md-3">
                             <?php echo form_select('dia_vencimento','Dia de Vencimento',array('15'=>'15','30'=>'30')); ?>
                         </div>
@@ -962,7 +962,7 @@ switch($content):
     case 'alterar': ?>
             <div class="panel panel-default">
                 <div class="panel-body">
-                    <p style="margin: 0">É necessário consultar os dados do cliente no site da receita, <a href="https://www.receita.fazenda.gov.br/pessoajuridica/cnpj/cnpjreva/cnpjreva_solicitacao2.asp" target="_blank">Clique Aqui</a>.</p>
+                    <p style="margin: 0">Ã‰ necessÃ¡rio consultar os dados do cliente no site da receita, <a href="https://www.receita.fazenda.gov.br/pessoajuridica/cnpj/cnpjreva/cnpjreva_solicitacao2.asp" target="_blank">Clique Aqui</a>.</p>
                     <p style="margin: 0">* Para que o cliente possa ser negativado todos os dados devem ser iguais aos da receita.</p>
                 </div>
             </div>
@@ -971,14 +971,14 @@ switch($content):
                 <div class="panel-heading">Alterar Cliente</div>
 				<div class="panel-body">
 					<div class="col-md-6"></div>
-					<div class="col-md-3"><?php echo form_select('bloqueavel','Cliente Bloqueavel ?',array('0'=>'Não','1'=>'Sim'),'',$cliente->bloqueavel); ?></div>
+					<div class="col-md-3"><?php echo form_select('bloqueavel','Cliente Bloqueavel ?',array('0'=>'NÃ£o','1'=>'Sim'),'',$cliente->bloqueavel); ?></div>
 					<div class="col-md-3"><?php echo form_input('limite_bloqueio','Limite do Bloqueio',$cliente->limite_bloqueio,'dinheiro text-right'); ?></div>
 				</div>
                 <div class="panel-body" style="border-top: 1px solid #AAA">
                     <div class="row">
-                        <div class="col-md-3"><?php echo form_select('consultor','É Consultor ?',array('0'=>'Cliente','1'=>'Consultor'),'',$cliente->consultor); ?></div>
+                        <div class="col-md-3"><?php echo form_select('consultor','Ã‰ Consultor ?',array('0'=>'Cliente','1'=>'Consultor'),'',$cliente->consultor); ?></div>
                         <div class="col-md-3"><?php echo form_select('id_consultor_fk','Consultor',$consultores,'',$cliente->id_consultor_fk); ?></div>
-                        <div class="col-md-3"><?php echo form_select('status','Situação',array('1'=>'Ativo','0'=>'Bloqueado'),'',$cliente->status); ?></div>
+                        <div class="col-md-3"><?php echo form_select('status','SituaÃ§Ã£o',array('1'=>'Ativo','0'=>'Bloqueado'),'',$cliente->status); ?></div>
                         <div class="col-md-3"><?php echo form_select('id_plano_fk','Plano',$planos,'',$cliente->id_plano_fk); ?></div>
                     </div>
                     <div class="row">
@@ -990,14 +990,14 @@ switch($content):
                 </div>
                 <div class="panel-body" style="border-top: 1px solid #AAA">
                     <div class="row">
-                        <div class="col-md-3"><?php echo form_select('tipo_pessoa','Tipo de Pessoa',array('1'=>'Física','2'=>'Jurídica'),'',$cliente->tipo_pessoa); ?></div>
+                        <div class="col-md-3"><?php echo form_select('tipo_pessoa','Tipo de Pessoa',array('1'=>'FÃ­sica','2'=>'JurÃ­dica'),'',$cliente->tipo_pessoa); ?></div>
                         <div class="col-md-3"><?php echo form_input('cpf_cnpj','CPF/CNPJ',$cliente->cpf_cnpj) ?></div>
                         <div class="col-md-3"><?php echo form_input('data_nascimento','Data de Abertura',data_pt($cliente->data_nascimento,false),'data text-center','<i class="fa fa-calendar"></i>') ?></div>
-                        <div class="col-md-3"><?php echo form_select('limite_status','Ativar Limite',array('1'=>'Sim','0'=>'Não'),'',$cliente->limite_status); ?></div>
+                        <div class="col-md-3"><?php echo form_select('limite_status','Ativar Limite',array('1'=>'Sim','0'=>'NÃ£o'),'',$cliente->limite_status); ?></div>
                     </div>
                     <div class="row">
                         <div class="col-md-6"><?php echo form_input('nome_ou_fantasia','Nome ou Nome Fantasia',$cliente->nome_ou_fantasia); ?></div>
-                        <div class="col-md-6"><?php echo form_input('razao_social','Razão Social',$cliente->razao_social); ?></div>
+                        <div class="col-md-6"><?php echo form_input('razao_social','RazÃ£o Social',$cliente->razao_social); ?></div>
                     </div>
                     <div class="row">
                         <div class="col-md-4"><?php echo form_input('carta_nome1','Nome em Carta 1',$cliente->carta_nome1); ?></div>
@@ -1014,7 +1014,7 @@ switch($content):
                     <div class="row">
                         <div class="col-md-2"><?php echo form_input('cep','CEP',$cliente->cep,'cep'); ?></div>
                         <div class="col-md-4"><?php echo form_input('logradouro','Logradouro',$cliente->logradouro,'logradouro'); ?></div>
-                        <div class="col-md-3"><?php echo form_input('numero','Número',$cliente->numero); ?></div>
+                        <div class="col-md-3"><?php echo form_input('numero','NÃºmero',$cliente->numero); ?></div>
                         <div class="col-md-3"><?php echo form_input('complemento','Complemento',$cliente->complemento); ?></div>
                     </div>
                     <div class="row">
@@ -1025,9 +1025,9 @@ switch($content):
                 </div>
                 <div class="panel-body" style="border-top: 1px solid #AAA">
                     <div class="row">
-                        <div class="col-md-3"><?php echo form_input('nome_proprietario','Nome Proprietário',$cliente->nome_proprietario); ?></div>
-                        <div class="col-md-3"><?php echo form_input('cpf_proprietario','CPF Proprietário',$cliente->cpf_proprietario) ?></div>
-                        <div class="col-md-3"><?php echo form_input('data_nascimento_proprietario','Nasc. Proprietário',data_pt($cliente->data_nascimento_proprietario,false),'data text-center','<i class="fa fa-calendar"></i>') ?></div>
+                        <div class="col-md-3"><?php echo form_input('nome_proprietario','Nome ProprietÃ¡rio',$cliente->nome_proprietario); ?></div>
+                        <div class="col-md-3"><?php echo form_input('cpf_proprietario','CPF ProprietÃ¡rio',$cliente->cpf_proprietario) ?></div>
+                        <div class="col-md-3"><?php echo form_input('data_nascimento_proprietario','Nasc. ProprietÃ¡rio',data_pt($cliente->data_nascimento_proprietario,false),'data text-center','<i class="fa fa-calendar"></i>') ?></div>
                         <div class="col-md-3">
                             <?php echo form_select('dia_vencimento','Dia de Vencimento',array('15'=>'15','30'=>'30'),'',$cliente->dia_vencimento); ?>
                         </div>
@@ -1045,9 +1045,9 @@ switch($content):
                 <div class="panel panel-blue">
                     <div class="panel-heading">Cliente - Inativar</div>
                     <div class="panel-body">
-                        <p class="text-center text-danger">Você está pedindo a inativação do cliente <b><?php echo $cliente->nome_ou_fantasia; ?></b>.</p>
+                        <p class="text-center text-danger">VocÃª estÃ¡ pedindo a inativaÃ§Ã£o do cliente <b><?php echo $cliente->nome_ou_fantasia; ?></b>.</p>
                         <div class="form-group">
-                            <label for="status">Motivo da Inativação</label>
+                            <label for="status">Motivo da InativaÃ§Ã£o</label>
                             <select name="status" id="" class="form-control">
                                 <option value="0">Cancelamento</option>
                                 <option value="2">Bloqueio por Inadimplencia</option>
@@ -1105,23 +1105,23 @@ switch($content):
         <?php break;
     case 'refazer_negativacaopefinpf': ?>
             <div class="panel panel-blue">
-                <div class="panel-heading">Recriação de Negativação PF - PEFIN</div>
+                <div class="panel-heading">RecriaÃ§Ã£o de NegativaÃ§Ã£o PF - PEFIN</div>
                 <div class="panel-body">
                     
                 </div>
             </div>
         <?php break;
     case 'refazer_negativacaoscpcpf': ?>
-            <?php echo form_open(current_url()); ?>
+            <?php echo form_open(current_url().(isset($_GET['debug_url']) && $_GET['debug_url'] == '1' ? '?debug_url=1' : '')); ?>
             <div class="panel panel-blue">
-                <div class="panel-heading">Recriação de Negativação PF - Varejo</div>
+                <div class="panel-heading">RecriaÃ§Ã£o de NegativaÃ§Ã£o PF - Varejo</div>
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-md-3"><div class="form-group"><label>CNPJ</label><input type="text" class="form-control" value="<?php echo $cliente->cpf_cnpj; ?>" disabled></div></div>
-                        <div class="col-md-9"><div class="form-group"><label>Razão Social</label><input type="text" class="form-control" value="<?php echo $cliente->razao_social; ?>" disabled></div></div>
+                        <div class="col-md-9"><div class="form-group"><label>RazÃ£o Social</label><input type="text" class="form-control" value="<?php echo $cliente->razao_social; ?>" disabled></div></div>
                     </div>
                     <div class="row">
-                        <div class="col-md-8"><div class="form-group"><label>Endereço</label><input type="text" class="form-control" value="<?php echo $cliente->logradouro; ?>" disabled></div></div>
+                        <div class="col-md-8"><div class="form-group"><label>EndereÃ§o</label><input type="text" class="form-control" value="<?php echo $cliente->logradouro; ?>" disabled></div></div>
                         <div class="col-md-1"><div class="form-group"><label>DDD</label><input type="text" class="form-control text-center" value="<?php echo substr($cliente->telefone,0,2); ?>" disabled></div></div>
                         <div class="col-md-3"><div class="form-group"><label>Telefone</label><input type="text" class="form-control text-center" value="<?php echo substr($cliente->telefone,2); ?>" disabled></div></div>
                     </div>
@@ -1136,7 +1136,7 @@ switch($content):
                     <div class="row">
                         <div class="col-md-3"><?php echo form_input('cpf','CPF <span style="color: #F00">*</span>',$devedor->DEVEDOR_CPF,'text-right cpf'); ?></div>
                         <div class="col-md-4"><?php echo form_input('nome','Nome <span style="color: #F00">*</span>',$devedor->DEVEDOR_NOME); ?></div>
-                        <div class="col-md-5"><?php echo form_select('natureza','Natureza da Negativação <span style="color: #F00">*</span>',cod_natureza_scpc(),'',$devedor->NATUREZA_OPERACAO); ?></div>
+                        <div class="col-md-5"><?php echo form_select('natureza','Natureza da NegativaÃ§Ã£o <span style="color: #F00">*</span>',cod_natureza_scpc(),'',$devedor->NATUREZA_OPERACAO); ?></div>
                     </div>
                     <div class="row">
                         <div class="col-md-3"><?php echo form_input('vencimento_inicio','Venc. Inicial<span style="color: #F00">*</span>',$devedor->DATA_ATRASO,'text-right data data5anos_validate obrigatorio'); ?></div>
@@ -1144,15 +1144,15 @@ switch($content):
                         <div class="col-md-2"><?php echo form_input('parcelas','Parcelas <span style="color: #F00">*</span>',$devedor->PARCELAS,'text-right'); ?></div>
                         <div class="col-md-2"><?php echo form_input('valor','Valor <span style="color: #F00">*</span>',intval($devedor->VALOR),'text-right dinheiro'); ?></div>
                         <div class="col-md-2"><?php echo form_input('contrato','Contrato <span style="color: #F00">*</span>','000001','text-right'); ?></div>
-                        <!--div class="col-md-3"><?php //echo form_input('nosso_numero','Nosso Número','','text-right'); ?></div-->
+                        <!--div class="col-md-3"><?php //echo form_input('nosso_numero','Nosso NÃºmero','','text-right'); ?></div-->
                     </div>
                     <div class="row">
                         <div class="col-md-3"><?php echo form_input('data_nascimento','Data de Nascimento <span style="color: #F00">*</span>',$devedor->DEVEDOR_NASCIMENTO,'data text-center'); ?></div>
                     </div>
                     <div class="row">
                         <div class="col-md-2"><?php echo form_input('cep','CEP <span style="color: #F00">*</span>',$devedor->DEVEDOR_CEP,'cep cep_validate obrigatorio'); ?></div>
-                        <div class="col-md-6"><?php echo form_input('logradouro','Endereço <span style="color: #F00">*</span>',trim($devedor->DEVEDOR_ENDERECO),'logradouro'); ?></div>
-                        <div class="col-md-2"><?php echo form_input('numero','Número <span style="color: #F00">*</span>'); ?></div>
+                        <div class="col-md-6"><?php echo form_input('logradouro','EndereÃ§o <span style="color: #F00">*</span>',trim($devedor->DEVEDOR_ENDERECO),'logradouro'); ?></div>
+                        <div class="col-md-2"><?php echo form_input('numero','NÃºmero <span style="color: #F00">*</span>'); ?></div>
                         <div class="col-md-2"><?php echo form_input('complemento','Complemento <span style="color: #F00">*</span>'); ?></div>
                     </div>
                     <div class="row">
@@ -1169,16 +1169,16 @@ switch($content):
             <?php echo form_close(); ?>
         <?php break;
     case 'refazer_negativacaoscpcpj': ?>
-            <?php echo form_open(current_url()); ?>
+            <?php echo form_open(current_url().(isset($_GET['debug_url']) && $_GET['debug_url'] == '1' ? '?debug_url=1' : '')); ?>
             <div class="panel panel-blue">
-                <div class="panel-heading">Recriação de Negativação PF - Varejo</div>
+                <div class="panel-heading">RecriaÃ§Ã£o de NegativaÃ§Ã£o PF - Varejo</div>
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-md-3"><div class="form-group"><label>CNPJ</label><input type="text" class="form-control" value="<?php echo $cliente->cpf_cnpj; ?>" disabled></div></div>
-                        <div class="col-md-9"><div class="form-group"><label>Razão Social</label><input type="text" class="form-control" value="<?php echo $cliente->razao_social; ?>" disabled></div></div>
+                        <div class="col-md-9"><div class="form-group"><label>RazÃ£o Social</label><input type="text" class="form-control" value="<?php echo $cliente->razao_social; ?>" disabled></div></div>
                     </div>
                     <div class="row">
-                        <div class="col-md-8"><div class="form-group"><label>Endereço</label><input type="text" class="form-control" value="<?php echo $cliente->logradouro; ?>" disabled></div></div>
+                        <div class="col-md-8"><div class="form-group"><label>EndereÃ§o</label><input type="text" class="form-control" value="<?php echo $cliente->logradouro; ?>" disabled></div></div>
                         <div class="col-md-1"><div class="form-group"><label>DDD</label><input type="text" class="form-control text-center" value="<?php echo substr($cliente->telefone,0,2); ?>" disabled></div></div>
                         <div class="col-md-3"><div class="form-group"><label>Telefone</label><input type="text" class="form-control text-center" value="<?php echo substr($cliente->telefone,2); ?>" disabled></div></div>
                     </div>
@@ -1192,8 +1192,8 @@ switch($content):
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-md-3"><?php echo form_input('cnpj','CNPJ <span style="color: #F00">*</span>',$devedor->DEVEDOR_CNPJ,'text-right cnpj'); ?></div>
-                        <div class="col-md-4"><?php echo form_input('razao_social','Razão Social <span style="color: #F00">*</span>',$devedor->DEVEDOR_RAZAO_SOCIAL); ?></div>
-                        <div class="col-md-5"><?php echo form_select('natureza','Natureza da Negativação <span style="color: #F00">*</span>',cod_natureza_scpc(),'',$devedor->NATUREZA_OPERACAO); ?></div>
+                        <div class="col-md-4"><?php echo form_input('razao_social','RazÃ£o Social <span style="color: #F00">*</span>',$devedor->DEVEDOR_RAZAO_SOCIAL); ?></div>
+                        <div class="col-md-5"><?php echo form_select('natureza','Natureza da NegativaÃ§Ã£o <span style="color: #F00">*</span>',cod_natureza_scpc(),'',$devedor->NATUREZA_OPERACAO); ?></div>
                     </div>
                     <div class="row">
                         <div class="col-md-3"><?php echo form_input('vencimento_inicio','Venc. Inicial<span style="color: #F00">*</span>',$devedor->DATA_ATRASO,'text-right data data5anos_validate obrigatorio'); ?></div>
@@ -1201,11 +1201,13 @@ switch($content):
                         <div class="col-md-2"><?php echo form_input('parcelas','Parcelas <span style="color: #F00">*</span>',$devedor->PARCELAS,'text-right'); ?></div>
                         <div class="col-md-2"><?php echo form_input('valor','Valor <span style="color: #F00">*</span>',intval($devedor->VALOR),'text-right dinheiro'); ?></div>
                         <div class="col-md-2"><?php echo form_input('contrato','Contrato <span style="color: #F00">*</span>','000001','text-right'); ?></div>
-                        <!--div class="col-md-3"><?php //echo form_input('nosso_numero','Nosso Número','','text-right'); ?></div-->
+                        <!--div class="col-md-3"><?php //echo form_input('nosso_numero','Nosso NÃºmero','','text-right'); ?></div-->
                     </div>
                     <div class="row">
                         <div class="col-md-2"><?php echo form_input('cep','CEP <span style="color: #F00">*</span>',$devedor->DEVEDOR_CEP,'cep cep_validate obrigatorio'); ?></div>
-                        <div class="col-md-10"><?php echo form_input('logradouro','Endereço <span style="color: #F00">*</span>',$devedor->DEVEDOR_ENDERECO,'logradouro'); ?></div>
+                        <div class="col-md-6"><?php echo form_input('logradouro','EndereÃ§o <span style="color: #F00">*</span>',$devedor->DEVEDOR_ENDERECO,'logradouro'); ?></div>
+                        <div class="col-md-2"><?php echo form_input('numero','NÃºmero <span style="color: #F00">*</span>'); ?></div>
+                        <div class="col-md-2"><?php echo form_input('complemento','Complemento'); ?></div>
                     </div>
                     <div class="row">
                         <div class="col-md-6"><?php echo form_input('bairro','Bairro <span style="color: #F00">*</span>',$devedor->DEVEDOR_BAIRRO,'bairro'); ?></div>
@@ -1223,11 +1225,11 @@ switch($content):
     case 'visualizar_negativacaoscpcpf': ?>
             <div class="text-right">
                 <?php echo anchor('cliente/perfil/'.$negativacao->id_cliente_fk,'Voltar',array('class'=>'btn btn-default')); ?>
-                <?php echo anchor('cliente/negativacao_refazer/'.$negativacao->id_negativacao,'Refazer Negativação',array('class'=>'btn btn-default')); ?>
+                <?php echo anchor('cliente/negativacao_refazer/'.$negativacao->id_negativacao,'Refazer NegativaÃ§Ã£o',array('class'=>'btn btn-default')); ?>
             </div>
             <br>
             <div class="panel panel-default">
-                <div class="panel-heading">Visualizar Negativação</div>
+                <div class="panel-heading">Visualizar NegativaÃ§Ã£o</div>
                 <div class="panel-body">
                     <p><b>Retorno</b></p>
                     <p style="word-break: break-all"><?php echo $negativacao->retorno; ?></p>
@@ -1239,7 +1241,7 @@ switch($content):
                                     <th>Natureza</th>
                                     <th class="text-right">Cod Natureza</th>
                                     <th class="text-right">Contrato</th>
-                                    <th class="text-right">Nosso Número</th>
+                                    <th class="text-right">Nosso NÃºmero</th>
                                     <th class="text-center">Vencimento</th>
                                     <th class="text-right">Valor</th>
                                 </tr>
@@ -1263,10 +1265,10 @@ switch($content):
                                 <table class="table table-hover table-condensed table-bordered" style="margin: 0">
                                     <tr><td><b>CNPJ</b></td><td><?php echo $parametros->CNPJ_CREDOR; ?></td></tr>
                                     <tr><td><b>Nome Fantasia</b></td><td><?php echo $parametros->FANTASIA_CREDOR; ?></td></tr>
-                                    <tr><td><b>Razão Social</b></td><td><?php echo $parametros->RAZAO_CREDOR; ?></td></tr>
+                                    <tr><td><b>RazÃ£o Social</b></td><td><?php echo $parametros->RAZAO_CREDOR; ?></td></tr>
                                     <tr><td><b>Telefone</b></td><td><?php echo $parametros->TELEFONE_CREDOR; ?></td></tr>
                                     <tr><td><b>E-mail</b></td><td><?php echo $parametros->EMAIL_CREDOR; ?></td></tr>
-                                    <tr><td><b>Endereço</b></td><td><?php echo $parametros->ENDERECO_CREDOR; ?></td></tr>
+                                    <tr><td><b>EndereÃ§o</b></td><td><?php echo $parametros->ENDERECO_CREDOR; ?></td></tr>
                                     <tr><td><b>Numero</b></td><td><?php echo $parametros->NUMERO_ENDERECO_CREDOR; ?></td></tr>
                                     <tr><td><b>Complemento</b></td><td><?php echo $parametros->COMPLEMENTO_ENDERECO_CREDOR; ?></td></tr>
                                     <tr><td><b>Bairro</b></td><td><?php echo $parametros->BAIRRO_CREDOR; ?></td></tr>
@@ -1281,7 +1283,7 @@ switch($content):
                                 <table class="table table-hover table-condensed table-bordered" style="margin: 0">
                                     <tr><td><b>CPF/CNPJ</b></td><td><?php echo $parametros->DEVEDOR_CPF; ?></td></tr>
                                     <tr><td><b>Nome</b></td><td><?php echo $parametros->DEVEDOR_NOME; ?></td></tr>
-                                    <tr><td><b>Endereço</b></td><td><?php echo $parametros->DEVEDOR_ENDERECO; ?></td></tr>
+                                    <tr><td><b>EndereÃ§o</b></td><td><?php echo $parametros->DEVEDOR_ENDERECO; ?></td></tr>
                                     <tr><td><b>Bairro</b></td><td><?php echo $parametros->DEVEDOR_BAIRRO; ?></td></tr>
                                     <tr><td><b>Cidade</b></td><td><?php echo $parametros->DEVEDOR_CIDADE; ?></td></tr>
                                     <tr><td><b>UF</b></td><td><?php echo $parametros->DEVEDOR_UF; ?></td></tr>
@@ -1296,11 +1298,11 @@ switch($content):
     case 'visualizar_negativacaoscpcpj': ?>
         <div class="text-right">
             <?php echo anchor('cliente/perfil/'.$negativacao->id_cliente_fk,'Voltar',array('class'=>'btn btn-default')); ?>
-            <?php echo anchor('cliente/negativacao_refazer/'.$negativacao->id_negativacao,'Refazer Negativação',array('class'=>'btn btn-default')); ?>
+            <?php echo anchor('cliente/negativacao_refazer/'.$negativacao->id_negativacao,'Refazer NegativaÃ§Ã£o',array('class'=>'btn btn-default')); ?>
         </div>
         <br>
         <div class="panel panel-default">
-            <div class="panel-heading">Visualizar Negativação</div>
+            <div class="panel-heading">Visualizar NegativaÃ§Ã£o</div>
             <div class="panel-body">
                 <div class="table-responsive" style="margin: 0">
                     <table class="table table-hover table-condensed table-bordered" style="margin: 0">
@@ -1316,7 +1318,7 @@ switch($content):
                             <th>Natureza</th>
                             <th class="text-right">Cod Natureza</th>
                             <th class="text-right">Contrato</th>
-                            <th class="text-right">Nosso Número</th>
+                            <th class="text-right">Nosso NÃºmero</th>
                             <th class="text-center">Vencimento</th>
                             <th class="text-right">Valor</th>
                         </tr>
@@ -1340,10 +1342,10 @@ switch($content):
                             <table class="table table-hover table-condensed table-bordered" style="margin: 0">
                                 <tr><td><b>CNPJ</b></td><td><?php echo $parametros->CNPJ_CREDOR; ?></td></tr>
                                 <tr><td><b>Nome Fantasia</b></td><td><?php echo $parametros->FANTASIA_CREDOR; ?></td></tr>
-                                <tr><td><b>Razão Social</b></td><td><?php echo $parametros->RAZAO_CREDOR; ?></td></tr>
+                                <tr><td><b>RazÃ£o Social</b></td><td><?php echo $parametros->RAZAO_CREDOR; ?></td></tr>
                                 <tr><td><b>Telefone</b></td><td><?php echo $parametros->TELEFONE_CREDOR; ?></td></tr>
                                 <tr><td><b>E-mail</b></td><td><?php echo $parametros->EMAIL_CREDOR; ?></td></tr>
-                                <tr><td><b>Endereço</b></td><td><?php echo $parametros->ENDERECO_CREDOR; ?></td></tr>
+                                <tr><td><b>EndereÃ§o</b></td><td><?php echo $parametros->ENDERECO_CREDOR; ?></td></tr>
                                 <tr><td><b>Numero</b></td><td><?php echo $parametros->NUMERO_ENDERECO_CREDOR; ?></td></tr>
                                 <tr><td><b>Complemento</b></td><td><?php echo $parametros->COMPLEMENTO_ENDERECO_CREDOR; ?></td></tr>
                                 <tr><td><b>Bairro</b></td><td><?php echo $parametros->BAIRRO_CREDOR; ?></td></tr>
@@ -1358,7 +1360,7 @@ switch($content):
                             <table class="table table-hover table-condensed table-bordered" style="margin: 0">
                                 <tr><td><b>CPF/CNPJ</b></td><td><?php echo $parametros->DEVEDOR_CNPJ; ?></td></tr>
                                 <tr><td><b>Nome</b></td><td><?php echo $parametros->DEVEDOR_RAZAO_SOCIAL; ?></td></tr>
-                                <tr><td><b>Endereço</b></td><td><?php echo $parametros->DEVEDOR_ENDERECO; ?></td></tr>
+                                <tr><td><b>EndereÃ§o</b></td><td><?php echo $parametros->DEVEDOR_ENDERECO; ?></td></tr>
                                 <tr><td><b>Bairro</b></td><td><?php echo $parametros->DEVEDOR_BAIRRO; ?></td></tr>
                                 <tr><td><b>Cidade</b></td><td><?php echo $parametros->DEVEDOR_CIDADE; ?></td></tr>
                                 <tr><td><b>UF</b></td><td><?php echo $parametros->DEVEDOR_UF; ?></td></tr>
@@ -1373,9 +1375,9 @@ switch($content):
     case 'baixar_negativacaoscpcpf': ?>
             <?php echo form_open(current_url()); ?>
             <div class="panel panel-danger">
-                <div class="panel-heading">Baixa de Negativação</div>
+                <div class="panel-heading">Baixa de NegativaÃ§Ã£o</div>
                 <div class="panel-body">
-                    <p><b>Deseja realmente efetuar a baixa desta negativação ? (este processo não pode ser desfeito).</b></p>
+                    <p><b>Deseja realmente efetuar a baixa desta negativaÃ§Ã£o ? (este processo nÃ£o pode ser desfeito).</b></p>
                 </div>
                 <div class="panel-footer text-right">
                     <?php echo form_submit('submit','Quero Baixar',array('class'=>'btn btn-danger')); ?>
@@ -1385,7 +1387,7 @@ switch($content):
             <?php echo form_close(); ?>
             <br>
             <div class="panel panel-default">
-                <div class="panel-heading">Baixa de Negativação</div>
+                <div class="panel-heading">Baixa de NegativaÃ§Ã£o</div>
                 <div class="panel-body">
                     <div class="table-responsive" style="margin: 0">
                         <table class="table table-hover table-condensed table-bordered" style="margin: 0">
@@ -1394,7 +1396,7 @@ switch($content):
                                 <th>Natureza</th>
                                 <th class="text-right">Cod Natureza</th>
                                 <th class="text-right">Contrato</th>
-                                <th class="text-right">Nosso Número</th>
+                                <th class="text-right">Nosso NÃºmero</th>
                                 <th class="text-center">Vencimento</th>
                                 <th class="text-right">Valor</th>
                             </tr>
@@ -1418,10 +1420,10 @@ switch($content):
                                 <table class="table table-hover table-condensed table-bordered" style="margin: 0">
                                     <tr><td><b>CNPJ</b></td><td><?php echo $parametros->CNPJ_CREDOR; ?></td></tr>
                                     <tr><td><b>Nome Fantasia</b></td><td><?php echo $parametros->FANTASIA_CREDOR; ?></td></tr>
-                                    <tr><td><b>Razão Social</b></td><td><?php echo $parametros->RAZAO_CREDOR; ?></td></tr>
+                                    <tr><td><b>RazÃ£o Social</b></td><td><?php echo $parametros->RAZAO_CREDOR; ?></td></tr>
                                     <tr><td><b>Telefone</b></td><td><?php echo $parametros->TELEFONE_CREDOR; ?></td></tr>
                                     <tr><td><b>E-mail</b></td><td><?php echo $parametros->EMAIL_CREDOR; ?></td></tr>
-                                    <tr><td><b>Endereço</b></td><td><?php echo $parametros->ENDERECO_CREDOR; ?></td></tr>
+                                    <tr><td><b>EndereÃ§o</b></td><td><?php echo $parametros->ENDERECO_CREDOR; ?></td></tr>
                                     <tr><td><b>Numero</b></td><td><?php echo $parametros->NUMERO_ENDERECO_CREDOR; ?></td></tr>
                                     <tr><td><b>Complemento</b></td><td><?php echo $parametros->COMPLEMENTO_ENDERECO_CREDOR; ?></td></tr>
                                     <tr><td><b>Bairro</b></td><td><?php echo $parametros->BAIRRO_CREDOR; ?></td></tr>
@@ -1436,7 +1438,7 @@ switch($content):
                                 <table class="table table-hover table-condensed table-bordered" style="margin: 0">
                                     <tr><td><b>CPF/CNPJ</b></td><td><?php echo $parametros->DEVEDOR_CPF; ?></td></tr>
                                     <tr><td><b>Nome</b></td><td><?php echo $parametros->DEVEDOR_NOME; ?></td></tr>
-                                    <tr><td><b>Endereço</b></td><td><?php echo $parametros->DEVEDOR_ENDERECO; ?></td></tr>
+                                    <tr><td><b>EndereÃ§o</b></td><td><?php echo $parametros->DEVEDOR_ENDERECO; ?></td></tr>
                                     <tr><td><b>Bairro</b></td><td><?php echo $parametros->DEVEDOR_BAIRRO; ?></td></tr>
                                     <tr><td><b>Cidade</b></td><td><?php echo $parametros->DEVEDOR_CIDADE; ?></td></tr>
                                     <tr><td><b>UF</b></td><td><?php echo $parametros->DEVEDOR_UF; ?></td></tr>
@@ -1451,9 +1453,9 @@ switch($content):
     case 'baixar_negativacaoscpcpj': ?>
         <?php echo form_open(current_url()); ?>
             <div class="panel panel-danger">
-                <div class="panel-heading">Baixa de Negativação</div>
+                <div class="panel-heading">Baixa de NegativaÃ§Ã£o</div>
                 <div class="panel-body">
-                    <p><b>Deseja realmente efetuar a baixa desta negativação ? (este processo não pode ser desfeito).</b></p>
+                    <p><b>Deseja realmente efetuar a baixa desta negativaÃ§Ã£o ? (este processo nÃ£o pode ser desfeito).</b></p>
                 </div>
                 <div class="panel-footer text-right">
                     <?php echo form_submit('submit','Quero Baixar',array('class'=>'btn btn-danger')); ?>
@@ -1463,7 +1465,7 @@ switch($content):
         <?php echo form_close(); ?>
         <br>
         <div class="panel panel-default">
-            <div class="panel-heading">Baixa de Negativação</div>
+            <div class="panel-heading">Baixa de NegativaÃ§Ã£o</div>
             <div class="panel-body">
                 <div class="table-responsive" style="margin: 0">
                     <table class="table table-hover table-condensed table-bordered" style="margin: 0">
@@ -1472,7 +1474,7 @@ switch($content):
                             <th>Natureza</th>
                             <th class="text-right">Cod Natureza</th>
                             <th class="text-right">Contrato</th>
-                            <th class="text-right">Nosso Número</th>
+                            <th class="text-right">Nosso NÃºmero</th>
                             <th class="text-center">Vencimento</th>
                             <th class="text-right">Valor</th>
                         </tr>
@@ -1496,10 +1498,10 @@ switch($content):
                             <table class="table table-hover table-condensed table-bordered" style="margin: 0">
                                 <tr><td><b>CNPJ</b></td><td><?php echo $parametros->CNPJ_CREDOR; ?></td></tr>
                                 <tr><td><b>Nome Fantasia</b></td><td><?php echo $parametros->FANTASIA_CREDOR; ?></td></tr>
-                                <tr><td><b>Razão Social</b></td><td><?php echo $parametros->RAZAO_CREDOR; ?></td></tr>
+                                <tr><td><b>RazÃ£o Social</b></td><td><?php echo $parametros->RAZAO_CREDOR; ?></td></tr>
                                 <tr><td><b>Telefone</b></td><td><?php echo $parametros->TELEFONE_CREDOR; ?></td></tr>
                                 <tr><td><b>E-mail</b></td><td><?php echo $parametros->EMAIL_CREDOR; ?></td></tr>
-                                <tr><td><b>Endereço</b></td><td><?php echo $parametros->ENDERECO_CREDOR; ?></td></tr>
+                                <tr><td><b>EndereÃ§o</b></td><td><?php echo $parametros->ENDERECO_CREDOR; ?></td></tr>
                                 <tr><td><b>Numero</b></td><td><?php echo $parametros->NUMERO_ENDERECO_CREDOR; ?></td></tr>
                                 <tr><td><b>Complemento</b></td><td><?php echo $parametros->COMPLEMENTO_ENDERECO_CREDOR; ?></td></tr>
                                 <tr><td><b>Bairro</b></td><td><?php echo $parametros->BAIRRO_CREDOR; ?></td></tr>
@@ -1514,7 +1516,7 @@ switch($content):
                             <table class="table table-hover table-condensed table-bordered" style="margin: 0">
                                 <tr><td><b>CPF/CNPJ</b></td><td><?php echo $parametros->DEVEDOR_CNPJ; ?></td></tr>
                                 <tr><td><b>Nome</b></td><td><?php echo $parametros->DEVEDOR_RAZAO_SOCIAL; ?></td></tr>
-                                <tr><td><b>Endereço</b></td><td><?php echo $parametros->DEVEDOR_ENDERECO; ?></td></tr>
+                                <tr><td><b>EndereÃ§o</b></td><td><?php echo $parametros->DEVEDOR_ENDERECO; ?></td></tr>
                                 <tr><td><b>Bairro</b></td><td><?php echo $parametros->DEVEDOR_BAIRRO; ?></td></tr>
                                 <tr><td><b>Cidade</b></td><td><?php echo $parametros->DEVEDOR_CIDADE; ?></td></tr>
                                 <tr><td><b>UF</b></td><td><?php echo $parametros->DEVEDOR_UF; ?></td></tr>
@@ -1537,8 +1539,8 @@ switch($content):
                     <thead>
                         <tr>
                             <th>Nome</th>
-                            <th>Descrição</th>
-                            <th class="text-right">Criação</th>
+                            <th>DescriÃ§Ã£o</th>
+                            <th class="text-right">CriaÃ§Ã£o</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -1550,7 +1552,7 @@ switch($content):
                                 <td class="text-right"><?php echo data_pt($p->criado_em); ?></td>
                                 <td class="text-right">
                                     <?php echo anchor('cliente/pasta_subs/'.$p->id_cliente_pasta,'Visualizar'); ?> | 
-                                    <?php echo anchor('cliente/pasta_relatorio_valores/'.$p->id_cliente_pasta,'Relatório'); ?>
+                                    <?php echo anchor('cliente/pasta_relatorio_valores/'.$p->id_cliente_pasta,'RelatÃ³rio'); ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -1568,7 +1570,7 @@ switch($content):
                             <input type="text" class="form-control" name="nome">
                         </div>
                         <div class="form-group">
-                            <label for="descricao">Descrição</label>
+                            <label for="descricao">DescriÃ§Ã£o</label>
                             <input type="text" class="form-control" name="descricao">
                         </div>
                     </div>
@@ -1582,7 +1584,7 @@ switch($content):
     case 'pasta_subs': ?>
             <?php echo form_open(current_url()); ?>
                 <div class="panel panel-google">
-                    <div class="panel-heading">Adição de Cliente</div>
+                    <div class="panel-heading">AdiÃ§Ã£o de Cliente</div>
                     <div class="panel-body border-top">
                         <div class="form-group">
                             <label for="cliente">Cliente</label>
@@ -1622,7 +1624,7 @@ switch($content):
     case 'pasta_relatorio_valores': ?>
             <?php echo form_open(current_url()); ?>
                 <div class="panel panel-google">
-                    <div class="panel-heading">Dados p/ Geração do Relatório</div>
+                    <div class="panel-heading">Dados p/ GeraÃ§Ã£o do RelatÃ³rio</div>
                     <div class="panel-body border-top">
                         <div class="row">
                             <div class="col-md-3">
@@ -1656,7 +1658,7 @@ switch($content):
                                 <th class="text-center">Status</th>
                                 <th class="text-right">Mens.</th>
                                 <th class="text-right">Vcto</th>
-                                <th class="text-center">Criação</th>
+                                <th class="text-center">CriaÃ§Ã£o</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1691,3 +1693,6 @@ switch($content):
             </div>
         <?php break;
 endswitch;
+
+
+
