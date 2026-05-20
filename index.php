@@ -1,5 +1,33 @@
 <?php
 
+if (is_file(__DIR__.'/.env') && is_readable(__DIR__.'/.env'))
+{
+	foreach (file(__DIR__.'/.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line)
+	{
+		$line = trim($line);
+		if ($line === '' || strpos($line, '#') === 0 || strpos($line, '=') === false)
+		{
+			continue;
+		}
+
+		list($key, $value) = explode('=', $line, 2);
+		$key = trim($key);
+		$value = trim($value);
+
+		if ($value !== '' && (($value[0] === '"' && substr($value, -1) === '"') || ($value[0] === "'" && substr($value, -1) === "'")))
+		{
+			$value = substr($value, 1, -1);
+		}
+
+		if ($key !== '' && getenv($key) === false)
+		{
+			putenv($key.'='.$value);
+			$_ENV[$key] = $value;
+			$_SERVER[$key] = $value;
+		}
+	}
+}
+
 
 /**
  * CodeIgniter
@@ -68,7 +96,15 @@
 switch (ENVIRONMENT)
 {
 	case 'development':
-		error_reporting(-1);
+		$show_deprecated = strtolower((string) (getenv('APP_SHOW_DEPRECATED') ?: '0'));
+		if ($show_deprecated === '1' || $show_deprecated === 'true')
+		{
+			error_reporting(-1);
+		}
+		else
+		{
+			error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
+		}
 		ini_set('display_errors', 1);
 	break;
 
