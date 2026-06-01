@@ -71,8 +71,10 @@ class Negativacao extends ControllerAuth{
 
         $parametros['CNPJ_CREDOR'] = $cliente->cpf_cnpj;
         $parametros['RAZAO_CREDOR'] = $this->replaceSpecialCarac($cliente->razao_social);
+        $telefone_credor = $this->telefone_credor_normalizado($cliente);
+
         $parametros['FANTASIA_CREDOR'] = $cliente->nome_ou_fantasia;
-        $parametros['TELEFONE_CREDOR'] = $cliente->telefone;
+        $parametros['TELEFONE_CREDOR'] = $telefone_credor['telefone'];
         $parametros['EMAIL_CREDOR'] = $cliente->email;
         $parametros['CEP_CREDOR'] = $cliente->cep;
         $parametros['ENDERECO_CREDOR'] = $this->replaceSpecialCarac($cliente->logradouro);
@@ -81,8 +83,8 @@ class Negativacao extends ControllerAuth{
         $parametros['BAIRRO_CREDOR'] = $this->replaceSpecialCarac($cliente->bairro);
         $parametros['CIDADE_CREDOR'] = $this->replaceSpecialCarac($cliente->cidade);
         $parametros['UF_CREDOR'] = $cliente->uf;
-        $parametros['DDD_CREDOR'] = $this->complete(substr($cliente->telefone,0,2),4,'left','0');
-        $parametros['TELEFONE_CREDOR'] = $this->complete(substr($cliente->telefone,2),9,'left','0');
+        $parametros['DDD_CREDOR'] = $this->complete($telefone_credor['ddd'],4,'left','0');
+        $parametros['TELEFONE_CREDOR'] = $this->complete($telefone_credor['telefone'],9,'left','0');
 
         if($slug=="negativacaoscpcpf"||$slug=="negativacaoscpcpj"){
             if($slug=="negativacaoscpcpf"){
@@ -164,6 +166,36 @@ class Negativacao extends ControllerAuth{
         //$str = preg_replace('/[^a-z0-9]/i', '_', $str);
         //$str = preg_replace('/_+/', '_', $str); // ideia do Bacco :)
         return $str;
+    }
+    private function telefone_credor_normalizado($cliente){
+        $candidatos = array(
+            isset($cliente->celular) ? $cliente->celular : '',
+            isset($cliente->telefone) ? $cliente->telefone : '',
+            isset($cliente->telefone2) ? $cliente->telefone2 : '',
+            isset($cliente->celular2) ? $cliente->celular2 : '',
+        );
+
+        foreach($candidatos as $telefone){
+            $digitos = preg_replace('/\D+/', '', (string) $telefone);
+            if(strlen($digitos) >= 11){
+                return array(
+                    'ddd' => substr($digitos, 0, 2),
+                    'telefone' => substr($digitos, 2, 9),
+                );
+            }
+        }
+
+        foreach($candidatos as $telefone){
+            $digitos = preg_replace('/\D+/', '', (string) $telefone);
+            if(strlen($digitos) >= 10){
+                return array(
+                    'ddd' => substr($digitos, 0, 2),
+                    'telefone' => substr($digitos, 2, 8),
+                );
+            }
+        }
+
+        return array('ddd' => '', 'telefone' => '');
     }
     private function complete($string,$tamanho,$side='right',$val=' '){
         $retorno = $string;
