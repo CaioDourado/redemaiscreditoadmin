@@ -11,6 +11,7 @@ switch($menu):
             <?php echo anchor('consulta','<i class="fa fa-search"></i> Consultas',array('class'=>'item_solto')); ?>
             <?php echo anchor('boleto','<i class="fa fa-barcode"></i> Boletos',array('class'=>'item_solto')); ?>
             <?php echo anchor('fatura','<i class="fa fa-file-text"></i> Faturas',array('class'=>'item_solto')); ?>
+            <?php echo anchor('negativacao','<i class="fa fa-minus-circle"></i> Negativacoes',array('class'=>'item_solto')); ?>
             <?php echo anchor('franquia','<i class="fa fa-industry"></i> Franquias',array('class'=>'item_solto')); ?>
             <?php echo anchor('arquivo','<i class="fa fa-file"></i> Arquivos',array('class'=>'item_solto')); ?>
             <?php echo anchor('relatorio','<i class="fa fa-bar-chart"></i> Relatorios',array('class'=>'item_solto')); ?>

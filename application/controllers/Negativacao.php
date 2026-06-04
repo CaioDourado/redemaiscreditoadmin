@@ -7,12 +7,136 @@ class Negativacao extends ControllerAuth{
     }
 
     public function index(){
-        $negativacoes = $this->negativacao->retornar_pefin_ativo()->result();
+        $limite = (int) $this->input->get('limite');
+        if($limite <= 0 || $limite > 200){
+            $limite = 200;
+        }
 
-        $this->parameters['content'] = $this->load->view('screens/negativacao', array('content' => 'index', 'negativacoes' => $negativacoes), true);
-        $this->load->view('templates/main_sem_janela', $this->parameters);
+        $pagina = (int) $this->input->get('pagina');
+        if($pagina <= 0){
+            $pagina = 1;
+        }
+
+        $busca = trim((string) $this->input->get('busca'));
+        $offset = ($pagina - 1) * $limite;
+        $total = $this->negativacao->contar_todas($busca);
+        $negativacoes = $this->negativacao->listar_todas($limite, $offset, $busca)->result();
+
+        foreach($negativacoes as $negativacao){
+            $negativacao->_status_negativacao = $this->status_negativacao($negativacao);
+            $negativacao->_status_baixa = $this->status_baixa($negativacao);
+        }
+
+        $this->parameters['pg_title'] = 'Negativacoes';
+        $this->parameters['pg_subtitle'] = 'Acompanhamento de inclusoes e baixas';
+        $this->parameters['content'] = $this->load->view('screens/negativacao', array(
+            'content' => 'lista',
+            'negativacoes' => $negativacoes,
+            'total' => $total,
+            'pagina' => $pagina,
+            'limite' => $limite,
+            'busca' => $busca,
+        ), true);
+        $this->load->view('templates/maing', $this->parameters);
     }
 
+    public function dossie(){
+        $id_negativacao = $this->verificar_parametro(3, 'Negativacao nao informada.', 'negativacao');
+        $negativacao = $this->negativacao->retornar_dossie($id_negativacao)->row();
+
+        if($negativacao === null){
+            set_msg('Negativacao nao encontrada.');
+            redirect('negativacao');
+        }
+
+        $negativacao->_status_negativacao = $this->status_negativacao($negativacao);
+        $negativacao->_status_baixa = $this->status_baixa($negativacao);
+
+        $baixas = $this->negativacao->retornar_baixas_da_negativacao($negativacao)->result();
+        foreach($baixas as $baixa){
+            $baixa->_status_baixa = $this->status_negativacao($baixa);
+            $baixa->_auditorias = $this->negativacao->retornar_auditorias('negativacao_baixa', $baixa->id_negativacao_baixa)->result();
+        }
+
+        $auditorias = $this->negativacao->retornar_auditorias('negativacao', $id_negativacao)->result();
+
+        $this->parameters['pg_title'] = 'Dossie da negativacao';
+        $this->parameters['pg_subtitle'] = '#'.$id_negativacao;
+        $this->parameters['content'] = $this->load->view('screens/negativacao', array(
+            'content' => 'dossie',
+            'negativacao' => $negativacao,
+            'baixas' => $baixas,
+            'auditorias' => $auditorias,
+        ), true);
+        $this->load->view('templates/maing', $this->parameters);
+    }
+
+    private function status_baixa($negativacao){
+        if(isset($negativacao->baixas_qtd) && (int) $negativacao->baixas_qtd > 0){
+            return array('texto' => 'Baixada', 'classe' => 'success', 'icone' => 'check');
+        }
+
+        return array('texto' => 'Nao baixada', 'classe' => 'default', 'icone' => 'clock-o');
+    }
+
+    private function status_negativacao($linha){
+        $retorno = '';
+        if(isset($linha->retorno) && $linha->retorno !== null){
+            $retorno .= ' '.$linha->retorno;
+        }
+        if(isset($linha->retorno_json) && $linha->retorno_json !== null){
+            $retorno .= ' '.$linha->retorno_json;
+        }
+        if(isset($linha->status) && $linha->status !== null){
+            $retorno .= ' '.$linha->status;
+        }
+
+        $retorno = trim($retorno);
+        if($retorno === ''){
+            return array('texto' => 'Sem retorno', 'classe' => 'warning', 'icone' => 'exclamation-triangle');
+        }
+
+        if($this->retorno_tem_erro($retorno)){
+            return array('texto' => 'Erro', 'classe' => 'danger', 'icone' => 'times');
+        }
+
+        return array('texto' => 'Sucesso', 'classe' => 'success', 'icone' => 'check');
+    }
+
+    private function retorno_tem_erro($retorno){
+        $texto = strtolower($retorno);
+        $marcadores = array('erro_', ' erro ', 'error', 'exception', 'http_400', 'http_500', 'nao foi possivel', 'invalid');
+        foreach($marcadores as $marcador){
+            if(strpos($texto, $marcador) !== false){
+                return true;
+            }
+        }
+
+        $json = json_decode($retorno);
+        if(json_last_error() === JSON_ERROR_NONE && is_object($json)){
+            if(isset($json->success) && !$json->success){
+                return true;
+            }
+            if(isset($json->valido) && !$json->valido){
+                return true;
+            }
+            if(isset($json->erro) && $json->erro){
+                return true;
+            }
+            if(isset($json->HEADER->INFORMACOES_RETORNO->STATUS_RETORNO->CODIGO)
+                && (string) $json->HEADER->INFORMACOES_RETORNO->STATUS_RETORNO->CODIGO === '0'){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function pefin_ativo(){
+        $negativacoes = $this->negativacao->retornar_pefin_ativo()->result();
+        $this->parameters['content'] = $this->load->view('screens/negativacao',array('content'=>'index','negativacoes'=>$negativacoes),true);
+        $this->load->view('templates/main_sem_janela',$this->parameters);
+    }
     public function conversao(){
         $this->load->model('cliente_model','cliente');
 
@@ -53,7 +177,7 @@ class Negativacao extends ControllerAuth{
             $parametros['DATA_ATRASO'] = str_replace('/','',$this->input->post('vencimento_inicio'));
             $parametros['DATA_TERMINO'] = str_replace('/','',$this->input->post('vencimento_fim'));
 
-            $id_consulta = $this->requisicao_negativacao($parametros, 'negativacaoscpcpf' ,$negativacao,$cliente);
+            $id_consulta = $this->requisicao_negativacao($parametros, $negativacao, $cliente, 'negativacaoscpcpf');
             set_msg('Sua Negativação foi efetuada com sucesso!','successo');
             redirect('negativacao');
         }
@@ -62,7 +186,7 @@ class Negativacao extends ControllerAuth{
         $this->load->view('templates/main_sem_janela', $this->parameters);
     }
 
-    private function requisicao_negativacao($parametros,$slug='negativacaopefinpf',$negativacao,$cliente){
+    private function requisicao_negativacao($parametros, $negativacao, $cliente, $slug='negativacaopefinpf'){
         $consulta = $this->cliente->retornar_consulta_mais_barata($slug,$cliente->id_cliente)->row();
 
         $parametros['CHAVE'] = $consulta->chave;
