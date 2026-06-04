@@ -139,7 +139,7 @@ switch($content):
             <div class="col-md-6">
                 <div class="panel panel-default">
                     <div class="panel-heading"><b>Retorno do fornecedor</b></div>
-                    <div class="panel-body"><?php echo neg_retorno_box(isset($negativacao->retorno_json) && $negativacao->retorno_json ? $negativacao->retorno_json : $negativacao->retorno, 420); ?></div>
+                    <div class="panel-body"><?php echo neg_retorno_box(isset($negativacao->retorno) ? $negativacao->retorno : '', 420); ?></div>
                 </div>
             </div>
         </div>
@@ -159,42 +159,42 @@ switch($content):
             </div>
         </div>
 
-        <div class="panel panel-google">
-            <div class="panel-heading"><b>Baixas vinculadas</b></div>
-            <div class="panel-body">
-                <?php if(empty($baixas)): ?>
-                    <div class="alert alert-info">Nenhuma baixa encontrada para este documento/cliente.</div>
-                <?php endif; ?>
-                <?php foreach($baixas as $baixa): ?>
-                    <div class="panel panel-default">
-                        <div class="panel-heading"><b>Baixa #<?php echo $baixa->id_negativacao_baixa; ?></b> <span class="label label-<?php echo $baixa->_status_baixa['classe']; ?>"><?php echo $baixa->_status_baixa['texto']; ?></span></div>
+        <div class="clearfix" style="margin-top: 20px"></div>
+        <?php if(empty($baixas)): ?>
+            <div class="alert alert-info">Nenhuma baixa encontrada para este documento/cliente.</div>
+        <?php endif; ?>
+        <?php foreach($baixas as $baixa): ?>
+            <div class="panel panel-default">
+                <div class="panel-heading"><b>Baixa #<?php echo $baixa->id_negativacao_baixa; ?></b> <span class="label label-<?php echo $baixa->_status_baixa['classe']; ?>"><?php echo $baixa->_status_baixa['texto']; ?></span></div>
+                <div class="panel-body">
+                    <div class="table-responsive">
                         <table class="table table-bordered table-condensed">
                             <tbody>
                             <tr><th>Fornecedor</th><td><?php echo neg_val($baixa, 'fornecedor'); ?></td><th>Slug</th><td><?php echo neg_val($baixa, 'slug'); ?></td></tr>
                             <tr><th>Documento</th><td><?php echo neg_val($baixa, 'cpf_cnpj'); ?></td><th>Criado em</th><td><?php echo neg_val($baixa, 'criado_em'); ?></td></tr>
                             </tbody>
                         </table>
-                        <div class="panel-body"><?php echo neg_retorno_box(isset($baixa->retorno_json) && $baixa->retorno_json ? $baixa->retorno_json : $baixa->retorno, 260); ?></div>
-                        <div class="table-responsive">
-                            <table class="table table-condensed">
-                                <thead><tr><th>Data</th><th>Area</th><th>Acao</th><th>Status</th><th>Mensagem</th></tr></thead>
-                                <tbody>
-                                <?php if(empty($baixa->_auditorias)): ?><tr><td colspan="5" class="text-center text-muted">Nenhuma auditoria vinculada a baixa.</td></tr><?php endif; ?>
-                                <?php foreach($baixa->_auditorias as $auditoria): ?>
-                                    <tr><td><?php echo neg_val($auditoria, 'criado_em'); ?></td><td><?php echo neg_val($auditoria, 'area'); ?></td><td><?php echo neg_val($auditoria, 'acao'); ?></td><td><?php echo neg_val($auditoria, 'status'); ?></td><td><?php echo neg_val($auditoria, 'mensagem'); ?></td></tr>
-                                <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
                     </div>
-                <?php endforeach; ?>
+                    <?php echo neg_retorno_box(isset($baixa->retorno) ? $baixa->retorno : '', 260); ?>
+                    <div class="table-responsive">
+                        <table class="table table-condensed">
+                            <thead><tr><th>Data</th><th>Area</th><th>Acao</th><th>Status</th><th>Mensagem</th></tr></thead>
+                            <tbody>
+                            <?php if(empty($baixa->_auditorias)): ?><tr><td colspan="5" class="text-center text-muted">Nenhuma auditoria vinculada a baixa.</td></tr><?php endif; ?>
+                            <?php foreach($baixa->_auditorias as $auditoria): ?>
+                                <tr><td><?php echo neg_val($auditoria, 'criado_em'); ?></td><td><?php echo neg_val($auditoria, 'area'); ?></td><td><?php echo neg_val($auditoria, 'acao'); ?></td><td><?php echo neg_val($auditoria, 'status'); ?></td><td><?php echo neg_val($auditoria, 'mensagem'); ?></td></tr>
+                            <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-        </div>
+        <?php endforeach; ?>
         <?php
         break;
     case 'index': ?>
             <div class="panel panel-blue">
-                <div class="panel-heading">NegativaÃ§Ãµes PEFIN</div>
+                <div class="panel-heading">NegativaÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â§ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Âµes PEFIN</div>
                 <div class="panel-body">
                     <div class="table-responsive">
                         <table class="table table-condensed table-hover">
@@ -237,14 +237,14 @@ switch($content):
     case 'conversao': ?>
             <?php echo form_open(current_url()); ?>
             <div class="panel panel-blue">
-                <div class="panel-heading">ConversÃ£o de NegativaÃ§Ã£o Pefin => Varejo</div>
+                <div class="panel-heading">ConversÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â£o de NegativaÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â§ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â£o Pefin => Varejo</div>
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-md-3"><div class="form-group"><label>CNPJ</label><input type="text" class="form-control" value="<?php echo $cliente->cpf_cnpj; ?>" disabled></div></div>
-                        <div class="col-md-9"><div class="form-group"><label>RazÃ£o Social</label><input type="text" class="form-control" value="<?php echo $cliente->razao_social; ?>" disabled></div></div>
+                        <div class="col-md-9"><div class="form-group"><label>RazÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â£o Social</label><input type="text" class="form-control" value="<?php echo $cliente->razao_social; ?>" disabled></div></div>
                     </div>
                     <div class="row">
-                        <div class="col-md-8"><div class="form-group"><label>EndereÃ§o</label><input type="text" class="form-control" value="<?php echo $cliente->logradouro; ?>" disabled></div></div>
+                        <div class="col-md-8"><div class="form-group"><label>EndereÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â§o</label><input type="text" class="form-control" value="<?php echo $cliente->logradouro; ?>" disabled></div></div>
                         <div class="col-md-1"><div class="form-group"><label>DDD</label><input type="text" class="form-control text-center" value="<?php echo substr($cliente->telefone,0,2); ?>" disabled></div></div>
                         <div class="col-md-3"><div class="form-group"><label>Telefone</label><input type="text" class="form-control text-center" value="<?php echo substr($cliente->telefone,2); ?>" disabled></div></div>
                     </div>
@@ -259,7 +259,7 @@ switch($content):
                     <div class="row">
                         <div class="col-md-3"><?php echo form_input('cpf','CPF <span style="color: #F00">*</span>',$devedor->CPF_DEVEDOR,'text-right cpf'); ?></div>
                         <div class="col-md-4"><?php echo form_input('nome','Nome <span style="color: #F00">*</span>',$devedor->NOME_DEVEDOR); ?></div>
-                        <div class="col-md-5"><?php echo form_select('natureza','Natureza da NegativaÃ§Ã£o <span style="color: #F00">*</span>',cod_natureza_scpc(),'',13); ?></div>
+                        <div class="col-md-5"><?php echo form_select('natureza','Natureza da NegativaÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â§ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â£o <span style="color: #F00">*</span>',cod_natureza_scpc(),'',13); ?></div>
                     </div>
                     <div class="row">
                         <div class="col-md-3"><?php echo form_input('vencimento_inicio','Venc. Inicial<span style="color: #F00">*</span>',$devedor->VENCIMENTO_DIVIDA,'text-right data data5anos_validate obrigatorio'); ?></div>
@@ -267,15 +267,15 @@ switch($content):
                         <div class="col-md-2"><?php echo form_input('parcelas','Parcelas <span style="color: #F00">*</span>',1,'text-right'); ?></div>
                         <div class="col-md-2"><?php echo form_input('valor','Valor <span style="color: #F00">*</span>',$devedor->VALOR_DIVIDA,'text-right dinheiro'); ?></div>
                         <div class="col-md-2"><?php echo form_input('contrato','Contrato <span style="color: #F00">*</span>','000001','text-right'); ?></div>
-                        <!--div class="col-md-3"><?php //echo form_input('nosso_numero','Nosso NÃºmero','','text-right'); ?></div-->
+                        <!--div class="col-md-3"><?php //echo form_input('nosso_numero','Nosso NÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Âºmero','','text-right'); ?></div-->
                     </div>
                     <div class="row">
                         <div class="col-md-3"><?php echo form_input('data_nascimento','Data de Nascimento <span style="color: #F00">*</span>',$devedor->DATA_NASC,'data text-center'); ?></div>
                     </div>
                     <div class="row">
                         <div class="col-md-2"><?php echo form_input('cep','CEP <span style="color: #F00">*</span>',$devedor->CEP_CREDOR,'cep cep_validate obrigatorio'); ?></div>
-                        <div class="col-md-10"><?php echo form_input('logradouro','EndereÃ§o <span style="color: #F00">*</span>',$devedor->ENDERECO_CREDOR.' '.$devedor->NUMERO_ENDERECO_CREDOR,'logradouro'); ?></div>
-                        <!--div class="col-md-2"><?php echo form_input('numero','NÃºmero <span style="color: #F00">*</span>'); ?></div>
+                        <div class="col-md-10"><?php echo form_input('logradouro','EndereÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â§o <span style="color: #F00">*</span>',$devedor->ENDERECO_CREDOR.' '.$devedor->NUMERO_ENDERECO_CREDOR,'logradouro'); ?></div>
+                        <!--div class="col-md-2"><?php echo form_input('numero','NÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Âºmero <span style="color: #F00">*</span>'); ?></div>
                         <div class="col-md-2"><?php echo form_input('complemento','Complemento <span style="color: #F00">*</span>'); ?></div-->
                     </div>
                     <div class="row">
