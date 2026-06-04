@@ -13,7 +13,7 @@ switch($content):
             <div class="panel-body">
                 <?php echo form_open('negativacao', array('method' => 'get', 'class' => 'form-inline')); ?>
                     <div class="form-group">
-                        <input type="text" name="busca" class="form-control" value="<?php echo htmlspecialchars($busca); ?>" placeholder="Cliente, documento, tipo ou fornecedor" style="min-width: 320px">
+                        <input type="text" name="busca" class="form-control" value="<?php echo htmlspecialchars($busca); ?>" placeholder="Cliente, documento, consulta ou fornecedor" style="min-width: 320px">
                     </div>
                     <div class="form-group">
                         <select name="limite" class="form-control">
@@ -33,7 +33,7 @@ switch($content):
                         <th style="width:80px">#</th>
                         <th>Cliente</th>
                         <th>Documento</th>
-                        <th>Tipo</th>
+                        <th>Consulta</th>
                         <th>Fornecedor</th>
                         <th class="text-right">Valor</th>
                         <th>Data</th>
@@ -51,7 +51,7 @@ switch($content):
                             <td><?php echo $negativacao->id_negativacao; ?></td>
                             <td><?php echo htmlspecialchars($negativacao->cliente_nome ?: '-'); ?></td>
                             <td><?php echo htmlspecialchars($negativacao->cpf_cnpj ?: '-'); ?></td>
-                            <td><?php echo htmlspecialchars($negativacao->tipo ?: $negativacao->slug); ?></td>
+                            <td><?php echo htmlspecialchars($negativacao->slug ?: '-'); ?></td>
                             <td><?php echo htmlspecialchars($negativacao->fornecedor ?: '-'); ?></td>
                             <td class="text-right">R$ <?php echo number_format((float) $negativacao->valor, 2, ',', '.'); ?></td>
                             <td><?php echo isset($negativacao->criado_em) ? date('d/m/Y H:i', strtotime($negativacao->criado_em)) : '-'; ?></td>
@@ -112,7 +112,7 @@ switch($content):
             <table class="table table-bordered table-condensed">
                 <tbody>
                 <tr><th>Cliente</th><td><?php echo neg_val($negativacao, 'cliente_nome'); ?></td><th>Usuario</th><td><?php echo neg_val($negativacao, 'usuario_nome'); ?></td></tr>
-                <tr><th>Documento</th><td><?php echo neg_val($negativacao, 'cpf_cnpj'); ?></td><th>Tipo</th><td><?php echo neg_val($negativacao, 'tipo'); ?></td></tr>
+                <tr><th>Documento</th><td><?php echo neg_val($negativacao, 'cpf_cnpj'); ?></td><th>Consulta</th><td><?php echo neg_val($negativacao, 'slug'); ?></td></tr>
                 <tr><th>Slug</th><td><?php echo neg_val($negativacao, 'slug'); ?></td><th>Fornecedor</th><td><?php echo neg_val($negativacao, 'fornecedor'); ?></td></tr>
                 <tr><th>Valor</th><td>R$ <?php echo number_format((float) $negativacao->valor, 2, ',', '.'); ?></td><th>Custo</th><td>R$ <?php echo number_format((float) $negativacao->custo, 2, ',', '.'); ?></td></tr>
                 <tr><th>Criado em</th><td><?php echo isset($negativacao->criado_em) ? date('d/m/Y H:i:s', strtotime($negativacao->criado_em)) : '-'; ?></td><th>Status</th><td><span class="label label-<?php echo $negativacao->_status_negativacao['classe']; ?>"><?php echo $negativacao->_status_negativacao['texto']; ?></span> <span class="label label-<?php echo $negativacao->_status_baixa['classe']; ?>"><?php echo $negativacao->_status_baixa['texto']; ?></span></td></tr>

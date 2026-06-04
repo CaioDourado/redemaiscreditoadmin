@@ -38,11 +38,12 @@ class Negativacao_model extends ModelAuth{
     }
 
     public function listar_todas($limite = 200, $offset = 0, $busca = ''){
-        $this->db->select('tbmain.*, tbcliente.nome AS cliente_nome, tbusuario.nome AS usuario_nome, baixa.baixas_qtd, baixa.ultima_baixa_em, baixa.id_ultima_baixa', false);
-        $this->db->from($this->table.' AS tbmain');
+        $this->db->select('tbmain.*, tbcliente.nome_ou_fantasia AS cliente_nome, tbusuario.usuario AS usuario_nome, COALESCE(baixa_fk.baixas_qtd, baixa_doc.baixas_qtd, 0) AS baixas_qtd, COALESCE(baixa_fk.ultima_baixa_em, baixa_doc.ultima_baixa_em) AS ultima_baixa_em, COALESCE(baixa_fk.id_ultima_baixa, baixa_doc.id_ultima_baixa) AS id_ultima_baixa', false);
+        $this->db->from('negativacao AS tbmain');
         $this->db->join('cliente AS tbcliente', 'tbcliente.id_cliente = tbmain.id_cliente_fk', 'left');
         $this->db->join('usuario AS tbusuario', 'tbusuario.id_usuario = tbmain.id_usuario_fk', 'left');
-        $this->db->join('(SELECT id_cliente_fk, cpf_cnpj, COUNT(*) AS baixas_qtd, MAX(criado_em) AS ultima_baixa_em, MAX(id_negativacao_baixa) AS id_ultima_baixa FROM negativacao_baixa GROUP BY id_cliente_fk, cpf_cnpj) AS baixa', 'baixa.id_cliente_fk = tbmain.id_cliente_fk AND baixa.cpf_cnpj = tbmain.cpf_cnpj', 'left');
+        $this->db->join('(SELECT id_negativacao_fk, COUNT(*) AS baixas_qtd, MAX(criado_em) AS ultima_baixa_em, MAX(id_negativacao_baixa) AS id_ultima_baixa FROM negativacao_baixa WHERE id_negativacao_fk IS NOT NULL GROUP BY id_negativacao_fk) AS baixa_fk', 'baixa_fk.id_negativacao_fk = tbmain.id_negativacao', 'left');
+        $this->db->join('(SELECT id_cliente_fk, cpf_cnpj, COUNT(*) AS baixas_qtd, MAX(criado_em) AS ultima_baixa_em, MAX(id_negativacao_baixa) AS id_ultima_baixa FROM negativacao_baixa GROUP BY id_cliente_fk, cpf_cnpj) AS baixa_doc', 'baixa_doc.id_cliente_fk = tbmain.id_cliente_fk AND baixa_doc.cpf_cnpj = tbmain.cpf_cnpj', 'left');
         $this->aplicar_busca($busca);
         $this->db->order_by('tbmain.id_negativacao', 'DESC');
         $this->db->limit((int) $limite, (int) $offset);
@@ -50,7 +51,7 @@ class Negativacao_model extends ModelAuth{
     }
 
     public function contar_todas($busca = ''){
-        $this->db->from($this->table.' AS tbmain');
+        $this->db->from('negativacao AS tbmain');
         $this->db->join('cliente AS tbcliente', 'tbcliente.id_cliente = tbmain.id_cliente_fk', 'left');
         $this->aplicar_busca($busca);
         return (int) $this->db->count_all_results();
@@ -64,27 +65,34 @@ class Negativacao_model extends ModelAuth{
 
         $this->db->group_start();
         $this->db->like('tbmain.cpf_cnpj', $busca);
-        $this->db->or_like('tbmain.tipo', $busca);
         $this->db->or_like('tbmain.slug', $busca);
+        $this->db->or_like('tbmain.contrato', $busca);
         $this->db->or_like('tbmain.fornecedor', $busca);
-        $this->db->or_like('tbcliente.nome', $busca);
+        $this->db->or_like('tbcliente.nome_ou_fantasia', $busca);
         $this->db->group_end();
     }
 
     public function retornar_dossie($id_negativacao){
-        $this->db->select('tbmain.*, tbcliente.nome AS cliente_nome, tbusuario.nome AS usuario_nome, baixa.baixas_qtd, baixa.ultima_baixa_em, baixa.id_ultima_baixa', false);
-        $this->db->from($this->table.' AS tbmain');
+        $this->db->select('tbmain.*, tbcliente.nome_ou_fantasia AS cliente_nome, tbusuario.usuario AS usuario_nome, COALESCE(baixa_fk.baixas_qtd, baixa_doc.baixas_qtd, 0) AS baixas_qtd, COALESCE(baixa_fk.ultima_baixa_em, baixa_doc.ultima_baixa_em) AS ultima_baixa_em, COALESCE(baixa_fk.id_ultima_baixa, baixa_doc.id_ultima_baixa) AS id_ultima_baixa', false);
+        $this->db->from('negativacao AS tbmain');
         $this->db->join('cliente AS tbcliente', 'tbcliente.id_cliente = tbmain.id_cliente_fk', 'left');
         $this->db->join('usuario AS tbusuario', 'tbusuario.id_usuario = tbmain.id_usuario_fk', 'left');
-        $this->db->join('(SELECT id_cliente_fk, cpf_cnpj, COUNT(*) AS baixas_qtd, MAX(criado_em) AS ultima_baixa_em, MAX(id_negativacao_baixa) AS id_ultima_baixa FROM negativacao_baixa GROUP BY id_cliente_fk, cpf_cnpj) AS baixa', 'baixa.id_cliente_fk = tbmain.id_cliente_fk AND baixa.cpf_cnpj = tbmain.cpf_cnpj', 'left');
+        $this->db->join('(SELECT id_negativacao_fk, COUNT(*) AS baixas_qtd, MAX(criado_em) AS ultima_baixa_em, MAX(id_negativacao_baixa) AS id_ultima_baixa FROM negativacao_baixa WHERE id_negativacao_fk IS NOT NULL GROUP BY id_negativacao_fk) AS baixa_fk', 'baixa_fk.id_negativacao_fk = tbmain.id_negativacao', 'left');
+        $this->db->join('(SELECT id_cliente_fk, cpf_cnpj, COUNT(*) AS baixas_qtd, MAX(criado_em) AS ultima_baixa_em, MAX(id_negativacao_baixa) AS id_ultima_baixa FROM negativacao_baixa GROUP BY id_cliente_fk, cpf_cnpj) AS baixa_doc', 'baixa_doc.id_cliente_fk = tbmain.id_cliente_fk AND baixa_doc.cpf_cnpj = tbmain.cpf_cnpj', 'left');
         $this->db->where('tbmain.id_negativacao', (int) $id_negativacao);
         return $this->db->get();
     }
 
     public function retornar_baixas_da_negativacao($negativacao){
         $this->db->from('negativacao_baixa AS tbmain');
+        $this->db->group_start();
+        $this->db->where('tbmain.id_negativacao_fk', $negativacao->id_negativacao);
+        $this->db->or_group_start();
+        $this->db->where('tbmain.id_negativacao_fk IS NULL', null, false);
         $this->db->where('tbmain.id_cliente_fk', $negativacao->id_cliente_fk);
         $this->db->where('tbmain.cpf_cnpj', $negativacao->cpf_cnpj);
+        $this->db->group_end();
+        $this->db->group_end();
         $this->db->order_by('tbmain.id_negativacao_baixa', 'DESC');
         return $this->db->get();
     }
