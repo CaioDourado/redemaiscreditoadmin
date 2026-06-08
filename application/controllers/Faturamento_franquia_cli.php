@@ -373,10 +373,10 @@ class Faturamento_franquia_cli extends CI_Controller{
         foreach($params as $param){
             if(strpos($param, 'vencimento=')===0){
                 $dia = (int)substr($param, 11);
-                return $dia > 0 ? $dia : 15;
+                return $dia > 0 ? $dia : 20;
             }
         }
-        return 15;
+        return 20;
     }
 
     private function resolver_mostrar_logs($params){
