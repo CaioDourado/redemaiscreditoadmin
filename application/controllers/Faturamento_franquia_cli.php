@@ -34,7 +34,7 @@ class Faturamento_franquia_cli extends CI_Controller{
         $vencimento_dia = $this->resolver_vencimento($params);
         $this->mostrar_logs = $this->resolver_mostrar_logs($params);
 
-        if(!$this->tem_competencia_manual($params) && (int)date('d')!==7){
+        if(!$this->tem_competencia_manual($params) && (int)date('d')!==6){
             $this->out('Hoje nao e dia automatico de faturamento administrativo de franquias. Nada a fazer.');
             return;
         }
