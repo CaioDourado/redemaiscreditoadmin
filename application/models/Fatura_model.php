@@ -19,7 +19,7 @@ class Fatura_model extends ModelAuth{
     }
 
     public function retornar_adm_franquia_todos_mes(){
-        $sql  = 'SELECT tbmain.*, tb2.nome_ou_fantasia AS franquia_nome, tb3.id_boleto, tb3.hash AS boleto_hash ';
+        $sql  = 'SELECT tbmain.*, tb2.nome_ou_fantasia AS franquia_nome, tb3.id_boleto, tb3.hash AS boleto_hash, tb3.pago AS boleto_pago ';
         $sql .= 'FROM adm_franquia_fatura AS tbmain ';
         $sql .= 'LEFT JOIN franquia AS tb2 ON tbmain.id_franquia_fk = tb2.id_franquia ';
         $sql .= 'LEFT JOIN boleto AS tb3 ON tbmain.id_boleto_fk = tb3.id_boleto ';

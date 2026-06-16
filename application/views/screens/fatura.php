@@ -18,6 +18,7 @@ switch($content):
                         <th class="text-right">Valor</th>
                         <th class="text-center">Fatura</th>
                         <th class="text-center">Boleto</th>
+                        <th class="text-center">Opções</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -35,7 +36,20 @@ switch($content):
                                 </td>
                                 <td class="text-center">
                                     <?php
-                                    if($fatura->id_boleto_fk!=null) echo anchor('boleto/visualizar/'.$fatura->hash_boleto,'Visualizar Boleto',array('class'=>'btn btn-info btn-xs','target'=>'_blank'));
+                                    if($fatura->id_boleto_fk!=null):
+                                        if(isset($fatura->boleto_pago) && (int)$fatura->boleto_pago===1):
+                                            echo '<span class="label label-success">Pago</span>';
+                                        else:
+                                            echo anchor('boleto/visualizar/'.$fatura->hash_boleto,'Visualizar Boleto',array('class'=>'btn btn-info btn-xs','target'=>'_blank'));
+                                        endif;
+                                    else:
+                                        echo '-';
+                                    endif;
+                                    ?>
+                                </td>
+                                <td class="text-center">
+                                    <?php
+                                    if($fatura->id_boleto_fk!=null) echo anchor('boleto/baixar/'.$fatura->hash_boleto,'Baixar',array('class'=>'btn btn-default btn-xs'));
                                     else echo '-';
                                     ?>
                                 </td>
@@ -43,7 +57,7 @@ switch($content):
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="7" class="text-center">Nenhuma fatura ADM encontrada neste mes.</td>
+                            <td colspan="8" class="text-center">Nenhuma fatura ADM encontrada neste mes.</td>
                         </tr>
                     <?php endif; ?>
                     </tbody>
@@ -51,7 +65,7 @@ switch($content):
                     <tr>
                         <th colspan="4" class="text-right">Total</th>
                         <th class="text-right"><?php echo dinheiro($total_faturas_adm); ?></th>
-                        <th colspan="2"></th>
+                        <th colspan="3"></th>
                     </tr>
                     </tfoot>
                 </table>
