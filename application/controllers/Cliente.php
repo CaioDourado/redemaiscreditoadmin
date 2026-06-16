@@ -1071,7 +1071,7 @@ class Cliente extends ControllerAuth {
 
     private function mensagem_erro_negativacao($erro, $url){
         $mensagem = 'Ocorreu um erro na negativacao: '.$erro;
-        if($this->input->get('debug_url') == '1'){
+        if($url !== null && $url !== ''){
             $mensagem .= '<br><small style="word-break: break-all;"><b>URL chamada:</b> '.htmlspecialchars($url, ENT_QUOTES, 'UTF-8').'</small>';
         }
 
