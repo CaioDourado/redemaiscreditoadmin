@@ -5,6 +5,14 @@ switch($content):
         $paginas = max(1, (int) ceil($total / $limite));
         $url_base = site_url('negativacao').'?limite='.$limite.'&busca='.urlencode($busca).'&pagina=';
         ?>
+        <style>
+            .negativacao-lista-table tbody tr{
+                transition: background-color .15s ease-in-out;
+            }
+            .negativacao-lista-table tbody tr:hover{
+                background-color: #f5f9ff;
+            }
+        </style>
         <div class="panel panel-google">
             <div class="panel-heading">
                 <b>Negativacoes</b>
@@ -27,7 +35,7 @@ switch($content):
                 <?php echo form_close(); ?>
             </div>
             <div class="table-responsive">
-                <table class="table table-bordered table-condensed table-striped">
+                <table class="table table-bordered table-condensed table-striped negativacao-lista-table">
                     <thead>
                     <tr>
                         <th style="width:80px">#</th>
@@ -49,7 +57,13 @@ switch($content):
                     <?php foreach($negativacoes as $negativacao): ?>
                         <tr>
                             <td><?php echo $negativacao->id_negativacao; ?></td>
-                            <td><?php echo htmlspecialchars($negativacao->cliente_nome ?: '-'); ?></td>
+                            <td>
+                                <?php if(!empty($negativacao->id_cliente_fk) && !empty($negativacao->cliente_nome)): ?>
+                                    <?php echo anchor('cliente/perfil/'.$negativacao->id_cliente_fk, htmlspecialchars($negativacao->cliente_nome), array('title' => 'Abrir perfil do cliente')); ?>
+                                <?php else: ?>
+                                    <?php echo htmlspecialchars($negativacao->cliente_nome ?: '-'); ?>
+                                <?php endif; ?>
+                            </td>
                             <td><?php echo htmlspecialchars($negativacao->cpf_cnpj ?: '-'); ?></td>
                             <td><?php echo htmlspecialchars($negativacao->slug ?: '-'); ?></td>
                             <td><?php echo htmlspecialchars($negativacao->fornecedor ?: '-'); ?></td>
