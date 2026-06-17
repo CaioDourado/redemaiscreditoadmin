@@ -997,7 +997,7 @@ class Cliente extends ControllerAuth {
             'cnpj' => $this->scpc_numero($parametros['DEVEDOR_CNPJ'], 14),
             'ddd' => $this->scpc_numero($parametros['DEVEDOR_DDD'], 3),
             'telefone' => $this->scpc_numero($parametros['DEVEDOR_TELEFONE'], 8),
-            'endereco' => $this->scpc_texto($parametros['DEVEDOR_ENDERECO'], 40),
+            'endereco' => $this->scpc_texto($parametros['DEVEDOR_ENDERECO'], 60),
             'numero' => $this->scpc_numero_endereco(isset($parametros['DEVEDOR_NUMERO']) ? $parametros['DEVEDOR_NUMERO'] : ''),
             'complemento' => $this->scpc_texto(isset($parametros['DEVEDOR_COMPLEMENTO']) ? $parametros['DEVEDOR_COMPLEMENTO'] : '', 20),
             'bairro' => $this->scpc_texto($parametros['DEVEDOR_BAIRRO'], 30),

@@ -15,7 +15,7 @@ class Fatura extends ControllerAuth{
         $faturas_adm = $this->fatura->retornar_adm_franquia_todos_mes()->result();
 
         $this->parameters['pg_title'] = '<i class="fa fa-file-text"></i> Faturas';
-        $this->parameters['pg_subtitle'] = 'Tela com as faturas para geraÃ§Ã£o de boletos.';
+        $this->parameters['pg_subtitle'] = 'Tela com as faturas para geração de boletos.';
 
         $this->parameters['menu'] = $this->load_menu('faturas');
         $this->parameters['content'] = $this->load->view('screens/fatura',array('content'=>'gerenciar','faturas'=>$faturas,'faturas_adm'=>$faturas_adm),true);
