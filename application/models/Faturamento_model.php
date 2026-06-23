@@ -139,8 +139,8 @@ class Faturamento_model extends CI_Model{
         $sql .= 'SELECT id_cliente_fk,CONCAT("CPF/CNPJ: ",cpf_cnpj) AS entrada,"+ Credito Negativacao" AS nome,"negativacao" AS grupo, valor, criado_em AS data FROM negativacao WHERE criado_em BETWEEN "'.$inicio_faturamento.'" AND "'.$fim_faturamento.'" ';
         $sql .= 'UNION ALL ';
         $sql .= 'SELECT id_cliente_fk,CONCAT("CPF/CNPJ: ",cpf_cnpj) AS entrada,"+ Credito Baixa" AS nome,"baixa" AS grupo, valor, criado_em AS data FROM negativacao_baixa WHERE criado_em BETWEEN "'.$inicio_faturamento.'" AND "'.$fim_faturamento.'" ';
-		$sql .= 'UNION ALL ';
-		$sql .= 'SELECT id_cliente_fk,CONCAT("CPF/CNPJ: ",pesquisa) AS entrada, nome, "scorepluspfnova" AS grupo, valor, criado_em AS data FROM consulta_gerada WHERE criado_em BETWEEN "'.$inicio_faturamento.'" AND "'.$fim_faturamento.'" ';
+		// $sql .= 'UNION ALL ';
+		// $sql .= 'SELECT id_cliente_fk,CONCAT("CPF/CNPJ: ",pesquisa) AS entrada, nome, "scorepluspfnova" AS grupo, valor, criado_em AS data FROM consulta_gerada WHERE criado_em BETWEEN "'.$inicio_faturamento.'" AND "'.$fim_faturamento.'" ';
         $sql .= ') AS tbmain ';
         $sql .= 'LEFT JOIN cliente AS tb2 ON tbmain.id_cliente_fk = tb2.id_cliente ';
         $sql .= 'WHERE tbmain.id_cliente_fk = '.$id_cliente.' ';
