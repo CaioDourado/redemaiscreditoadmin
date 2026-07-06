@@ -123,7 +123,7 @@ class Faturamento_franquia_cli extends CI_Controller{
 
         $grupos = array(
             array('grupo'=>'consultas', 'rows'=>$this->faturamento->retornar_faturamento_franquia_consultas_resumido($id_franquia, $periodo['inicio'], $periodo['fim'], null, $periodo['competencia'])->result()),
-            array('grupo'=>'consultas', 'rows'=>$this->faturamento->retornar_faturamento_franquia_consultas_novas_resumido($id_franquia, $periodo['inicio'], $periodo['fim'], null, $periodo['competencia'])->result()),
+            // array('grupo'=>'consultas', 'rows'=>$this->faturamento->retornar_faturamento_franquia_consultas_novas_resumido($id_franquia, $periodo['inicio'], $periodo['fim'], null, $periodo['competencia'])->result()),
             array('grupo'=>'veicular', 'rows'=>$this->faturamento->retornar_faturamento_franquia_consultas_veicular_resumido($id_franquia, $periodo['inicio'], $periodo['fim'], null, $periodo['competencia'])->result()),
             array('grupo'=>'cartas', 'rows'=>$this->faturamento->retornar_faturamento_franquia_cartas_resumido($id_franquia, $periodo['inicio'], $periodo['fim'], null, $periodo['competencia'])->result()),
             array('grupo'=>'negativacoes', 'rows'=>$this->faturamento->retornar_faturamento_franquia_negativacoes_resumido($id_franquia, $periodo['inicio'], $periodo['fim'], null, $periodo['competencia'])->result()),
