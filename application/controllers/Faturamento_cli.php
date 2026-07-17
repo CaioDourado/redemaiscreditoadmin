@@ -613,6 +613,8 @@ class Faturamento_cli extends CI_Controller{
             );
 
             $this->db->insert('fatura', $dados);
+            $this->db->where('id_fatura_fk', $id_fatura);
+            $this->db->delete('fatura_item');
 
             $fatura_itens = array();
             $proximo_item_id = $this->proximo_id('fatura_item', 'id_fatura_item');
@@ -678,6 +680,8 @@ class Faturamento_cli extends CI_Controller{
                 'clientes_qtd' => $fatura->clientes_qtd,
                 'clientes_valor' => $fatura->clientes_valor
             ));
+            $this->db->where('id_fatura_fk', $id_fatura);
+            $this->db->delete('adm_franquia_fatura_item');
 
             $fatura_itens = array();
             $proximo_item_id = $this->proximo_id('adm_franquia_fatura_item', 'id_adm_fraqnuia_fatura_item');

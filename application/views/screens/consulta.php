@@ -2,6 +2,41 @@
 
 switch($content):
     case 'gerenciar': ?>
+            <?php $banimento_ativo = isset($banimento_fornecedores_ativo) ? (bool) $banimento_fornecedores_ativo : true; ?>
+            <div class="panel panel-blue">
+                <div class="panel-heading">Banimento automatico de fornecedores</div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <p class="no-margin">
+                                Status:
+                                <?php if($banimento_ativo): ?>
+                                    <span class="label label-success">LIGADO</span>
+                                <?php else: ?>
+                                    <span class="label label-default">DESLIGADO</span>
+                                <?php endif; ?>
+                            </p>
+                            <small class="text-muted">
+                                Em modo de teste no administrativo. O sistema de consultas ainda nao consome esta configuracao.
+                            </small>
+                        </div>
+                        <div class="col-md-4 text-right">
+                            <?php echo form_open('consulta/alternar_banimento_fornecedores', array('style'=>'display:inline')); ?>
+                                <?php if($banimento_ativo): ?>
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="fa fa-toggle-on"></i> Desligar banimento
+                                    </button>
+                                <?php else: ?>
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fa fa-toggle-off"></i> Ligar banimento
+                                    </button>
+                                <?php endif; ?>
+                            <?php echo form_close(); ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <table class="table table-condensed table-hover no-margin table-bordered">
                 <thead>
                 <tr>

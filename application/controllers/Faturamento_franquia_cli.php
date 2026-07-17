@@ -240,6 +240,8 @@ class Faturamento_franquia_cli extends CI_Controller{
                 'clientes_qtd' => $fatura->clientes_qtd,
                 'clientes_valor' => $fatura->clientes_valor
             ));
+            $this->db->where('id_fatura_fk', $id_fatura);
+            $this->db->delete('adm_franquia_fatura_item');
 
             $fatura_itens = array();
             $proximo_item_id = $this->proximo_id('adm_franquia_fatura_item', 'id_adm_fraqnuia_fatura_item');
@@ -373,6 +375,10 @@ class Faturamento_franquia_cli extends CI_Controller{
         foreach($params as $param){
             if(strpos($param, 'vencimento=')===0){
                 $dia = (int)substr($param, 11);
+                return $dia > 0 ? $dia : 20;
+            }
+            if(preg_match('/^vencimento[-_](\d+)$/', $param, $match)){
+                $dia = (int)$match[1];
                 return $dia > 0 ? $dia : 20;
             }
         }

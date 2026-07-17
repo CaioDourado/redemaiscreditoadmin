@@ -1,10 +1,14 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Consulta extends ControllerAuth{
+    private $health_escopo = 'consulta';
+    private $health_chave = 'provider_health_blocking';
 
     public function __construct(){
         parent::__construct();
         $this->load->model('consulta_model', 'consulta');
+        $this->load->model('sistema_configuracao_model', 'sistema_configuracao');
+        $this->load->model('adminauditoria_model', 'adminauditoria');
         $this->parameters['title'] = 'Consulta';
         $this->parameters['title_window'] = 'Consulta';
         $this->parameters['menu'] = $this->load->view('components/menu', array('menu' => 'consultas'), true);
@@ -13,9 +17,64 @@ class Consulta extends ControllerAuth{
 
     public function index(){
         $consultas = $this->consulta->retornar_todos()->result();
+        $banimento_fornecedores_ativo = $this->sistema_configuracao->booleano(
+            $this->health_escopo,
+            $this->health_chave,
+            true
+        );
 
-        $this->parameters['content'] = $this->load->view('screens/consulta',array('content'=>'gerenciar','consultas'=>$consultas),true);
+        $this->parameters['content'] = $this->load->view('screens/consulta',array(
+            'content'=>'gerenciar',
+            'consultas'=>$consultas,
+            'banimento_fornecedores_ativo'=>$banimento_fornecedores_ativo
+        ),true);
         $this->load->view('templates/main_new',$this->parameters);
+    }
+
+    public function alternar_banimento_fornecedores(){
+        if(strtoupper((string) $this->input->server('REQUEST_METHOD'))!=='POST'){
+            show_error('Metodo nao permitido.', 405);
+        }
+
+        $resultado = $this->sistema_configuracao->alternar_booleano(
+            $this->health_escopo,
+            $this->health_chave,
+            $this->session->userdata('id')
+        );
+
+        if(!empty($resultado['ok'])){
+            $this->adminauditoria->registrar(array(
+                'area'=>'consulta_configuracao',
+                'acao'=>'alterar_provider_health_blocking',
+                'status'=>'sucesso',
+                'referencia_tipo'=>'sistema_configuracao',
+                'referencia_id'=>$resultado['id'],
+                'mensagem'=>'Banimento automatico de fornecedores '.($resultado['atual'] ? 'ligado.' : 'desligado.'),
+                'contexto'=>array(
+                    'escopo'=>$this->health_escopo,
+                    'chave'=>$this->health_chave,
+                    'anterior'=>$resultado['anterior'] ? 1 : 0,
+                    'atual'=>$resultado['atual'] ? 1 : 0
+                )
+            ));
+
+            set_msg(
+                'Banimento automatico de fornecedores '.($resultado['atual'] ? 'ligado' : 'desligado').' com sucesso!',
+                'sucesso'
+            );
+        }else{
+            $this->adminauditoria->registrar(array(
+                'area'=>'consulta_configuracao',
+                'acao'=>'alterar_provider_health_blocking',
+                'status'=>'erro',
+                'erro'=>'CONFIG_UPDATE_FAILED',
+                'mensagem'=>isset($resultado['mensagem']) ? $resultado['mensagem'] : 'Falha ao alterar configuracao.',
+                'contexto'=>array('escopo'=>$this->health_escopo, 'chave'=>$this->health_chave)
+            ));
+            set_msg(isset($resultado['mensagem']) ? $resultado['mensagem'] : 'Nao foi possivel alterar a configuracao.');
+        }
+
+        redirect('consulta');
     }
 
     public function cadastrar(){
