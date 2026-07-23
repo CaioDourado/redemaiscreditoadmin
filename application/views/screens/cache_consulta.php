@@ -1,4 +1,62 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
+?>
+<style>
+    .cache-summary-grid{
+        display:grid;
+        grid-template-columns:2fr repeat(4, 1fr);
+        gap:15px;
+        margin:0 0 20px;
+    }
+    .cache-summary-card{
+        min-height:96px;
+        padding:16px 18px;
+        background:#fff;
+        border:1px solid #dce3e8;
+        border-left:4px solid #008d67;
+        border-radius:0;
+        box-shadow:0 2px 5px rgba(22, 41, 56, .08);
+    }
+    .cache-summary-card.documento{border-left-color:#244a78}
+    .cache-summary-card.validos{border-left-color:#00a54f}
+    .cache-summary-card.expirados{border-left-color:#e5a100}
+    .cache-summary-card.usos{border-left-color:#337ab7}
+    .cache-summary-label{
+        display:block;
+        margin-bottom:12px;
+        color:#667681;
+        font-size:12px;
+        font-weight:700;
+        letter-spacing:.45px;
+        text-transform:uppercase;
+    }
+    .cache-summary-value{
+        color:#152934;
+        font-size:26px;
+        font-weight:600;
+        line-height:1;
+    }
+    .cache-summary-document-type{
+        display:inline-block;
+        margin-right:8px;
+        color:#244a78;
+        font-size:12px;
+        font-weight:700;
+    }
+    .cache-summary-document-number{
+        color:#152934;
+        font-family:monospace;
+        font-size:17px;
+    }
+    @media (max-width:991px){
+        .cache-summary-grid{grid-template-columns:repeat(2, 1fr)}
+        .cache-summary-card.documento{grid-column:1 / -1}
+    }
+    @media (max-width:520px){
+        .cache-summary-grid{grid-template-columns:1fr}
+        .cache-summary-card.documento{grid-column:auto}
+    }
+</style>
+<?php
 
 switch($content):
     case 'index':
@@ -38,17 +96,28 @@ switch($content):
         <?php endif; ?>
 
         <?php if($documento!=='' && $erro===null): ?>
-            <div class="row">
-                <div class="col-sm-4">
-                    <div class="panel panel-info">
-                        <div class="panel-heading">Documento</div>
-                        <div class="panel-body"><strong><?php echo strtoupper(html_escape($tipo_documento)); ?></strong><br><?php echo html_escape($documento); ?></div>
-                    </div>
+            <div class="cache-summary-grid">
+                <div class="cache-summary-card documento">
+                    <span class="cache-summary-label">Documento pesquisado</span>
+                    <span class="cache-summary-document-type"><?php echo strtoupper(html_escape($tipo_documento)); ?></span>
+                    <span class="cache-summary-document-number"><?php echo html_escape($documento); ?></span>
                 </div>
-                <div class="col-sm-2"><div class="panel panel-info"><div class="panel-heading">Total</div><div class="panel-body"><strong><?php echo $total; ?></strong></div></div></div>
-                <div class="col-sm-2"><div class="panel panel-success"><div class="panel-heading">Validos</div><div class="panel-body"><strong><?php echo $ativos; ?></strong></div></div></div>
-                <div class="col-sm-2"><div class="panel panel-warning"><div class="panel-heading">Expirados</div><div class="panel-body"><strong><?php echo $expirados; ?></strong></div></div></div>
-                <div class="col-sm-2"><div class="panel panel-default"><div class="panel-heading">Usos</div><div class="panel-body"><strong><?php echo $usos; ?></strong></div></div></div>
+                <div class="cache-summary-card">
+                    <span class="cache-summary-label">Total de caches</span>
+                    <span class="cache-summary-value"><?php echo $total; ?></span>
+                </div>
+                <div class="cache-summary-card validos">
+                    <span class="cache-summary-label">Caches validos</span>
+                    <span class="cache-summary-value"><?php echo $ativos; ?></span>
+                </div>
+                <div class="cache-summary-card expirados">
+                    <span class="cache-summary-label">Expirados</span>
+                    <span class="cache-summary-value"><?php echo $expirados; ?></span>
+                </div>
+                <div class="cache-summary-card usos">
+                    <span class="cache-summary-label">Total de usos</span>
+                    <span class="cache-summary-value"><?php echo $usos; ?></span>
+                </div>
             </div>
 
             <?php if($total>0): ?>
