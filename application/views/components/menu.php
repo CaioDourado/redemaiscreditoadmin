@@ -9,6 +9,7 @@ switch($menu):
             <?php echo anchor('fornecedor','<i class="fa fa-truck"></i> Fornecedor',array('class'=>'item_solto')); ?>
             <?php echo anchor('usuario','<i class="fa fa-users"></i> Usuários',array('class'=>'item_solto')); ?>
             <?php echo anchor('consulta','<i class="fa fa-search"></i> Consultas',array('class'=>'item_solto')); ?>
+            <?php echo anchor('cache_consulta','<i class="fa fa-database"></i> Cache de Consultas',array('class'=>'item_solto')); ?>
             <?php echo anchor('boleto','<i class="fa fa-barcode"></i> Boletos',array('class'=>'item_solto')); ?>
             <?php echo anchor('fatura','<i class="fa fa-file-text"></i> Faturas',array('class'=>'item_solto')); ?>
             <?php echo anchor('negativacao','<i class="fa fa-minus-circle"></i> Negativacoes',array('class'=>'item_solto')); ?>
@@ -108,6 +109,7 @@ switch($menu):
             <?php echo anchor('consulta','Gerenciar',array('class'=>'item')); ?>
             <?php echo anchor('consulta/cadastrar','Cadastrar',array('class'=>'item')); ?>
             <?php echo anchor('consulta/grupo','Grupo',array('class'=>'item')); ?>
+            <?php echo anchor('cache_consulta','Cache por CPF/CNPJ',array('class'=>'item')); ?>
             <?php echo anchor('inicio','Voltar',array('class'=>'back')); ?>
         <?php break;
     case 'usuarios': ?>

@@ -3,22 +3,19 @@
 switch($content):
     case 'gerenciar': ?>
             <?php $banimento_ativo = isset($banimento_fornecedores_ativo) ? (bool) $banimento_fornecedores_ativo : true; ?>
-            <div class="panel panel-blue">
-                <div class="panel-heading">Banimento automatico de fornecedores</div>
+            <div class="panel panel-blue" style="margin: 10px">
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-md-8">
                             <p class="no-margin">
-                                Status:
+                                Status de Banimento :
                                 <?php if($banimento_ativo): ?>
                                     <span class="label label-success">LIGADO</span>
                                 <?php else: ?>
                                     <span class="label label-default">DESLIGADO</span>
                                 <?php endif; ?>
                             </p>
-                            <small class="text-muted">
-                                Em modo de teste no administrativo. O sistema de consultas ainda nao consome esta configuracao.
-                            </small>
+                            <small class="text-muted">Quando ativo, bani consultas que estão dando erro ou timeout.</small>
                         </div>
                         <div class="col-md-4 text-right">
                             <?php echo form_open('consulta/alternar_banimento_fornecedores', array('style'=>'display:inline')); ?>

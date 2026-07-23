@@ -26,6 +26,34 @@ class Cliente_model extends ModelAuth {
         }
     }
 
+    public function cancelar_solicitacoes_nr1($id_cliente){
+        if($id_cliente===null || (int) $id_cliente<=0 || !$this->db->table_exists('nr1_ivi_empresa')){
+            return false;
+        }
+
+        $this->db->set('status', 'cancelado');
+        $this->db->set('status_alterado_em', 'NOW()', false);
+        $this->db->set('atualizado_em', 'NOW()', false);
+        $this->db->where('id_cliente_fk', (int) $id_cliente);
+        $this->db->where('status !=', 'cancelado');
+        return $this->db->update('nr1_ivi_empresa');
+    }
+
+    public function alternar_nr1($id_cliente){
+        if((int) $id_cliente<=0 || !$this->db->field_exists('nr1', 'cliente')){
+            return false;
+        }
+
+        $this->db->set('nr1', 'IF(nr1 = 1, 0, 1)', false);
+        $this->db->where('id_cliente', (int) $id_cliente);
+        if(!$this->db->update('cliente')){
+            return false;
+        }
+
+        $cliente = $this->retornar((int) $id_cliente)->row();
+        return $cliente!==null ? (int) $cliente->nr1 : false;
+    }
+
     public function retornar_consultores(){
         $this->db->where(array('consultor'=>'1'));
         return $this->db->get('cliente');

@@ -161,6 +161,38 @@ switch($content):
 
                 </div>
             </div>
+            <div class="panel panel-info">
+                <div class="panel-heading">Card NR-1 no sistema do cliente</div>
+                <div class="panel-body">
+                    <?php if(isset($cliente->nr1)): ?>
+                        <?php $nr1_ativo = (int) $cliente->nr1===1; ?>
+                        <p>
+                            Status:
+                            <span class="label label-<?php echo $nr1_ativo ? 'success' : 'default'; ?>">
+                                <?php echo $nr1_ativo ? 'ATIVO' : 'INATIVO'; ?>
+                            </span>
+                        </p>
+                        <p class="text-muted">
+                            <?php echo $nr1_ativo
+                                ? 'O cliente pode visualizar o card da NR-1 na tela inicial.'
+                                : 'O card da NR-1 esta oculto para este cliente.'; ?>
+                        </p>
+                        <?php echo form_open('cliente/alternar_nr1/'.$cliente->id_cliente, array(
+                            'style'=>'display:inline',
+                            'onsubmit'=>"return confirm('Deseja realmente ".($nr1_ativo ? 'desativar' : 'ativar')." o card NR-1 para este cliente?');"
+                        )); ?>
+                            <button type="submit" class="btn btn-<?php echo $nr1_ativo ? 'danger' : 'success'; ?>">
+                                <i class="fa fa-<?php echo $nr1_ativo ? 'toggle-off' : 'toggle-on'; ?>"></i>
+                                <?php echo $nr1_ativo ? 'Desativar card NR-1' : 'Ativar card NR-1'; ?>
+                            </button>
+                        <?php echo form_close(); ?>
+                    <?php else: ?>
+                        <div class="alert alert-warning" style="margin-bottom:0">
+                            O controle do card NR-1 ainda nao esta disponivel no banco de dados.
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" class="active"><a href="#consumo" aria-controls="consumo" role="tab" data-toggle="tab">Consumo</a></li>
                 <!--li role="presentation"><a href="#valores_produtos" aria-controls="valores_produtos" role="tab" data-toggle="tab">Valores e Produtos</a></li-->
@@ -1693,6 +1725,5 @@ switch($content):
             </div>
         <?php break;
 endswitch;
-
 
 

@@ -284,6 +284,30 @@ class Cliente extends ControllerAuth {
         $this->parameters['content'] = $this->load->view('screens/cliente',array('content'=>'perfil','cliente'=>$cliente,'usuarios'=>$usuarios,'consultas'=>$consultas,'veiculares'=>$veiculares,'cartas'=>$cartas,'negativacoes'=>$negativacoes,'baixas'=>$baixas,'boletos'=>$boletos,'faturas'=>$faturas),true);
         $this->load->view('templates/maing',$this->parameters);
     }
+    public function alternar_nr1(){
+        if(strtoupper((string) $this->input->server('REQUEST_METHOD'))!=='POST'){
+            show_error('Metodo nao permitido.', 405);
+        }
+
+        $id_cliente = $this->verificar_parametro(3,'Nao foi informado um cliente valido','cliente');
+        $cliente = $this->cliente->retornar($id_cliente)->row();
+        if($cliente===null){
+            set_msg('Cliente nao encontrado.');
+            redirect('cliente');
+        }
+
+        $novo_status = $this->cliente->alternar_nr1($id_cliente);
+        if($novo_status===false){
+            set_msg('Nao foi possivel alterar a exibicao do card NR-1. Verifique se a atualizacao do banco de dados foi aplicada.');
+        }else{
+            set_msg(
+                'Card NR-1 '.($novo_status===1 ? 'ativado' : 'desativado').' para este cliente com sucesso!',
+                'sucesso'
+            );
+        }
+
+        redirect('cliente/perfil/'.$id_cliente);
+    }
     public function alterar(){
         $this->load->model('plano_model','plano');
 
@@ -346,14 +370,28 @@ class Cliente extends ControllerAuth {
         $this->form_validation->set_rules('status', 'Motivo de Inativação', 'required');
 
         if($this->form_validation->run()==TRUE) {
-           if($this->cliente->alterar($id_cliente,array('status'=>$this->input->post('status')))){
-               $this->cliente->alterar_usuarios($id_cliente,array('status'=>$this->input->post('status')));
-               set_msg('Cliente Inativado com sucesso!','sucesso');
-               redirect('cliente');
-           }else{
-               set_msg('Ocorreu um erro na hora de Inativar o Cliente.');
-               redirect(current_url());
-           }
+            $novo_status = (int) $this->input->post('status');
+            $this->db->trans_begin();
+
+            $cliente_atualizado = $this->cliente->alterar($id_cliente,array('status'=>$novo_status));
+            $nr1_atualizado = true;
+
+            if($cliente_atualizado){
+                $this->cliente->alterar_usuarios($id_cliente,array('status'=>$novo_status));
+                if($novo_status===0){
+                    $nr1_atualizado = $this->cliente->cancelar_solicitacoes_nr1($id_cliente);
+                }
+            }
+
+            if(!$cliente_atualizado || !$nr1_atualizado || $this->db->trans_status()===FALSE){
+                $this->db->trans_rollback();
+                set_msg('Ocorreu um erro na hora de Inativar o Cliente.');
+                redirect(current_url());
+            }
+
+            $this->db->trans_commit();
+            set_msg('Cliente Inativado com sucesso!','sucesso');
+            redirect('cliente');
         }
 
         array_push($this->parameters['breadcrumb'],array('cliente/inativar/'.$id_cliente,'Inativar'));
