@@ -132,10 +132,12 @@ class Fornecedor extends ControllerAuth{
         $this->form_validation->set_rules('slug', 'Slug', 'required');
         $this->form_validation->set_rules('requisicao', 'Requisição', 'required');
         $this->form_validation->set_rules('custo', 'Custo', 'required|only_numbers');
+        $this->form_validation->set_rules('timeout', 'Timeout', 'required|integer|greater_than_equal_to[1]|less_than_equal_to[600]');
 
         if($this->form_validation->run()==TRUE) {
-            $dados = elements(array('nome','slug','requisicao','descricao','header','body','formato'),$this->input->post());
+            $dados = elements(array('nome','slug','requisicao','descricao','header','body','formato','timeout'),$this->input->post());
             $dados['custo'] = $this->input->post('custo')/100;
+            $dados['timeout'] = (int) $this->input->post('timeout');
             $dados['id_fornecedor_fk'] = $fornecedor->id_fornecedor;
             if($this->fornecedor->alterar_consulta($consulta->id_fornecedor_consulta,$dados)){
                 set_msg('Consulta Alterada para o Fornecedor com sucesso!','sucesso');
