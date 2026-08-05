@@ -161,7 +161,8 @@ switch($content):
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label for="timeout">Timeout (segundos)</label>
-                                <input type="number" class="form-control text-right" name="timeout" id="timeout" min="1" max="600" step="1" required value="<?php echo set_value('timeout', $consulta->timeout); ?>">
+                                <?php $timeout_consulta = isset($consulta->timeout) && (int) $consulta->timeout > 0 ? (int) $consulta->timeout : 30; ?>
+                                <input type="number" class="form-control text-right" name="timeout" id="timeout" min="1" max="600" step="1" required value="<?php echo set_value('timeout', $timeout_consulta); ?>">
                                 <p class="help-block">Tempo maximo de espera desta consulta para este fornecedor.</p>
                             </div>
                         </div>
