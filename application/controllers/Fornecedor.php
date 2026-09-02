@@ -164,8 +164,14 @@ class Fornecedor extends ControllerAuth{
         $body = '';
         if($fornecedor->isauth==1){
             $token = $this->get_token($fornecedor);
-            $header = $this->prepara_url_utf8($consulta->header, array('TOKEN'=>$token));
-            $body = $consulta->body;
+            $credenciais = array(
+                'CHAVE'=>$fornecedor->chave,
+                'USUARIO'=>$fornecedor->usuario,
+                'SENHA'=>$fornecedor->senha,
+                'TOKEN'=>$token
+            );
+            $header = $this->prepara_url_utf8($consulta->header, $credenciais);
+            $body = $this->prepara_url_utf8($consulta->body, $credenciais);
         }
 
         $consulta->requisicao = str_replace("{{USUARIO}}",$fornecedor->usuario,$consulta->requisicao);
@@ -421,8 +427,14 @@ class Fornecedor extends ControllerAuth{
         $body = '';
         if($fornecedor->isauth==1){
             $token = $this->get_token($fornecedor);
-            $header = $this->prepara_url_utf8($consulta->header, array('TOKEN'=>$token));
-            $body = $consulta->body;
+            $credenciais = array(
+                'CHAVE'=>$fornecedor->chave,
+                'USUARIO'=>$fornecedor->usuario,
+                'SENHA'=>$fornecedor->senha,
+                'TOKEN'=>$token
+            );
+            $header = $this->prepara_url_utf8($consulta->header, $credenciais);
+            $body = $this->prepara_url_utf8($consulta->body, $credenciais);
         }
 
         $consulta->requisicao = str_replace("{{USUARIO}}",$fornecedor->usuario,$consulta->requisicao);
