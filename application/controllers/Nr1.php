@@ -16,15 +16,15 @@ class Nr1 extends ControllerAuth {
         if(!in_array($origem, array('matriz', 'franquia'), true)) $origem = '';
 
         $clientes = $this->nr1->listar_clientes($origem);
-        $resumo = array('total' => count($clientes), 'matriz' => 0, 'franquia' => 0, 'solicitacoes' => 0);
+        $resumo = array('total' => count($clientes), 'matriz' => 0, 'franquia' => 0, 'vidas' => 0);
         foreach($clientes as $cliente){
             if((int) $cliente->id_franquia_fk > 0) $resumo['franquia']++;
             else $resumo['matriz']++;
-            if($cliente->id_nr1_ivi_empresa !== null) $resumo['solicitacoes']++;
+            $resumo['vidas'] += (int) $cliente->quantidade_vidas;
         }
 
         $this->parameters['pg_title'] = '<i class="fa fa-shield"></i> NR-1';
-        $this->parameters['pg_subtitle'] = 'Clientes habilitados, origem e acompanhamento da solução NR-1.';
+        $this->parameters['pg_subtitle'] = 'Clientes com contratação confirmada, origem e acompanhamento da solução NR-1.';
         $this->parameters['content'] = $this->load->view('screens/nr1', array(
             'content' => 'index',
             'clientes' => $clientes,

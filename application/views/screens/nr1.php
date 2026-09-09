@@ -23,10 +23,10 @@ switch($content):
             .nr1-kpi-solicitacoes .nr1-kpi-icon { background:#fff4df; }
         </style>
         <div class="row">
-            <div class="col-md-3"><div class="nr1-kpi-card"><span class="nr1-kpi-icon"><i class="fa fa-users"></i></span><span class="nr1-kpi-label">Clientes com NR-1 ativo</span><strong class="nr1-kpi-value"><?php echo $resumo['total']; ?></strong></div></div>
-            <div class="col-md-3"><div class="nr1-kpi-card nr1-kpi-matriz"><span class="nr1-kpi-icon"><i class="fa fa-building"></i></span><span class="nr1-kpi-label">Clientes da matriz</span><strong class="nr1-kpi-value"><?php echo $resumo['matriz']; ?></strong></div></div>
-            <div class="col-md-3"><div class="nr1-kpi-card nr1-kpi-franquia"><span class="nr1-kpi-icon"><i class="fa fa-industry"></i></span><span class="nr1-kpi-label">Clientes de franquias</span><strong class="nr1-kpi-value"><?php echo $resumo['franquia']; ?></strong></div></div>
-            <div class="col-md-3"><div class="nr1-kpi-card nr1-kpi-solicitacoes"><span class="nr1-kpi-icon"><i class="fa fa-file-text-o"></i></span><span class="nr1-kpi-label">Solicitações registradas</span><strong class="nr1-kpi-value"><?php echo $resumo['solicitacoes']; ?></strong></div></div>
+            <div class="col-md-3"><div class="nr1-kpi-card"><span class="nr1-kpi-icon"><i class="fa fa-users"></i></span><span class="nr1-kpi-label">Clientes com NR-1 contratado</span><strong class="nr1-kpi-value"><?php echo $resumo['total']; ?></strong></div></div>
+            <div class="col-md-3"><div class="nr1-kpi-card nr1-kpi-matriz"><span class="nr1-kpi-icon"><i class="fa fa-building"></i></span><span class="nr1-kpi-label">Contratações da matriz</span><strong class="nr1-kpi-value"><?php echo $resumo['matriz']; ?></strong></div></div>
+            <div class="col-md-3"><div class="nr1-kpi-card nr1-kpi-franquia"><span class="nr1-kpi-icon"><i class="fa fa-industry"></i></span><span class="nr1-kpi-label">Contratações de franquias</span><strong class="nr1-kpi-value"><?php echo $resumo['franquia']; ?></strong></div></div>
+            <div class="col-md-3"><div class="nr1-kpi-card nr1-kpi-solicitacoes"><span class="nr1-kpi-icon"><i class="fa fa-heartbeat"></i></span><span class="nr1-kpi-label">Vidas contratadas</span><strong class="nr1-kpi-value"><?php echo $resumo['vidas']; ?></strong></div></div>
         </div>
 
         <form method="get" action="<?php echo site_url('nr1'); ?>">
@@ -52,7 +52,7 @@ switch($content):
         </form>
 
         <div class="panel panel-google">
-            <div class="panel-heading">Clientes NR-1</div>
+            <div class="panel-heading">Clientes com NR-1 contratado</div>
             <div class="table-responsive">
                 <table class="panel-table table-hover table-striped no-margin">
                     <thead>
@@ -67,7 +67,7 @@ switch($content):
                     </thead>
                     <tbody>
                     <?php if(count($clientes) === 0): ?>
-                        <tr><td colspan="6" class="text-center text-muted">Nenhum cliente com NR-1 ativo para este filtro.</td></tr>
+                        <tr><td colspan="6" class="text-center text-muted">Nenhum cliente com NR-1 contratado para este filtro.</td></tr>
                     <?php endif; ?>
                     <?php foreach($clientes as $cliente): ?>
                         <tr>

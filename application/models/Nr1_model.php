@@ -15,13 +15,12 @@ class Nr1_model extends CI_Model {
         $this->db->from('cliente');
         $this->db->join('franquia', 'franquia.id_franquia = cliente.id_franquia_fk', 'left');
         $this->db->join(
-            '(SELECT id_cliente_fk, MAX(id_nr1_ivi_empresa) AS id_nr1_ivi_empresa FROM '.self::COMPANY_TABLE.' GROUP BY id_cliente_fk) AS ultima_solicitacao',
+            '(SELECT id_cliente_fk, MAX(id_nr1_ivi_empresa) AS id_nr1_ivi_empresa FROM '.self::COMPANY_TABLE." WHERE status = 'contratado' GROUP BY id_cliente_fk) AS ultima_solicitacao",
             'ultima_solicitacao.id_cliente_fk = cliente.id_cliente',
-            'left',
+            'inner',
             false
         );
-        $this->db->join(self::COMPANY_TABLE.' AS empresa', 'empresa.id_nr1_ivi_empresa = ultima_solicitacao.id_nr1_ivi_empresa', 'left');
-        $this->db->where('cliente.nr1', 1);
+        $this->db->join(self::COMPANY_TABLE.' AS empresa', 'empresa.id_nr1_ivi_empresa = ultima_solicitacao.id_nr1_ivi_empresa', 'inner');
 
         if($origem === 'matriz') $this->db->where('(cliente.id_franquia_fk IS NULL OR cliente.id_franquia_fk = 0)', null, false);
         if($origem === 'franquia') $this->db->where('cliente.id_franquia_fk >', 0);
@@ -39,12 +38,12 @@ class Nr1_model extends CI_Model {
         $this->db->from('cliente');
         $this->db->join('franquia', 'franquia.id_franquia = cliente.id_franquia_fk', 'left');
         $this->db->join(
-            '(SELECT id_cliente_fk, MAX(id_nr1_ivi_empresa) AS id_nr1_ivi_empresa FROM '.self::COMPANY_TABLE.' GROUP BY id_cliente_fk) AS ultima_solicitacao',
+            '(SELECT id_cliente_fk, MAX(id_nr1_ivi_empresa) AS id_nr1_ivi_empresa FROM '.self::COMPANY_TABLE." WHERE status = 'contratado' GROUP BY id_cliente_fk) AS ultima_solicitacao",
             'ultima_solicitacao.id_cliente_fk = cliente.id_cliente',
-            'left',
+            'inner',
             false
         );
-        $this->db->join(self::COMPANY_TABLE.' AS empresa', 'empresa.id_nr1_ivi_empresa = ultima_solicitacao.id_nr1_ivi_empresa', 'left');
+        $this->db->join(self::COMPANY_TABLE.' AS empresa', 'empresa.id_nr1_ivi_empresa = ultima_solicitacao.id_nr1_ivi_empresa', 'inner');
         $this->db->where('cliente.id_cliente', (int) $id_cliente);
         $this->db->limit(1);
         return $this->db->get()->row();
