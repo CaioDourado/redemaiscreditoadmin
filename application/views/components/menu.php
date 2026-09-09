@@ -13,6 +13,7 @@ switch($menu):
             <?php echo anchor('boleto','<i class="fa fa-barcode"></i> Boletos',array('class'=>'item_solto')); ?>
             <?php echo anchor('fatura','<i class="fa fa-file-text"></i> Faturas',array('class'=>'item_solto')); ?>
             <?php echo anchor('negativacao','<i class="fa fa-minus-circle"></i> Negativacoes',array('class'=>'item_solto')); ?>
+            <?php echo anchor('nr1','<i class="fa fa-shield"></i> NR-1',array('class'=>'item_solto')); ?>
             <?php echo anchor('franquia','<i class="fa fa-industry"></i> Franquias',array('class'=>'item_solto')); ?>
             <?php echo anchor('arquivo','<i class="fa fa-file"></i> Arquivos',array('class'=>'item_solto')); ?>
             <?php echo anchor('relatorio','<i class="fa fa-bar-chart"></i> Relatorios',array('class'=>'item_solto')); ?>
@@ -25,6 +26,7 @@ switch($menu):
                     <div class="topo">Administração</div>
                     <?php echo anchor('diario','Diario',array('class'=>'item')); ?>
                     <?php echo anchor('cliente','Clientes',array('class'=>'item')); ?>
+                    <?php echo anchor('nr1','NR-1',array('class'=>'item')); ?>
                     <?php echo anchor('usuario','Usuários',array('class'=>'item')); ?>
                     <?php echo anchor('boleto','Boletos',array('class'=>'item')); ?>
                 <?php break;
@@ -40,6 +42,7 @@ switch($menu):
                     <?php echo anchor('fatura','Fatura',array('class'=>'item')); ?>
                     <?php echo anchor('faturamento','Faturamento',array('class'=>'item')); ?>
                     <?php echo anchor('negativacao','Negativação',array('class'=>'item')); ?>
+                    <?php echo anchor('nr1','NR-1',array('class'=>'item')); ?>
                     <?php echo anchor('plano','Planos',array('class'=>'item')); ?>
                     <?php echo anchor('relatorio','Relatórios',array('class'=>'item')); ?>
                     <?php echo anchor('arquivo','Arquivos',array('class'=>'item')); ?>
@@ -56,6 +59,7 @@ switch($menu):
                     <?php echo anchor('fatura','Fatura',array('class'=>'item')); ?>
                     <?php echo anchor('faturamento','Faturamento',array('class'=>'item')); ?>
                     <?php echo anchor('negativacao','Negativação',array('class'=>'item')); ?>
+                    <?php echo anchor('nr1','NR-1',array('class'=>'item')); ?>
                     <?php echo anchor('plano','Planos',array('class'=>'item')); ?>
                     <?php echo anchor('relatorio','Relatórios',array('class'=>'item')); ?>
                     <?php echo anchor('arquivo','Arquivos',array('class'=>'item')); ?>
