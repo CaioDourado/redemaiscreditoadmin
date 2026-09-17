@@ -1079,7 +1079,9 @@ switch($content):
 
         <?php break;
     case 'produtos_e_valores': ?>
-            <?php echo form_open(current_url()); ?>
+            <?php echo form_open('cliente/remover_valores_personalizados/'.$cliente->id_cliente, array('id'=>'form-remover-valores-personalizados')); ?>
+            <?php echo form_close(); ?>
+            <?php echo form_open(current_url(), array('id'=>'form-produtos-valores')); ?>
             <div class="panel panel-gray">
                 <div class="panel-heading">Produtos e Valores Habilitados para: <?php echo $cliente->nome_ou_fantasia; ?></div>
                 <div class="panel-body no-padding">
@@ -1111,6 +1113,7 @@ switch($content):
                 </div>
                 <div class="panel-footer text-right">
                     <?php echo form_hidden('id_cliente',$cliente->id_cliente); ?>
+                    <?php echo form_submit('remover','Remover Valores Personalizados',array('class'=>'btn btn-default pull-left', 'form'=>'form-remover-valores-personalizados', 'onclick'=>'return confirm(\'Deseja remover todos os valores personalizados deste cliente? Os valores voltarão ao padrão aplicável.\');')); ?>
                     <?php echo anchor('cliente/perfil/'.$cliente->id_cliente,'Voltar',array('class'=>'btn btn-default')); ?>
                     <?php echo form_submit('submit','Salvar',array('class'=>'btn btn-success')); ?>
                 </div>
@@ -1707,4 +1710,3 @@ switch($content):
             </div>
         <?php break;
 endswitch;
-

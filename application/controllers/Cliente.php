@@ -468,6 +468,29 @@ class Cliente extends ControllerAuth {
         $this->parameters['content'] = $this->load->view('screens/cliente',array('content'=>'produtos_e_valores','cliente'=>$cliente,'consultas'=>$consultas,'consultas_cliente'=>$consultas_cliente),true);
         $this->load->view('templates/main_sem_janela',$this->parameters);
     }
+
+    public function remover_valores_personalizados(){
+        $id_cliente = $this->verificar_parametro(3,'Não foi informado um cliente válido','cliente');
+        if($this->input->method(TRUE)!=='POST'){
+            set_msg('Confirme a remoção dos valores personalizados pelo formulário.');
+            redirect('cliente/produtos_valores/'.$id_cliente);
+        }
+
+        $cliente = $this->cliente->retornar($id_cliente)->row();
+        if($cliente===null){
+            set_msg('Não foi encontrado um cliente válido.');
+            redirect('cliente');
+        }
+
+        if($this->cliente->remover_cliente_consultas($id_cliente)){
+            set_msg('Valores personalizados removidos com sucesso. O cliente voltará a utilizar os valores padrão.','sucesso');
+        }else{
+            set_msg('Não existem valores personalizados para remover.');
+        }
+
+        redirect('cliente/produtos_valores/'.$id_cliente);
+    }
+
     public function negativacao_visualizar(){
         $this->load->model('negativacao_model','negativacao');
         $id_negativacao = $this->verificar_parametro(3,'Não foi informada uma negativacação.');

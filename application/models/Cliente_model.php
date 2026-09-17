@@ -62,8 +62,7 @@ class Cliente_model extends ModelAuth {
 
     public function remover_cliente_consultas($id_cliente=null){
         if($id_cliente!=null) {
-            $sql = 'DELETE FROM cliente_consulta WHERE id_cliente_fk = '.$id_cliente;
-            $this->db->query($sql);
+            $this->db->delete('cliente_consulta', array('id_cliente_fk'=>(int) $id_cliente));
             if ($this->db->affected_rows() > 0) {
                 return true;
             } else {
