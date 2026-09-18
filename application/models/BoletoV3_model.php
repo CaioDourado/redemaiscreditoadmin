@@ -121,7 +121,7 @@ class BoletoV3_model extends CI_Model{
     }
 
     private function montar_payload_sicoob($pagador, $valor, $data_vencimento, $outros, $id_boleto_atual){
-        $data_limite = date('Y-m-d',strtotime($data_vencimento.'+1 month'));
+        $data_limite = date('Y-m-d',strtotime($data_vencimento.'+6 months'));
         $data_multa = date('Y-m-d',strtotime($data_vencimento.'+1 day'));
         $cep = $this->safe($pagador, 'cep');
         $valid_cep = str_replace(array('.', '-'), '', $cep);
