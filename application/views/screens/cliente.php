@@ -118,7 +118,7 @@ switch($content):
         <?php break;
     case 'perfil': ?>
             <div class="panel panel-google">
-                <div class="panel-heading">Perfil de <?php echo $cliente->nome_ou_fantasia; ?></div>
+                <div class="panel-heading">Perfil de <?php if(!empty($cliente->possui_valores_personalizados)) echo '<span class="label label-primary" title="Valores personalizados">P</span> '; ?><?php echo $cliente->nome_ou_fantasia; ?></div>
                 <div class="panel-body border-top">
                     <div class="row">
                         <div class="col-md-4">
@@ -726,7 +726,7 @@ switch($content):
                         <tbody>
                             <?php foreach($clientes as $index => $cliente): ?>
                                 <tr class="<?php echo class_status($cliente->status); ?>">
-                                    <td><?php echo anchor('cliente/perfil/'.$cliente->id_cliente,strtoupper($cliente->nome_ou_fantasia)); ?></td>
+                                    <td><?php if(!empty($cliente->possui_valores_personalizados)) echo '<span class="label label-primary" title="Valores personalizados">P</span> '; ?><?php echo anchor('cliente/perfil/'.$cliente->id_cliente,strtoupper($cliente->nome_ou_fantasia)); ?></td>
                                     <td class="text-center"><?php if($cliente->status!=1) echo retornar_status($cliente->status); ?></td>
                                     <td class="text-right"><?php echo dinheiro($cliente->mensalidade); ?></td>
                                     <td class="text-center"><?php echo $cliente->dia_vencimento; ?></td>
@@ -802,7 +802,7 @@ switch($content):
                         <tbody>
                             <?php foreach($clientes as $index => $cliente): ?>
                                 <tr class="<?php echo class_status($cliente->status); ?>">
-                                    <td><?php echo $index+1; ?>. <?php echo anchor('cliente/perfil/'.$cliente->id_cliente,strtoupper($cliente->nome_ou_fantasia)); ?></td>
+                                    <td><?php echo $index+1; ?>. <?php if(!empty($cliente->possui_valores_personalizados)) echo '<span class="label label-primary" title="Valores personalizados">P</span> '; ?><?php echo anchor('cliente/perfil/'.$cliente->id_cliente,strtoupper($cliente->nome_ou_fantasia)); ?></td>
                                     <td class="text-center"><?php if($cliente->status!=1) echo retornar_status($cliente->status); ?></td>
                                     <td class="text-right"><?php echo dinheiro($cliente->mensalidade); ?></td>
                                     <td class="text-center"><?php echo $cliente->dia_vencimento; ?></td>
@@ -874,7 +874,7 @@ switch($content):
                             <tr>
                                 <td class="text-right"><?php echo $index+1 ?></td>
                                 <td><?php echo $cliente->id_cliente; ?></td>
-                                <td><?php echo strtoupper($cliente->nome_ou_fantasia); ?></td>
+                                <td><?php if(!empty($cliente->possui_valores_personalizados)) echo '<span class="label label-primary" title="Valores personalizados">P</span> '; ?><?php echo strtoupper($cliente->nome_ou_fantasia); ?></td>
                                 <td class="text-center"><?php echo retornar_status($cliente->status); ?></td>
                                 <td class="text-right"><?php echo dinheiro($cliente->mensalidade); ?></td>
                                 <td class="text-center"><?php echo $cliente->dia_vencimento; ?></td>

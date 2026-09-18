@@ -7,7 +7,7 @@ class Pesquisa_model extends ModelAuth {
 
     public function by_name_cpf_cnpj($entrada = null){
         if($entrada!=null){
-            $sql  = 'SELECT * FROM cliente ';
+            $sql  = 'SELECT cliente.*, EXISTS(SELECT 1 FROM cliente_consulta AS tbpersonalizado WHERE tbpersonalizado.id_cliente_fk = cliente.id_cliente) AS possui_valores_personalizados FROM cliente ';
             $sql .= 'WHERE nome_ou_fantasia LIKE "%'.$entrada.'%" OR razao_social LIKE "%'.$entrada.'%" OR cpf_cnpj LIKE "%'.$entrada.'%"';
             $sql .= 'ORDER BY nome_ou_fantasia';
             return $this->db->query($sql);

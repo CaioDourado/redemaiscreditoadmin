@@ -92,7 +92,7 @@ class Cliente extends ControllerAuth {
     }
     public function gestao_negativacao(){
         $id_cliente = $this->verificar_parametro(3,'Não foi informado um cliente válido','cliente');
-        $cliente = $this->cliente->retornar($id_cliente)->row();
+        $cliente = $this->cliente->retornar_com_valores_personalizados($id_cliente)->row();
         $negativacoes = $this->cliente->retornar_negativacoes($id_cliente)->result();
         foreach($negativacoes as $index => $n):
             $negativacoes[$index]->parametros = json_decode($n->parametros);
@@ -243,7 +243,7 @@ class Cliente extends ControllerAuth {
     }
     public function perfil(){
         $id_cliente = $this->verificar_parametro(3,'Não foi informado um cliente válido','cliente');
-        $cliente = $this->cliente->retornar($id_cliente)->row();
+        $cliente = $this->cliente->retornar_com_valores_personalizados($id_cliente)->row();
         $consultas = $this->cliente->retornar_consultas_efetuadas($id_cliente, 300)->result();
         $veiculares = $this->cliente->retornar_consultas_veiculares($id_cliente)->result();
         $cartas = $this->cliente->retornar_cartas($id_cliente)->result();

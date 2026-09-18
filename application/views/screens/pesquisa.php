@@ -30,7 +30,7 @@ switch($content):
                                 <tr>
                                     <td><?php echo $i+1; ?></td>
                                     <td><?php echo $r->cpf_cnpj; ?></td>
-                                    <td><?php echo ucwords($r->nome_ou_fantasia); ?></td>
+                                    <td><?php if(!empty($r->possui_valores_personalizados)) echo '<span class="label label-primary" title="Valores personalizados">P</span> '; ?><?php echo ucwords($r->nome_ou_fantasia); ?></td>
                                     <td><?php echo ucwords($r->cidade); ?></td>
                                     <td><?php echo anchor('cliente/perfil/'.$r->id_cliente,'Visualizar'); ?></td>
                                 </tr>

@@ -200,32 +200,38 @@ class Cliente_model extends ModelAuth {
     }
 
     function retornar_todos(){
-        $sql = 'SELECT * FROM cliente ORDER BY nome_ou_fantasia ASC';
+        $sql = 'SELECT cliente.*, EXISTS(SELECT 1 FROM cliente_consulta AS tbpersonalizado WHERE tbpersonalizado.id_cliente_fk = cliente.id_cliente) AS possui_valores_personalizados FROM cliente ORDER BY nome_ou_fantasia ASC';
+        return $this->db->query($sql);
+    }
+
+    public function retornar_com_valores_personalizados($id_cliente){
+        $sql  = 'SELECT cliente.*, EXISTS(SELECT 1 FROM cliente_consulta AS tbpersonalizado WHERE tbpersonalizado.id_cliente_fk = cliente.id_cliente) AS possui_valores_personalizados ';
+        $sql .= 'FROM cliente WHERE id_cliente = '.(int) $id_cliente.' LIMIT 1';
         return $this->db->query($sql);
     }
 
     function retornar_matriz_ativos_ordenado(){
-        $sql = 'SELECT * FROM cliente WHERE consultor = 0 AND id_consultor_fk = 3 AND id_franquia_fk = 0 AND status = 1 ORDER BY status DESC, criado_em ASC';
+        $sql = 'SELECT cliente.*, EXISTS(SELECT 1 FROM cliente_consulta AS tbpersonalizado WHERE tbpersonalizado.id_cliente_fk = cliente.id_cliente) AS possui_valores_personalizados FROM cliente WHERE consultor = 0 AND id_consultor_fk = 3 AND id_franquia_fk = 0 AND status = 1 ORDER BY status DESC, criado_em ASC';
         return $this->db->query($sql);
     }
 
     function retornar_franquias_ativos_ordenado(){
-        $sql = 'SELECT * FROM cliente WHERE consultor = 0 AND id_franquia_fk <> 0 AND status = 1 ORDER BY status DESC, criado_em ASC';
+        $sql = 'SELECT cliente.*, EXISTS(SELECT 1 FROM cliente_consulta AS tbpersonalizado WHERE tbpersonalizado.id_cliente_fk = cliente.id_cliente) AS possui_valores_personalizados FROM cliente WHERE consultor = 0 AND id_franquia_fk <> 0 AND status = 1 ORDER BY status DESC, criado_em ASC';
         return $this->db->query($sql);
     }
 
     function retornar_representantes_ativos_ordenado(){
-        $sql = 'SELECT * FROM cliente WHERE consultor = 0 AND id_consultor_fk <> 3 AND status = 1 ORDER BY status DESC, criado_em ASC';
+        $sql = 'SELECT cliente.*, EXISTS(SELECT 1 FROM cliente_consulta AS tbpersonalizado WHERE tbpersonalizado.id_cliente_fk = cliente.id_cliente) AS possui_valores_personalizados FROM cliente WHERE consultor = 0 AND id_consultor_fk <> 3 AND status = 1 ORDER BY status DESC, criado_em ASC';
         return $this->db->query($sql);
     }
 
     function retornar_todos_ordenado_gerenciar(){
-        $sql = 'SELECT * FROM cliente WHERE consultor = 0 AND id_franquia_fk = 0 ORDER BY status DESC, criado_em ASC';
+        $sql = 'SELECT cliente.*, EXISTS(SELECT 1 FROM cliente_consulta AS tbpersonalizado WHERE tbpersonalizado.id_cliente_fk = cliente.id_cliente) AS possui_valores_personalizados FROM cliente WHERE consultor = 0 AND id_franquia_fk = 0 ORDER BY status DESC, criado_em ASC';
         return $this->db->query($sql);
     }
 
     function retornar_todos_ordenado_gerenciar_franquia($id_franquia){
-        $sql = 'SELECT * FROM cliente WHERE consultor = 0 AND id_franquia_fk = '.$id_franquia.' ORDER BY status DESC, criado_em ASC';
+        $sql = 'SELECT cliente.*, EXISTS(SELECT 1 FROM cliente_consulta AS tbpersonalizado WHERE tbpersonalizado.id_cliente_fk = cliente.id_cliente) AS possui_valores_personalizados FROM cliente WHERE consultor = 0 AND id_franquia_fk = '.$id_franquia.' ORDER BY status DESC, criado_em ASC';
         return $this->db->query($sql);
     }
 
@@ -240,7 +246,7 @@ class Cliente_model extends ModelAuth {
     }
 
     function retornar_de_cidade($cidade){
-        $sql = 'SELECT * FROM cliente WHERE cidade LIKE "%'.$cidade.'%" ';
+        $sql = 'SELECT cliente.*, EXISTS(SELECT 1 FROM cliente_consulta AS tbpersonalizado WHERE tbpersonalizado.id_cliente_fk = cliente.id_cliente) AS possui_valores_personalizados FROM cliente WHERE cidade LIKE "%'.$cidade.'%" ';
         return $this->db->query($sql);
     }
 
