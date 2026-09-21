@@ -122,9 +122,9 @@ class BoletoV3_model extends CI_Model{
 
     private function montar_payload_sicoob($pagador, $valor, $data_vencimento, $outros, $id_boleto_atual){
         // O vencimento permanece o informado na fatura. O Sicoob aceita pagamento
-        // apos o vencimento somente ate 180 dias, ainda que seis meses-calendario
-        // possam ultrapassar esse limite em alguns periodos.
-        $data_limite = date('Y-m-d',strtotime($data_vencimento.' +180 days'));
+        // apos o vencimento somente ate 179 dias. A API rejeita inclusive a data
+        // maxima que ela propria informa, por isso mantemos um dia de margem.
+        $data_limite = date('Y-m-d',strtotime($data_vencimento.' +179 days'));
         $data_multa = date('Y-m-d',strtotime($data_vencimento.'+1 day'));
         $cep = $this->safe($pagador, 'cep');
         $valid_cep = str_replace(array('.', '-'), '', $cep);
