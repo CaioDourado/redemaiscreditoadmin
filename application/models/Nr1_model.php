@@ -15,7 +15,7 @@ class Nr1_model extends CI_Model {
         $this->db->from('cliente');
         $this->db->join('franquia', 'franquia.id_franquia = cliente.id_franquia_fk', 'left');
         $this->db->join(
-            '(SELECT id_cliente_fk, MAX(id_nr1_ivi_empresa) AS id_nr1_ivi_empresa FROM '.self::COMPANY_TABLE." WHERE status = 'contratado' GROUP BY id_cliente_fk) AS ultima_solicitacao",
+            '(SELECT id_cliente_fk, MAX(id_nr1_ivi_empresa) AS id_nr1_ivi_empresa FROM '.self::COMPANY_TABLE.' GROUP BY id_cliente_fk) AS ultima_solicitacao',
             'ultima_solicitacao.id_cliente_fk = cliente.id_cliente',
             'inner',
             false
@@ -38,7 +38,7 @@ class Nr1_model extends CI_Model {
         $this->db->from('cliente');
         $this->db->join('franquia', 'franquia.id_franquia = cliente.id_franquia_fk', 'left');
         $this->db->join(
-            '(SELECT id_cliente_fk, MAX(id_nr1_ivi_empresa) AS id_nr1_ivi_empresa FROM '.self::COMPANY_TABLE." WHERE status = 'contratado' GROUP BY id_cliente_fk) AS ultima_solicitacao",
+            '(SELECT id_cliente_fk, MAX(id_nr1_ivi_empresa) AS id_nr1_ivi_empresa FROM '.self::COMPANY_TABLE.' GROUP BY id_cliente_fk) AS ultima_solicitacao',
             'ultima_solicitacao.id_cliente_fk = cliente.id_cliente',
             'inner',
             false

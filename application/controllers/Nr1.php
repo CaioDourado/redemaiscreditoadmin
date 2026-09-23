@@ -24,7 +24,7 @@ class Nr1 extends ControllerAuth {
         }
 
         $this->parameters['pg_title'] = '<i class="fa fa-shield"></i> NR-1';
-        $this->parameters['pg_subtitle'] = 'Clientes com contratação confirmada, origem e acompanhamento da solução NR-1.';
+        $this->parameters['pg_subtitle'] = 'Solicitações registradas, origem e acompanhamento da solução NR-1.';
         $this->parameters['content'] = $this->load->view('screens/nr1', array(
             'content' => 'index',
             'clientes' => $clientes,
