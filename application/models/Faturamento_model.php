@@ -106,6 +106,7 @@ class Faturamento_model extends CI_Model{
     }
 
     public function retornar_gerar_faturamento($inicio_faturamento,$fim_faturamento,$dia_vencimento,$competencia=null){
+        $nr1 = $this->sql_faturamento_nr1($inicio_faturamento, $fim_faturamento);
         $sql  = 'SELECT id_cliente_fk,entrada,nome,grupo,valor,data ';
         $sql .= 'FROM ( ';
         $sql .= 'SELECT id_cliente_fk,pesquisa AS entrada,nome,slug AS grupo,valor,criado_em AS data FROM consulta_efetuada WHERE criado_em BETWEEN "'.$inicio_faturamento.'" AND "'.$fim_faturamento.'" ';
@@ -117,6 +118,8 @@ class Faturamento_model extends CI_Model{
         $sql .= 'SELECT id_cliente_fk,CONCAT("CPF/CNPJ: ",cpf_cnpj) AS entrada,"+ Credito Negativacao" AS nome,"negativacao" AS grupo, valor, criado_em AS data FROM negativacao WHERE criado_em BETWEEN "'.$inicio_faturamento.'" AND "'.$fim_faturamento.'" ';
         $sql .= 'UNION ALL ';
         $sql .= 'SELECT id_cliente_fk,CONCAT("CPF/CNPJ: ",cpf_cnpj) AS entrada,"+ Credito Baixa" AS nome,"baixa" AS grupo, valor, criado_em AS data FROM negativacao_baixa WHERE criado_em BETWEEN "'.$inicio_faturamento.'" AND "'.$fim_faturamento.'" ';
+		$sql .= 'UNION ALL ';
+		$sql .= $nr1;
 		// $sql .= 'UNION ALL ';
 		// $sql .= 'SELECT id_cliente_fk,CONCAT("CPF/CNPJ: ",pesquisa) AS entrada, nome, "scorepluspfnova" AS grupo, valor, criado_em AS data FROM consulta_gerada WHERE criado_em BETWEEN "'.$inicio_faturamento.'" AND "'.$fim_faturamento.'" ';
         $sql .= ') AS tbmain ';
@@ -128,6 +131,7 @@ class Faturamento_model extends CI_Model{
     }
 
     public function retornar_gerar_faturamento_individual($id_cliente,$inicio_faturamento,$fim_faturamento){
+        $nr1 = $this->sql_faturamento_nr1($inicio_faturamento, $fim_faturamento, $id_cliente);
         $sql  = 'SELECT id_cliente_fk,entrada,nome,grupo,valor,data ';
         $sql .= 'FROM ( ';
         $sql .= 'SELECT id_cliente_fk,pesquisa AS entrada,nome,slug AS grupo,valor,criado_em AS data FROM consulta_efetuada WHERE criado_em BETWEEN "'.$inicio_faturamento.'" AND "'.$fim_faturamento.'" ';
@@ -139,6 +143,8 @@ class Faturamento_model extends CI_Model{
         $sql .= 'SELECT id_cliente_fk,CONCAT("CPF/CNPJ: ",cpf_cnpj) AS entrada,"+ Credito Negativacao" AS nome,"negativacao" AS grupo, valor, criado_em AS data FROM negativacao WHERE criado_em BETWEEN "'.$inicio_faturamento.'" AND "'.$fim_faturamento.'" ';
         $sql .= 'UNION ALL ';
         $sql .= 'SELECT id_cliente_fk,CONCAT("CPF/CNPJ: ",cpf_cnpj) AS entrada,"+ Credito Baixa" AS nome,"baixa" AS grupo, valor, criado_em AS data FROM negativacao_baixa WHERE criado_em BETWEEN "'.$inicio_faturamento.'" AND "'.$fim_faturamento.'" ';
+		$sql .= 'UNION ALL ';
+		$sql .= $nr1;
 		// $sql .= 'UNION ALL ';
 		// $sql .= 'SELECT id_cliente_fk,CONCAT("CPF/CNPJ: ",pesquisa) AS entrada, nome, "scorepluspfnova" AS grupo, valor, criado_em AS data FROM consulta_gerada WHERE criado_em BETWEEN "'.$inicio_faturamento.'" AND "'.$fim_faturamento.'" ';
         $sql .= ') AS tbmain ';
@@ -147,6 +153,24 @@ class Faturamento_model extends CI_Model{
         $sql .= 'ORDER BY data ASC ';
 
         return $this->db->query($sql);
+    }
+
+    private function sql_faturamento_nr1($inicio_faturamento, $fim_faturamento, $id_cliente=null){
+        $inicio = date('Y-m-d', strtotime($inicio_faturamento));
+        $fim = date('Y-m-d', strtotime($fim_faturamento));
+        $filtro_cliente = $id_cliente===null ? '' : ' AND empresa.id_cliente_fk = '.(int) $id_cliente;
+
+        $sql  = 'SELECT empresa.id_cliente_fk, ';
+        $sql .= 'CONCAT("NR-1: ", empresa.quantidade_vidas, " vidas") AS entrada, ';
+        $sql .= '"+ Servico NR-1" AS nome, "nr1" AS grupo, ';
+        $sql .= 'ROUND(CASE WHEN DATE(empresa.contratado_em) <= "'.$inicio.'" THEN empresa.valor_total ';
+        $sql .= 'ELSE (empresa.valor_total / 30) * (DATEDIFF("'.$fim.'", DATE(empresa.contratado_em)) + 1) END, 2) AS valor, ';
+        $sql .= 'empresa.contratado_em AS data ';
+        $sql .= 'FROM nr1_ivi_empresa AS empresa ';
+        $sql .= 'INNER JOIN (SELECT id_cliente_fk, MAX(id_nr1_ivi_empresa) AS id_nr1_ivi_empresa FROM nr1_ivi_empresa GROUP BY id_cliente_fk) AS ultima_solicitacao ';
+        $sql .= 'ON ultima_solicitacao.id_nr1_ivi_empresa = empresa.id_nr1_ivi_empresa ';
+        $sql .= 'WHERE empresa.status = "contratado" AND empresa.contratado_em IS NOT NULL AND DATE(empresa.contratado_em) <= "'.$fim.'"'.$filtro_cliente.' ';
+        return $sql;
     }
 
     public function retornar_faturamento_franquia_consultas_resumido($id_franquia, $inicio, $fim, $dia_vencimento=null, $competencia=null){
