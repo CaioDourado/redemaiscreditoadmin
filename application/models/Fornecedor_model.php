@@ -120,7 +120,17 @@ class Fornecedor_model extends ModelAuth {
     }
 
     public function return_token($fornecedor=null){
-        $sql = 'SELECT * FROM fornecedor_token WHERE fornecedor = "'.$fornecedor.'" AND criado_em BETWEEN "'.date('Y-m-d').' 00:00" AND "'.date('Y-m-d').' 23:59" ';
-        return $this->db->query($sql);
+        $inicio_validade = date('Y-m-d').' 00:00:00';
+        if(strtolower(trim((string) $fornecedor))==='copq'){
+            $inicio_validade = date('Y-m-d H:i:s', strtotime('-1 hour'));
+        }
+
+        return $this->db
+            ->where('fornecedor', $fornecedor)
+            ->where('criado_em >=', $inicio_validade)
+            ->order_by('criado_em', 'DESC')
+            ->order_by('id_fornecedor_token', 'DESC')
+            ->limit(1)
+            ->get('fornecedor_token');
     }
 }
