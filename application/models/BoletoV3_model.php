@@ -164,20 +164,25 @@ class BoletoV3_model extends CI_Model{
         $fields['mensagensInstrucao'] = array();
 
         if(isset($outros['descricao_boleto'])){
-            $fields['mensagensInstrucao'][] = $outros['descricao_boleto'];
+            $fields['mensagensInstrucao'][] = $this->limitar_mensagem_instrucao($outros['descricao_boleto']);
         }else{
-            $fields['mensagensInstrucao'][] = 'Boleto de numero '.$id_boleto_atual;
+            $fields['mensagensInstrucao'][] = $this->limitar_mensagem_instrucao('Boleto de numero '.$id_boleto_atual);
         }
 
         foreach(array('descricao_boleto2','descricao_boleto3','descricao_boleto4') as $campo){
             if(isset($outros[$campo]) && $outros[$campo] !== ''){
-                $fields['mensagensInstrucao'][] = $outros[$campo];
+                $fields['mensagensInstrucao'][] = $this->limitar_mensagem_instrucao($outros[$campo]);
             }
         }
 
         $fields['gerarPdf'] = true;
         $fields['codigoCadastrarPIX'] = 0;
         return $fields;
+    }
+
+    private function limitar_mensagem_instrucao($mensagem){
+        $mensagem = (string)$mensagem;
+        return function_exists('mb_substr') ? mb_substr($mensagem, 0, 40, 'UTF-8') : substr($mensagem, 0, 40);
     }
 
     private function registrarBoletoBD($pessoa, $valor, $data_vencimento, $retorno, $conta, $id_boleto_atual, $usuario_id=NULL){
