@@ -1121,6 +1121,31 @@ switch($content):
             <?php echo form_close(); ?>
         <?php break;
     case 'refazer_negativacaopefinpf': ?>
+    case 'visibilidade_consultas': ?>
+            <?php echo form_open(current_url()); ?>
+                <div class="panel panel-gray">
+                    <div class="panel-heading">Visibilidade de Consultas: <?php echo htmlspecialchars($cliente->nome_ou_fantasia, ENT_QUOTES, 'UTF-8'); ?></div>
+                    <div class="panel-body">
+                        <p class="text-muted">Marque as consultas que devem aparecer no menu do cliente. Por padrão todas ficam visíveis. Esta configuração não bloqueia o acesso por URL direta nem altera preços, permissões ou faturamento.</p>
+                        <?php foreach($catalogo as $grupo => $consultas_grupo): ?>
+                            <h4 style="margin-top:22px;"><?php echo ucwords($grupo); ?></h4>
+                            <div class="row">
+                                <?php foreach($consultas_grupo as $slug => $nome): ?>
+                                    <div class="col-md-4"><div class="checkbox" style="margin-top:6px;margin-bottom:6px;"><label>
+                                        <input type="checkbox" name="visivel[]" value="<?php echo htmlspecialchars($slug, ENT_QUOTES, 'UTF-8'); ?>" <?php if(!isset($consultas_ocultas[$slug])) echo 'checked'; ?>>
+                                        <?php echo htmlspecialchars($nome, ENT_QUOTES, 'UTF-8'); ?>
+                                    </label></div></div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <div class="panel-footer text-right">
+                        <?php echo anchor('cliente/perfil/'.$cliente->id_cliente,'Voltar',array('class'=>'btn btn-default')); ?>
+                        <?php echo form_submit('submit','Salvar visibilidade',array('class'=>'btn btn-success')); ?>
+                    </div>
+                </div>
+            <?php echo form_close(); ?>
+        <?php break;
             <div class="panel panel-blue">
                 <div class="panel-heading">Recriação de Negativação PF - PEFIN</div>
                 <div class="panel-body">

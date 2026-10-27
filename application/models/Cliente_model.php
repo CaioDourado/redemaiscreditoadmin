@@ -54,6 +54,63 @@ class Cliente_model extends ModelAuth {
         return $cliente!==null ? (int) $cliente->nr1 : false;
     }
 
+    /**
+     * Catalogo dos botoes atualmente exibidos nas tres telas de consultas do
+     * sistema do cliente. Alguns produtos compostos nao possuem uma linha
+     * propria em `consulta`, por isso fazem parte deste catalogo explicito.
+     */
+    public function retornar_catalogo_visibilidade_consultas(){
+        $catalogo = array(
+            'crediticias' => array(
+                'creditoccf' => '+ Credito Cheque Analitica PF', 'creditovarejo' => '+ Credito Varejo PF', 'creditopefin' => '+ Credito Pefin PF', 'creditopefinvarejo' => '+ Credito Pefin + Varejo PF',
+                'creditoscorepluspf' => '+ Credito Score Plus PF', 'creditoscorecompletopf' => '+ Credito CPF Total', 'creditorelatopf' => '+ Credito Relato PF', 'creditobrpf' => '+ Credito BR PF',
+                'creditoprocessospf' => '+ Credito Processos PF', 'creditoscrpf' => '+ Credito SCR PF', 'creditoccfpj' => '+ Credito Cheque Analitica PJ', 'creditovarejopj' => '+ Credito Varejo PJ',
+                'creditopefinpj' => '+ Credito Pefin PJ', 'creditopefinvarejopj' => '+ Credito Pefin + Varejo PJ', 'creditoscorepluspj' => '+ Credito Score Plus PJ', 'creditoscorecompletopj' => '+ Credito CNPJ Total',
+                'creditorelatopj' => '+ Credito Relato PJ', 'creditobrpj' => '+ Credito BR PJ', 'creditoprocessospj' => '+ Credito Processos PJ', 'creditoscrpj' => '+ Credito SCR PJ'
+            ),
+            'cadastrais' => array(
+                'cadastroendereco' => '+ Credito Localiza Endereco por CPF', 'cadastroenderecopj' => '+ Credito Localiza Endereco por CNPJ', 'cadastrocpf' => '+ Credito Localiza CPF/CNPJ por Nome',
+                'cadastrotelefone' => '+ Credito Localizar por Telefone', 'cadastrolocalizaveiculopf' => '+ Credito Localiza Veiculo PF', 'cadastrolocalizaveiculopj' => '+ Credito Localiza Veiculo PJ',
+                'cadastrocep' => '+ Credito Localiza CEP', 'veicularproprietarios' => '+ Credito Localiza Proprietarios', 'cadastroantecedentescriminais' => '+ Credito Antecedentes Criminais'
+            ), 'veiculos' => array()
+        );
+        $catalogo['veiculos']['veicularcrvle'] = '+ Credito Emitir Licenciamento CRLV';
+        $veiculares = $this->db->select('slug, nome')->from('consulta')->group_start()->where_in('id_consulta', array(8, 9, 10, 37, 44, 45))->or_where('slug', 'veicularprecificador')->group_end()->order_by('nome', 'ASC')->get()->result();
+        foreach($veiculares as $veicular){ $catalogo['veiculos'][$veicular->slug] = $veicular->nome; }
+        return $catalogo;
+    }
+
+    public function retornar_consultas_ocultas($id_cliente){
+        $id_cliente = (int) $id_cliente;
+        if($id_cliente<=0 || !$this->db->table_exists('cliente_consulta_visibilidade')) return array();
+        $linhas = $this->db->select('consulta_slug')->from('cliente_consulta_visibilidade')->where('id_cliente_fk', $id_cliente)->where('visivel', 0)->get()->result();
+        $ocultas = array();
+        foreach($linhas as $linha){ $ocultas[$linha->consulta_slug] = true; }
+        return $ocultas;
+    }
+
+    public function salvar_visibilidade_consultas($id_cliente, $catalogo, $slugs_visiveis){
+        $id_cliente = (int) $id_cliente;
+        if($id_cliente<=0 || !$this->db->table_exists('cliente_consulta_visibilidade')) return false;
+        $slugs_catalogo = array();
+        foreach($catalogo as $grupo){ $slugs_catalogo = array_merge($slugs_catalogo, array_keys($grupo)); }
+        $slugs_catalogo = array_values(array_unique($slugs_catalogo));
+        $slugs_visiveis = array_values(array_intersect($slugs_catalogo, (array) $slugs_visiveis));
+        $this->db->trans_start();
+        if(count($slugs_catalogo)>0){
+            $this->db->where('id_cliente_fk', $id_cliente);
+            $this->db->where_in('consulta_slug', $slugs_catalogo);
+            $this->db->delete('cliente_consulta_visibilidade');
+        }
+        foreach($slugs_catalogo as $slug){
+            if(!in_array($slug, $slugs_visiveis, true)){
+                $this->db->insert('cliente_consulta_visibilidade', array('id_cliente_fk'=>$id_cliente, 'consulta_slug'=>$slug, 'visivel'=>0));
+            }
+        }
+        $this->db->trans_complete();
+        return $this->db->trans_status();
+    }
+
     public function retornar_consultores(){
         $this->db->where(array('consultor'=>'1'));
         return $this->db->get('cliente');

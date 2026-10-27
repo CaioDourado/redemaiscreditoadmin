@@ -101,6 +101,7 @@ switch($menu):
     case 'cliente_perfil': ?>
             <?php echo anchor('cliente/alterar/'.$cliente->id_cliente,'Alterar',array('class'=>'item_solto')); ?>
             <?php echo anchor('cliente/produtos_valores/'.$cliente->id_cliente,'Produtos e Valores',array('class'=>'item_solto')); ?>
+            <?php echo anchor('cliente/visibilidade_consultas/'.$cliente->id_cliente,'Visibilidade de Consultas',array('class'=>'item_solto')); ?>
             <?php echo anchor('cliente/gestao_negativacao/'.$cliente->id_cliente,'Gestão de Negativação',array('class'=>'item_solto')); ?>
             <?php //echo anchor('cliente','Voltar',array('class'=>'back')); ?>
         <?php break;

@@ -469,6 +469,39 @@ class Cliente extends ControllerAuth {
         $this->load->view('templates/main_sem_janela',$this->parameters);
     }
 
+    public function visibilidade_consultas(){
+        $id_cliente = $this->verificar_parametro(3,'Não foi informado um cliente válido','cliente');
+        $cliente = $this->cliente->retornar($id_cliente)->row();
+        if($cliente===null){
+            set_msg('Não foi encontrado um cliente válido.');
+            redirect('cliente');
+        }
+
+        $catalogo = $this->cliente->retornar_catalogo_visibilidade_consultas();
+        if($this->input->method(TRUE)==='POST'){
+            $visiveis = $this->input->post('visivel');
+            if($this->cliente->salvar_visibilidade_consultas($id_cliente, $catalogo, $visiveis)){
+                set_msg('Visibilidade das consultas atualizada com sucesso.','sucesso');
+            }else{
+                set_msg('Não foi possível atualizar a visibilidade. Verifique se a atualização do banco de dados foi aplicada.');
+            }
+            redirect('cliente/visibilidade_consultas/'.$id_cliente);
+        }
+
+        array_push($this->parameters['breadcrumb'],array('cliente/perfil/'.$cliente->id_cliente,'Perfil de '.$cliente->nome_ou_fantasia));
+        array_push($this->parameters['breadcrumb'],array('cliente/visibilidade_consultas/'.$cliente->id_cliente,'Visibilidade de Consultas'));
+        $this->parameters['title'] .= ' - Visibilidade de Consultas';
+        $this->parameters['title_window'] .= ' - Visibilidade de Consultas';
+        $this->parameters['menu'] = $this->load->view('components/menu',array('menu'=>'cliente_perfil','cliente'=>$cliente),true);
+        $this->parameters['content'] = $this->load->view('screens/cliente',array(
+            'content'=>'visibilidade_consultas',
+            'cliente'=>$cliente,
+            'catalogo'=>$catalogo,
+            'consultas_ocultas'=>$this->cliente->retornar_consultas_ocultas($id_cliente)
+        ),true);
+        $this->load->view('templates/main_sem_janela',$this->parameters);
+    }
+
     public function remover_valores_personalizados(){
         $id_cliente = $this->verificar_parametro(3,'Não foi informado um cliente válido','cliente');
         if($this->input->method(TRUE)!=='POST'){
