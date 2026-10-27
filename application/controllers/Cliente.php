@@ -499,7 +499,7 @@ class Cliente extends ControllerAuth {
             'catalogo'=>$catalogo,
             'consultas_ocultas'=>$this->cliente->retornar_consultas_ocultas($id_cliente)
         ),true);
-        $this->load->view('templates/main_sem_janela',$this->parameters);
+        $this->load->view('templates/maing',$this->parameters);
     }
 
     public function remover_valores_personalizados(){
