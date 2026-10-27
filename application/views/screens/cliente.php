@@ -1146,6 +1146,7 @@ switch($content):
                 </div>
             <?php echo form_close(); ?>
         <?php break;
+    case 'refazer_negativacaopefinpf': ?>
             <div class="panel panel-blue">
                 <div class="panel-heading">Recriação de Negativação PF - PEFIN</div>
                 <div class="panel-body">
