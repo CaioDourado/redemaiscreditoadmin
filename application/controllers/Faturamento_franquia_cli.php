@@ -75,6 +75,56 @@ class Faturamento_franquia_cli extends CI_Controller{
         $this->remover_lock();
     }
 
+    /**
+     * Recupera boletos que falharam no cron automatico de faturamento administrativo das franquias.
+     * Uso: php index.php faturamento_franquia_cli recuperar_boletos [dry-run|execute] [janela_horas] [limite]
+     */
+    public function recuperar_boletos(){
+        set_time_limit(0);
+        ini_set('memory_limit', '256M');
+
+        $modo = $this->uri->segment(3)==='dry-run' ? 'dry-run' : 'execute';
+        $janela_horas = (int)$this->uri->segment(4);
+        $limite = (int)$this->uri->segment(5);
+        if($janela_horas<=0) $janela_horas = 72;
+        if($janela_horas>168) $janela_horas = 168;
+        if($limite<=0) $limite = 10;
+        if($limite>25) $limite = 25;
+
+        if(!$this->criar_lock()){
+            $this->out('Recuperacao cancelada: ja existe faturamento de franquias em andamento.');
+            return;
+        }
+
+        try{
+            $resumo = $this->novo_resumo_boletos();
+            $resumo['modo'] = $modo;
+            $resumo['janela_horas'] = $janela_horas;
+            $resumo['limite'] = $limite;
+            $faturas = $this->retornar_faturas_franquia_para_recuperacao($janela_horas, $limite);
+            $resumo['candidatas'] = count($faturas);
+
+            foreach($faturas as $fatura){
+                $franquia = $this->retornar_franquia_por_id($fatura->id_franquia_fk);
+                if($franquia===null){
+                    $resumo['erros']++;
+                    $this->auditar('boleto', 'boleto_adm_franquia', 'erro', 'FRANQUIA_NAO_ENCONTRADA', 'Franquia nao encontrada na recuperacao.', 'adm_franquia_fatura', $fatura->id_adm_franquia_fatura);
+                    continue;
+                }
+                $this->gerar_boleto_fatura_franquia($fatura, $franquia, $modo, $resumo);
+            }
+
+            $this->log('Resumo recuperacao boletos franquias: '.$this->json($resumo));
+            $this->out($this->json($resumo));
+        }catch(Exception $e){
+            $this->log('ERRO recuperacao boletos franquias: '.$e->getMessage());
+            $this->auditar('boleto', 'boleto_adm_franquia_recuperacao', 'erro', 'EXCEPTION', $e->getMessage());
+            $this->out('ERRO recuperacao boletos franquias: '.$e->getMessage());
+        }
+
+        $this->remover_lock();
+    }
+
     private function gerar_faturas_franquias($competencia, $vencimento_dia, $modo){
         $resultado = array('total'=>0, 'geradas'=>0, 'duplicadas'=>0, 'erros'=>0, 'valor_total'=>0, 'clientes_total'=>0, 'clientes_valor'=>0, 'itens_total'=>0, 'ids'=>array(), 'detalhes'=>array());
         $franquias = $this->retornar_franquias_adm_faturamento();
@@ -219,6 +269,7 @@ class Faturamento_franquia_cli extends CI_Controller{
         }
 
         $resumo['erros']++;
+        $this->auditar('boleto', 'boleto_adm_franquia', 'erro', isset($resultado['erro']) ? $resultado['erro'] : 'ERRO_DESCONHECIDO', isset($resultado['mensagem']) ? $resultado['mensagem'] : 'Falha ao gerar boleto.', 'adm_franquia_fatura', $fatura->id_adm_franquia_fatura);
         $this->log('ERRO boleto adm franquia fatura='.$fatura->id_adm_franquia_fatura.' erro='.$resultado['erro'].' mensagem='.$resultado['mensagem']);
     }
 
@@ -294,6 +345,25 @@ class Faturamento_franquia_cli extends CI_Controller{
         $this->db->where('valor >', 0);
         $this->db->where('id_boleto_fk IS NULL', null, false);
         return $this->db->get('adm_franquia_fatura')->result();
+    }
+
+    private function retornar_faturas_franquia_para_recuperacao($janela_horas, $limite){
+        $desde = date('Y-m-d H:i:s', strtotime('-'.$janela_horas.' hours'));
+        $tentativa_minima = date('Y-m-d H:i:s', strtotime('-15 minutes'));
+
+        $this->db->select('f.*');
+        $this->db->from('adm_franquia_fatura f');
+        $this->db->where('f.valor >', 0);
+        $this->db->where('f.faturado', 0);
+        $this->db->where('f.id_boleto_fk IS NULL', null, false);
+        // O cron administrativo de franquias roda as 05h; assim a recuperacao nao toca faturas manuais.
+        $this->db->where('HOUR(f.criado_em) = 5', null, false);
+        $this->db->where('f.criado_em >=', $desde);
+        $this->db->where("EXISTS (SELECT 1 FROM adm_auditoria a WHERE a.referencia_tipo = 'adm_franquia_fatura' AND a.referencia_id = f.id_adm_franquia_fatura AND a.area = 'boleto' AND a.acao = 'boleto_adm_franquia' AND a.status = 'erro')", null, false);
+        $this->db->where("NOT EXISTS (SELECT 1 FROM adm_auditoria a2 WHERE a2.referencia_tipo = 'adm_franquia_fatura' AND a2.referencia_id = f.id_adm_franquia_fatura AND a2.area = 'boleto' AND a2.acao = 'boleto_adm_franquia' AND a2.status = 'erro' AND a2.criado_em >= ".$this->db->escape($tentativa_minima).")", null, false);
+        $this->db->order_by('f.criado_em', 'ASC');
+        $this->db->limit($limite);
+        return $this->db->get()->result();
     }
 
     private function fatura_franquia_existe($fatura){

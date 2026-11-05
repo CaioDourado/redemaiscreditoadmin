@@ -133,6 +133,50 @@ class Faturamento_cli extends CI_Controller{
         $this->out($this->json($resumo));
     }
 
+    /**
+     * Recupera apenas boletos que falharam no faturamento automatico da matriz.
+     * Uso: php index.php faturamento_cli recuperar_boletos [dry-run|execute] [janela_horas] [limite]
+     */
+    public function recuperar_boletos(){
+        set_time_limit(0);
+        ini_set('memory_limit', '256M');
+
+        $modo = $this->uri->segment(3)==='dry-run' ? 'dry-run' : 'execute';
+        $janela_horas = (int)$this->uri->segment(4);
+        $limite = (int)$this->uri->segment(5);
+        if($janela_horas<=0) $janela_horas = 72;
+        if($janela_horas>168) $janela_horas = 168;
+        if($limite<=0) $limite = 10;
+        if($limite>25) $limite = 25;
+
+        if(!$this->criar_lock()){
+            $this->out('Recuperacao cancelada: ja existe faturamento em andamento.');
+            return;
+        }
+
+        try{
+            $resumo = $this->novo_resumo_boletos();
+            $resumo['modo'] = $modo;
+            $resumo['janela_horas'] = $janela_horas;
+            $resumo['limite'] = $limite;
+            $faturas = $this->retornar_faturas_matriz_para_recuperacao($janela_horas, $limite);
+            $resumo['candidatas'] = count($faturas);
+
+            foreach($faturas as $fatura){
+                $this->gerar_boleto_fatura_matriz($fatura, $modo, $resumo, 'recuperacao automatica');
+            }
+
+            $this->log('Resumo recuperacao boletos matriz: '.$this->json($resumo));
+            $this->out($this->json($resumo));
+        }catch(Exception $e){
+            $this->log('ERRO recuperacao boletos matriz: '.$e->getMessage());
+            $this->auditar('boleto', 'boleto_matriz_recuperacao', 'erro', 'EXCEPTION', $e->getMessage());
+            $this->out('ERRO recuperacao boletos matriz: '.$e->getMessage());
+        }
+
+        $this->remover_lock();
+    }
+
     private function executar_faturamento($dia_vcto, $competencia, $modo, $gerar_boletos, $escopo='todos', $opcoes_escopo=array()){
         $config_matriz = $this->retornar_configuracao_faturamento_matriz();
         $periodo_matriz = $this->montar_periodo($dia_vcto, $competencia, $config_matriz->tipo_faturamento);
@@ -511,6 +555,7 @@ class Faturamento_cli extends CI_Controller{
         }
 
         $resumo['erros']++;
+        $this->auditar('boleto', 'boleto_matriz', 'erro', isset($resultado['erro']) ? $resultado['erro'] : 'ERRO_DESCONHECIDO', isset($resultado['mensagem']) ? $resultado['mensagem'] : 'Falha ao gerar boleto.', 'fatura', $fatura->id_fatura, array('origem'=>$origem));
         $this->log('ERRO boleto '.$origem.' fatura='.$fatura->id_fatura.' erro='.$resultado['erro'].' mensagem='.$resultado['mensagem']);
         $this->log('boleto '.$origem.' - '.$fatura->id_fatura.' - error');
     }
@@ -758,6 +803,25 @@ class Faturamento_cli extends CI_Controller{
         $this->db->where('f.valor >', 0);
         $this->db->where('f.id_boleto_fk IS NULL', null, false);
         $this->db->where('c.id_franquia_fk', 0);
+        return $this->db->get()->result();
+    }
+
+    private function retornar_faturas_matriz_para_recuperacao($janela_horas, $limite){
+        $desde = date('Y-m-d H:i:s', strtotime('-'.$janela_horas.' hours'));
+        $tentativa_minima = date('Y-m-d H:i:s', strtotime('-15 minutes'));
+
+        $this->db->select('f.*');
+        $this->db->from('fatura f');
+        $this->db->where('f.valor >', 0);
+        $this->db->where('f.faturado', 0);
+        $this->db->where('f.id_boleto_fk IS NULL', null, false);
+        // O cron de matriz e clientes de franquia roda as 04h; assim a recuperacao nao toca faturas manuais.
+        $this->db->where('HOUR(f.criado_em) = 4', null, false);
+        $this->db->where('f.criado_em >=', $desde);
+        $this->db->where("EXISTS (SELECT 1 FROM adm_auditoria a WHERE a.referencia_tipo = 'fatura' AND a.referencia_id = f.id_fatura AND a.area = 'boleto' AND a.acao = 'boleto_matriz' AND a.status = 'erro')", null, false);
+        $this->db->where("NOT EXISTS (SELECT 1 FROM adm_auditoria a2 WHERE a2.referencia_tipo = 'fatura' AND a2.referencia_id = f.id_fatura AND a2.area = 'boleto' AND a2.acao = 'boleto_matriz' AND a2.status = 'erro' AND a2.criado_em >= ".$this->db->escape($tentativa_minima).")", null, false);
+        $this->db->order_by('f.criado_em', 'ASC');
+        $this->db->limit($limite);
         return $this->db->get()->result();
     }
 
